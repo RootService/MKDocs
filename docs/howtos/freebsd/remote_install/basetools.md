@@ -53,11 +53,11 @@ Zu den Voraussetzungen für dieses HowTo siehe bitte: [Remote Installation](/how
 
 ## Einloggen und zu root werden
 
-``` powershell
+```powershell
 putty -ssh -P 2222 -i "${Env:USERPROFILE}\VirtualBox VMs\FreeBSD\ssh\id_ed25519.ppk" admin@127.0.0.1
 ```
 
-``` bash
+```shell
 su - root
 ```
 
@@ -65,7 +65,7 @@ su - root
 
 Wir installieren `security/sudo` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/security_sudo
 cat <<'EOF' > /var/db/ports/security_sudo/options
 --8<-- "ports/security_sudo/options"
@@ -78,7 +78,7 @@ portmaster -w -B -g --force-config security/sudo@default  -n
 Wir konfigurieren `sudo` und erlauben Mitgliedern der Gruppe `wheel` beliebige Kommandos als beliebiger User ohne
 Passwortabfrage auszuführen.
 
-``` bash
+```shell
 cat <<'EOF' > /usr/local/etc/sudoers.d/00_defaults
 ## Uncomment to allow any user to run sudo if they know the password
 ## of the user they are running the command as (root by default).
@@ -103,7 +103,7 @@ chmod 0440 /usr/local/etc/sudoers.d/20_joeuser
 
 Wir installieren `dns/bind-tools` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/devel_fstrm
 cat <<'EOF' > /var/db/ports/devel_fstrm/options
 --8<-- "ports/devel_fstrm/options"
@@ -130,7 +130,7 @@ portmaster -w -B -g --force-config dns/bind-tools  -n
 
 Wir installieren `emulators/qemu@guestagent` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/devel_glib20
 cat <<'EOF' > /var/db/ports/devel_glib20/options
 --8<-- "ports/devel_glib20/options"
@@ -152,7 +152,7 @@ portmaster -w -B -g --force-config emulators/qemu@guestagent  -n
 
 Wir installieren `net/cloud-init` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/comms_py-pyserial
 cat <<'EOF' > /var/db/ports/comms_py-pyserial/options
 --8<-- "ports/comms_py-pyserial/options"
@@ -204,7 +204,7 @@ portmaster -w -B -g --force-config net/cloud-init  -n
 
 Wir installieren `sysutils/smartmontools` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/sysutils_smartmontools
 cat <<'EOF' > /var/db/ports/sysutils_smartmontools/options
 --8<-- "ports/sysutils_smartmontools/options"
@@ -216,7 +216,7 @@ portmaster -w -B -g --force-config sysutils/smartmontools  -n
 
 Wir konfigurieren `smartmontools`.
 
-``` bash
+```shell
 sed 's/^DEVICESCAN/#DEVICESCAN/' /usr/local/etc/smartd.conf.sample > /usr/local/etc/smartd.conf
 echo '/dev/nvme0 -d nvme -a -o on -S on -s (S/../.././02|L/../../6/03)' >> /usr/local/etc/smartd.conf
 echo '/dev/nvme1 -d nvme -a -o on -S on -s (S/../.././02|L/../../6/03)' >> /usr/local/etc/smartd.conf
@@ -227,7 +227,7 @@ sysrc smartd_enable=YES
 
 Die `/etc/periodic.conf` wird um folgenden Inhalt erweitert.
 
-``` bash
+```shell
 cat <<'EOF' >> /etc/periodic.conf
 daily_status_smart_enable="YES"
 daily_status_smart_devices="/dev/nvme0 /dev/nvme1"
@@ -236,13 +236,13 @@ EOF
 
 Wir installieren `security/expiretable` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 portmaster -w -B -g --force-config security/expiretable  -n
 ```
 
 Wir installieren `ftp/wget` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/ftp_wget
 cat <<'EOF' > /var/db/ports/ftp_wget/options
 --8<-- "ports/ftp_wget/options"
@@ -254,7 +254,7 @@ portmaster -w -B -g --force-config ftp/wget  -n
 
 Wir installieren `devel/git@default` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/security_p5-Authen-SASL
 cat <<'EOF' > /var/db/ports/security_p5-Authen-SASL/options
 --8<-- "ports/security_p5-Authen-SASL/options"
@@ -336,7 +336,7 @@ portmaster -w -B -g --force-config devel/git@default  -n
 
 Wir installieren `security/gnupg` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/security_pinentry
 cat <<'EOF' > /var/db/ports/security_pinentry/options
 --8<-- "ports/security_pinentry/options"
@@ -358,7 +358,7 @@ portmaster -w -B -g --force-config security/gnupg  -n
 
 Wir installieren `databases/sqlite3` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/databases_sqlite3
 cat <<'EOF' > /var/db/ports/databases_sqlite3/options
 --8<-- "ports/databases_sqlite3/options"
@@ -370,7 +370,7 @@ portmaster -w -B -g --force-config databases/sqlite3@default  -n
 
 Wir installieren `devel/subversion` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/databases_db5
 cat <<'EOF' > /var/db/ports/databases_db5/options
 --8<-- "ports/databases_db5/options"
@@ -397,7 +397,7 @@ portmaster -w -B -g --force-config devel/subversion  -n
 
 Wir installieren `editors/nano` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/editors_nano
 cat <<'EOF' > /var/db/ports/editors_nano/options
 --8<-- "ports/editors_nano/options"
@@ -426,7 +426,7 @@ einfach mittels `update-ports` ausführen und es erledigt dann folgende Arbeiten
 - Aktualisieren der Ports und Abhängigkeiten mittels portmaster
 - Aufräumen des Portstree und der Distfiles mittels portmaster
 
-``` bash
+```shell
 cat <<'EOF' > /usr/local/sbin/update-ports
 --8<-- "configs/usr/local/sbin/update-ports"
 EOF

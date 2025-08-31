@@ -89,7 +89,7 @@ Sicherheitslücken sinkt dadurch, da wir unnütze Pakete/Ports gar nicht erst al
 Sofern noch nicht geschehen, deaktivieren wir also zuerst das Default-Repository von `pkg`, um versehentlichen
 Installationen von Binary-Paketen durch `pkg` vorzubeugen.
 
-``` bash
+```shell
 mkdir -p /usr/local/etc/pkg/repos
 sed -e 's|quarterly|latest|g' /etc/pkg/FreeBSD.conf > /usr/local/etc/pkg/repos/FreeBSD.conf
 sed -e 's|\(enabled:\)[[:space:]]*yes|\1 no|g' -i '' /usr/local/etc/pkg/repos/FreeBSD.conf
@@ -101,7 +101,7 @@ Portkonfigurationsframeworks `OptionsNG` fest.
 Da wir unsere Nutzdaten weitestgehend unter `/data` ablegen werden, legen wir ein paar hierfür benötigte Verzeichnisse
 an, sofern nicht bereits geschehen.
 
-``` bash
+```shell
 mkdir -p /data
 ```
 
@@ -110,7 +110,7 @@ mkdir -p /data
 Für diese HowTos müssen zuvor folgende DNS-Records angelegt werden, sofern sie noch nicht existieren, oder entsprechend
 geändert werden, sofern sie bereits existieren.
 
-``` dns-zone
+```dns-zone
 example.com.                     IN  A       __IPADDR4__
 example.com.                     IN  AAAA    __IPADDR6__
 
@@ -123,7 +123,7 @@ devnull.example.com.             IN  AAAA    __IPADDR6__
 Es müssen zuerst noch DNS-Records angelegt werden, sofern sie noch nicht existieren, oder entsprechend geändert werden,
 sofern sie bereits existieren.
 
-``` dns-zone
+```dns-zone
 example.com.                     IN  CAA     0 issue "letsencrypt.org"
 example.com.                     IN  CAA     0 issuewild "letsencrypt.org"
 ```
@@ -133,7 +133,7 @@ example.com.                     IN  CAA     0 issuewild "letsencrypt.org"
 Da wir unsere Nutzdaten weitestgehend unter `/data` ablegen werden, legen wir ein paar hierfür benötigte Verzeichnisse
 an, sofern nicht bereits geschehen.
 
-``` bash
+```shell
 mkdir -p /data/db
 ```
 
@@ -142,7 +142,7 @@ mkdir -p /data/db
 Es müssen zuerst noch DNS-Records angelegt werden, sofern sie noch nicht existieren, oder entsprechend geändert werden,
 sofern sie bereits existieren.
 
-``` dns-zone
+```dns-zone
 www.example.com.                 IN  A       __IPADDR4__
 www.example.com.                 IN  AAAA    __IPADDR6__
 ```
@@ -150,7 +150,7 @@ www.example.com.                 IN  AAAA    __IPADDR6__
 Da wir unsere Nutzdaten weitestgehend unter `/data` ablegen werden, legen wir ein paar hierfür benötigte Verzeichnisse
 an, sofern nicht bereits geschehen.
 
-``` bash
+```shell
 mkdir -p /data/www
 ```
 
@@ -159,7 +159,7 @@ mkdir -p /data/www
 Es müssen zuerst noch DNS-Records angelegt werden, sofern sie noch nicht existieren, oder entsprechend geändert werden,
 sofern sie bereits existieren.
 
-``` dns-zone
+```dns-zone
 example.com.                     IN  MX  10  mail.example.com.
 
 mail.example.com.                IN  A       __IPADDR4__
@@ -183,7 +183,7 @@ _adsp._domainkey.example.com.    IN  TXT     "dkim=all"
 Wir benötigen für unsere Nutzdaten einen eigenen Systembenutzer `vmail`, welchen wir nun anlegen, sofern nicht bereits
 geschehen.
 
-``` bash
+```shell
 pw groupadd -n vmail -g 5000
 pw useradd -n vmail -u 5000 -g vmail -c 'Virtual Mailuser' -d /nonexistent -s /usr/sbin/nologin -w no
 
@@ -194,7 +194,7 @@ pw useradd -n vacation -u 65501 -g vacation -c 'Vacation Notice' -d /nonexistent
 Da wir unsere Nutzdaten weitestgehend unter `/data` ablegen werden, legen wir ein paar hierfür benötigte Verzeichnisse
 an, sofern nicht bereits geschehen.
 
-``` bash
+```shell
 mkdir -p /data/vmail
 chmod 0750 /data/vmail
 chown vmail:vmail /data/vmail

@@ -41,7 +41,7 @@ Zu den Voraussetzungen für dieses HowTo siehe bitte: [Hosting System](/howtos/f
 
 Wir installieren `mail/postfix` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/mail_postfix
 cat <<'EOF' > /var/db/ports/mail_postfix/options
 --8<-- "ports/mail_postfix/options"
@@ -62,7 +62,7 @@ install -m 0644 /usr/local/share/postfix/mailer.conf.postfix /usr/local/etc/mail
 
 `main.cf` einrichten.
 
-``` bash
+```shell
 cat <<'EOF' > /usr/local/etc/postfix/main.cf
 --8<-- "configs/usr/local/etc/postfix/main.cf"
 EOF
@@ -80,7 +80,7 @@ ifconfig -u -f cidr `route -n get -inet6 default | awk '/interface/ {print $2}'`
 
 `master.cf` einrichten.
 
-``` bash
+```shell
 cat <<'EOF' > /usr/local/etc/postfix/master.cf
 --8<-- "configs/usr/local/etc/postfix/master.cf"
 EOF
@@ -88,7 +88,7 @@ EOF
 
 `pgsql/*.cf` einrichten.
 
-``` bash
+```shell
 mkdir -p /usr/local/etc/postfix/pgsql
 
 cat <<'EOF' > /usr/local/etc/postfix/pgsql/recipient_bcc_maps.cf
@@ -154,7 +154,7 @@ chown root:postfix /usr/local/etc/postfix/pgsql/*.cf
 
 Restriktionen einrichten.
 
-``` bash
+```shell
 cp -a /etc/mail/aliases /usr/local/etc/postfix/aliases
 
 cat <<'EOF' > /usr/local/etc/postfix/postscreen_access.cidr
@@ -230,7 +230,7 @@ postmap /usr/local/etc/postfix/mx_access
 
 Abschliessende Arbeiten.
 
-``` bash
+```shell
 portmaster -w -B -g --force-config dns/rubygem-dnsruby  -n
 portmaster -w -B -g --force-config net/rubygem-ipaddress  -n
 portmaster -w -B -g --force-config devel/rubygem-optparse  -n
@@ -247,7 +247,7 @@ chmod 0755 /usr/local/etc/postfix/postscreen_whitelist.rb
 
 Wir installieren `mail/libmilter` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/mail_libmilter
 cat <<'EOF' > /var/db/ports/mail_libmilter/options
 --8<-- "ports/mail_libmilter/options"
@@ -259,7 +259,7 @@ portmaster -w -B -g --force-config mail/libmilter  -n
 
 Wir installieren `mail/py-spf-engine` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/devel_py-anyio
 cat <<'EOF' > /var/db/ports/devel_py-anyio/options
 --8<-- "ports/devel_py-anyio/options"
@@ -323,6 +323,6 @@ service pyspf-milter start
 
 Postfix kann nun gestartet werden.
 
-``` bash
+```shell
 service postfix start
 ```

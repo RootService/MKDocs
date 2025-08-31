@@ -131,11 +131,11 @@ bitte ein paar Wochen Zeit und lerne daraus so viel wie irgend möglich, Du wirs
 wissen. Danach solltest Du Deine Shellkenntnisse stark erweitern, denn die Shell wird Dein schweizer Taschenmesser
 werden. Auch zu diesem Thema haben wir eine sehr empfehlenswerte und umfangreiche Informationsquelle, nämlich den
 [Advanced Bash-Scripting Guide](https://www.tldp.org/LDP/abs/html/){: target="_blank" rel="noopener"}. Weitere gute
-HowTos findest Du unter Anderem beim [Linux Documentation Project](https://www.tldp.org/HOWTO/HOWTO-INDEX/index.html){:
-target="_blank" rel="noopener"} und den diversen Projektseiten der Linux-Distributionen. Stellvertretend für Letztere
-seien an dieser Stelle die [Gentoo Linux Documentation Resources](https://www.gentoo.org/support/documentation/){:
-target="_blank" rel="noopener"}, die [openSUSE Documentation](https://doc.opensuse.org/){: target="_blank"
-rel="noopener"} und die [Debian Documentation](https://debian.org/doc/){: target="_blank" rel="noopener"} genannt.
+HowTos findest Du unter Anderem beim [Linux Documentation Project](https://www.tldp.org/HOWTO/HOWTO-INDEX/index.html){: target="_blank" rel="noopener"}
+und den diversen Projektseiten der Linux-Distributionen. Stellvertretend für Letztere seien an dieser Stelle die
+[Gentoo Linux Documentation Resources](https://www.gentoo.org/support/documentation/){: target="_blank" rel="noopener"},
+die [openSUSE Documentation](https://doc.opensuse.org/){: target="_blank" rel="noopener"} und die
+[Debian Documentation](https://debian.org/doc/){: target="_blank" rel="noopener"} genannt.
 
 ### Wo fange ich mit dem Üben an?
 
@@ -187,11 +187,8 @@ Abschliessend möchten wir noch auf weitere Entscheidungshilfen verweisen, denn 
 das Thema Pro und Contra dedizierter Server nicht alleine da und haben vermutlich auch nicht alle Aspekte ausreichend
 berücksichtigt. Die Nachfolgende Auflistung erhebt dabei keinen Anspruch auf Vollständigkeit:
 
-- [Missverständnisse über dedizierte
-root-Server](https://wiki.hostsharing.net/index.php?title=Missverst%C3%A4ndnisse_%C3%BCber_dedizierte_root-Server){:
-target="_blank" rel="noopener"}
-- [Rootserver Checkliste](https://wiki.hostsharing.net/index.php?title=Rootserver_Checkliste){: target="_blank"
-rel="noopener"}
+- [Missverständnisse über dedizierte root-Server](https://wiki.hostsharing.net/index.php?title=Missverst%C3%A4ndnisse_%C3%BCber_dedizierte_root-Server){: target="_blank" rel="noopener"}
+- [Rootserver Checkliste](https://wiki.hostsharing.net/index.php?title=Rootserver_Checkliste){: target="_blank" rel="noopener"}
 - [Admins haften für ihre Server](https://serverzeit.de/tutorials/admins-haften){: target="_blank" rel="noopener"}
 - [Dein neuer Linux-Server](https://breadfish.de/thread/3568-dein-neuer-linux-server/){: target="_blank" rel="noopener"}
 

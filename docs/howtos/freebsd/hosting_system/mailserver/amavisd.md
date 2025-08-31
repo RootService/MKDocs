@@ -41,7 +41,7 @@ Zu den Voraussetzungen für dieses HowTo siehe bitte: [Hosting System](/howtos/f
 
 Wir installieren `security/amavisd-new` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/archivers_7-zip
 cat <<'EOF' > /var/db/ports/archivers_7-zip/options
 --8<-- "ports/archivers_7-zip/options"
@@ -101,8 +101,13 @@ sysrc amavisd_pidfile="/var/amavis/var/amavisd.pid"
 sysrc amavis_milter_enable="YES"
 sysrc amavis_p0fanalyzer_enable="YES"
 sysrc amavis_p0fanalyzer_p0f_filter="tcp dst port 25"
+```
+
+Datenbanken installieren.
 
 
+```shell
+mkdir -p /data/db/postgres
 
 cat <<'EOF' > /tmp/amavisd_mail_prefs_shema.sql
 CREATE TABLE policy (
@@ -368,7 +373,7 @@ exit
 
 `amavisd.conf` einrichten.
 
-``` bash
+```shell
 cat <<'EOF' > /usr/local/etc/amavisd.conf
 --8<-- "configs/usr/local/etc/amavisd.conf"
 EOF
@@ -400,7 +405,7 @@ amavisd showkeys
 
 Amavisd kann nun gestartet werden.
 
-``` bash
+```shell
 service amavisd start
 service amavis_p0fanalyzer start
 ```

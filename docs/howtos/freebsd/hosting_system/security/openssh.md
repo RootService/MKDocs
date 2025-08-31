@@ -41,7 +41,7 @@ Zu den Voraussetzungen für dieses HowTo siehe bitte: [Hosting System](/howtos/f
 
 Wir installieren `security/openssh-portable` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/dns_ldns
 cat <<'EOF' > /var/db/ports/dns_ldns/options
 --8<-- "ports/dns_ldns/options"
@@ -70,7 +70,7 @@ sysrc openssh_enable=YES
 
 Wir konfigurieren OpenSSH:
 
-``` bash
+```shell
 cat <<'EOF' > /usr/local/etc/ssh/sshd_config
 --8<-- "configs/usr/local/etc/ssh/sshd_config"
 EOF
@@ -88,6 +88,6 @@ ssh-keygen -l -f "/usr/local/etc/ssh/ssh_host_ed25519_key.pub"
 
 OpenSSH kann nun gestartet werden.
 
-``` bash
+```shell
 service openssh start
 ```

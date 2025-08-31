@@ -1,14 +1,14 @@
 # Contributing
 
 ## Setup
-```bash
+```shell
 python -m venv .venv && . .venv/bin/activate
 pip install -r requirements-dev.txt
 pre-commit install
 ```
 
 ## Build
-```bash
+```shell
 mkdocs build --strict
 CSP_ENV=preview python tools/update_server_headers.py
 ```

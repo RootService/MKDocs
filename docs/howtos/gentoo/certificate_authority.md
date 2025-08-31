@@ -52,7 +52,7 @@ sind selbstständig im DNS zu registrieren.
 
 Verzeichnisstruktur anlegen und RANDFILE sowie EC-Params und DH-Params erzeugen.
 
-``` bash
+```shell
 mkdir -p /data/pki/{ca,certs,crl,etc,newcerts,private,revoked}
 chmod 0700 /data/pki/private
 openssl rand -out /data/pki/private/.rand 65536
@@ -68,7 +68,7 @@ openssl genpkey -genparam -algorithm EC -pkeyopt ec_paramgen_curve:secp384r1 -ou
 Sofern noch nicht während der [Remote Installation](/howtos/gentoo/remote_install/) erledigt, müssen folgende Optionen
 in der `/etc/ssl/openssl.cnf` im Abschnitt `[ req_distinguished_name ]` angepasst beziehungsweise ergänzt werden.
 
-``` text
+```text
 countryName_default             = DE
 stateOrProvinceName_default     = Bundesland
 localityName_default            = Ort
@@ -79,21 +79,21 @@ emailAddress_default            = admin@example.com
 
 Folgende Optionen müssen im Abschnitt `[ CA_default ]` angepasst werden.
 
-``` text
+```text
 default_days            = 730
 default_md              = sha256
 ```
 
 Folgende Optionen müssen im Abschnitt `[ req ]` angepasst werden.
 
-``` text
+```text
 default_bits            = 4096
 string_mask             = utf8only
 ```
 
 DH Param Files erzeugen
 
-``` bash
+```shell
 openssl genpkey -genparam -algorithm DH -pkeyopt dh_paramgen_prime_len:4096 -out /etc/ssl/dh_params.pem
 openssl genpkey -genparam -algorithm EC -pkeyopt ec_paramgen_curve:secp384r1 -out /etc/ssl/ec_params.pem
 ```
@@ -116,7 +116,7 @@ der Root CA gesetzt werden.
 gesetzt werden.
 1. Im Abschnitt `[ additional_oids ]` müssen die OIDs entsprechend der eigenen registrierten OIDs ersetzt werden.
 
-``` bash
+```shell
 cd /data/pki
 
 cat > etc/root-ca.conf << "EOF"
@@ -237,7 +237,7 @@ mediumAssuranceDevice   = Medium Device Assurance, 1.3.6.1.4.1.0.1.7.9
 Verzeichnisstruktur anlegen, RANDFILE erzeugen, zufälligen Startwert für die späteren Serialnummern festlegen und
 Indexfile anlegen.
 
-``` bash
+```shell
 mkdir -p ca/root-ca/{certs,crl,newcerts,private,revoked}
 chmod 0700 ca/root-ca/private
 openssl rand -out ca/root-ca/private/.rand 65536
@@ -249,14 +249,14 @@ touch ca/root-ca/index.txt ca/root-ca/index.txt.attr
 Zufälliges, sicheres Passwort für das Zertifikat erzeugen und zur späteren (automatisierten) Verwendung in der .pwd
 speichern.
 
-``` bash
+```shell
 openssl rand -hex 64 | openssl passwd -5 -stdin | tr -cd '[[:print:]]' | cut -c 2-17 \
     > ca/root-ca/private/root-ca.pwd
 ```
 
 Privaten Schlüssel (RSA mit 4096 Bit Länge und AES256 verschlüsselt) zum Signieren des Zertifikats erzeugen.
 
-``` bash
+```shell
 openssl genpkey \
     -aes-256-cbc \
     -algorithm RSA \
@@ -267,7 +267,7 @@ openssl genpkey \
 
 Zertifikatsanforderung erzeugen und mit dem privaten Schlüssel signieren.
 
-``` bash
+```shell
 openssl req \
     -config etc/root-ca.conf \
     -new \
@@ -280,7 +280,7 @@ openssl req \
 Durch die Root CA selbstsigniertes Zertifikat für die Root CA erzeugen. Die Gültigkeitsdauer wird auf 5 Jahre ab dem 1.
 des aktuellen Monats festgelegt.
 
-``` bash
+```shell
 openssl ca \
     -config etc/root-ca.conf \
     -batch \
@@ -296,7 +296,7 @@ openssl ca \
 
 Initiale CRL der Root CA erzeugen.
 
-``` bash
+```shell
 openssl ca \
     -config etc/root-ca.conf \
     -gencrl \
@@ -307,7 +307,7 @@ openssl ca \
 
 Zertifikat in ein veröffentlichbares Format exportieren.
 
-``` bash
+```shell
 openssl x509 \
     -in ca/root-ca/cacert.pem \
     -out ca/root-ca.cer \
@@ -316,7 +316,7 @@ openssl x509 \
 
 CRL in ein veröffentlichbares Format exportieren.
 
-``` bash
+```shell
 openssl crl \
     -in ca/root-ca/crl.pem \
     -out ca/root-ca.crl \
@@ -339,7 +339,7 @@ der Network CA gesetzt werden.
 CA") gesetzt werden.
 1. Im Abschnitt `[ additional_oids ]` müssen die OIDs entsprechend der eigenen registrierten OIDs ersetzt werden.
 
-``` bash
+```shell
 cd /data/pki
 
 cat > etc/network-ca.conf << "EOF"
@@ -463,7 +463,7 @@ mediumAssuranceDevice   = Medium Device Assurance, 1.3.6.1.4.1.0.1.7.9
 Verzeichnisstruktur anlegen, RANDFILE erzeugen, zufälligen Startwert für die späteren Serialnummern festlegen und
 Indexfile anlegen.
 
-``` bash
+```shell
 mkdir -p ca/network-ca/{certs,crl,newcerts,private,revoked}
 chmod 0700 ca/network-ca/private
 openssl rand -out ca/network-ca/private/.rand 65536
@@ -475,14 +475,14 @@ touch ca/network-ca/index.txt ca/network-ca/index.txt.attr
 Zufälliges, sicheres Passwort für das Zertifikat erzeugen und zur späteren (automatisierten) Verwendung in der .pwd
 speichern.
 
-``` bash
+```shell
 openssl rand -hex 64 | openssl passwd -5 -stdin | tr -cd '[[:print:]]' | cut -c 2-17 \
     > ca/network-ca/private/network-ca.pwd
 ```
 
 Privaten Schlüssel (RSA mit 4096 Bit Länge und AES256 verschlüsselt) zum Signieren des Zertifikats erzeugen.
 
-``` bash
+```shell
 openssl genpkey \
     -aes-256-cbc \
     -algorithm RSA \
@@ -493,7 +493,7 @@ openssl genpkey \
 
 Zertifikatsanforderung erzeugen und mit dem privaten Schlüssel signieren.
 
-``` bash
+```shell
 openssl req \
     -config etc/network-ca.conf \
     -new \
@@ -506,7 +506,7 @@ openssl req \
 Durch die Root CA signiertes Zertifikat für die Network CA erzeugen. Die Gültigkeitsdauer wird auf 5 Jahre ab dem 1.
 des aktuellen Monats festgelegt.
 
-``` bash
+```shell
 openssl ca \
     -config etc/root-ca.conf \
     -batch \
@@ -521,7 +521,7 @@ openssl ca \
 
 Initiale CRL der Network CA erzeugen.
 
-``` bash
+```shell
 openssl ca \
     -config etc/network-ca.conf \
     -gencrl \
@@ -532,7 +532,7 @@ openssl ca \
 
 Zertifikat in ein veröffentlichbares Format exportieren.
 
-``` bash
+```shell
 openssl x509 \
     -in ca/network-ca/cacert.pem \
     -out ca/network-ca.cer \
@@ -541,7 +541,7 @@ openssl x509 \
 
 CRL in ein veröffentlichbares Format exportieren.
 
-``` bash
+```shell
 openssl crl \
     -in ca/network-ca/crl.pem \
     -out ca/network-ca.crl \
@@ -550,14 +550,14 @@ openssl crl \
 
 Chain der Network CA erzeugen.
 
-``` bash
+```shell
 cat ca/network-ca/crl.pem ca/root-ca/crl.pem > ca/network-ca-crl-chain.pem
 cat ca/network-ca/cacert.pem ca/root-ca/cacert.pem > ca/network-ca-chain.pem
 ```
 
 Chain der Network CA in ein veröffentlichbares Format exportieren.
 
-``` bash
+```shell
 openssl crl2pkcs7 \
     -nocrl \
     -certfile ca/network-ca-chain.pem \
@@ -581,7 +581,7 @@ der Identity CA gesetzt werden.
 Identity CA") gesetzt werden.
 1. Im Abschnitt `[ additional_oids ]` müssen die OIDs entsprechend der eigenen registrierten OIDs ersetzt werden.
 
-``` bash
+```shell
 cd /data/pki
 
 cat > etc/identity-ca.conf << "EOF"
@@ -707,7 +707,7 @@ mediumAssuranceDevice   = Medium Device Assurance, 1.3.6.1.4.1.0.1.7.9
 Verzeichnisstruktur anlegen, RANDFILE erzeugen, zufälligen Startwert für die späteren Serialnummern festlegen und
 Indexfile anlegen.
 
-``` bash
+```shell
 mkdir -p ca/identity-ca/{certs,crl,newcerts,private,revoked}
 chmod 0700 ca/identity-ca/private
 openssl rand -out ca/identity-ca/private/.rand 65536
@@ -719,14 +719,14 @@ touch ca/identity-ca/index.txt ca/identity-ca/index.txt.attr
 Zufälliges, sicheres Passwort für das Zertifikat erzeugen und zur späteren (automatisierten) Verwendung in der .pwd
 speichern.
 
-``` bash
+```shell
 openssl rand -hex 64 | openssl passwd -5 -stdin | tr -cd '[[:print:]]' | cut -c 2-17 \
     > ca/identity-ca/private/identity-ca.pwd
 ```
 
 Privaten Schlüssel (RSA mit 4096 Bit Länge und AES256 verschlüsselt) zum Signieren des Zertifikats erzeugen.
 
-``` bash
+```shell
 openssl genpkey \
     -aes-256-cbc \
     -algorithm RSA \
@@ -737,7 +737,7 @@ openssl genpkey \
 
 Zertifikatsanforderung erzeugen und mit dem privaten Schlüssel signieren.
 
-``` bash
+```shell
 openssl req \
     -config etc/identity-ca.conf \
     -new \
@@ -750,7 +750,7 @@ openssl req \
 Durch die Network CA signiertes Zertifikat für die Identity CA erzeugen. Die Gültigkeitsdauer wird auf 5 Jahre ab dem
 1. des aktuellen Monats festgelegt.
 
-``` bash
+```shell
 openssl ca \
     -config etc/network-ca.conf \
     -batch \
@@ -765,7 +765,7 @@ openssl ca \
 
 Initiale CRL der Identity CA erzeugen.
 
-``` bash
+```shell
 openssl ca \
     -config etc/identity-ca.conf \
     -gencrl \
@@ -776,7 +776,7 @@ openssl ca \
 
 Zertifikat in ein veröffentlichbares Format exportieren.
 
-``` bash
+```shell
 openssl x509 \
     -in ca/identity-ca/cacert.pem \
     -out ca/identity-ca.cer \
@@ -785,7 +785,7 @@ openssl x509 \
 
 CRL in ein veröffentlichbares Format exportieren.
 
-``` bash
+```shell
 openssl crl \
     -in ca/identity-ca/crl.pem \
     -out ca/identity-ca.crl \
@@ -794,14 +794,14 @@ openssl crl \
 
 Chain der Identity CA erzeugen.
 
-``` bash
+```shell
 cat ca/identity-ca/crl.pem ca/network-ca/crl.pem > ca/identity-ca-crl-chain.pem
 cat ca/identity-ca/cacert.pem ca/network-ca/cacert.pem > ca/identity-ca-chain.pem
 ```
 
 Chain der Identity CA in ein veröffentlichbares Format exportieren.
 
-``` bash
+```shell
 openssl crl2pkcs7 \
     -nocrl \
     -certfile ca/identity-ca-chain.pem \
@@ -827,7 +827,7 @@ der Component CA gesetzt werden.
 Component CA") gesetzt werden.
 1. Im Abschnitt `[ additional_oids ]` müssen die OIDs entsprechend der eigenen registrierten OIDs ersetzt werden.
 
-``` bash
+```shell
 cd /data/pki
 
 cat > etc/component-ca.conf << "EOF"
@@ -980,7 +980,7 @@ mediumAssuranceDevice   = Medium Device Assurance, 1.3.6.1.4.1.0.1.7.9
 Verzeichnisstruktur anlegen, RANDFILE erzeugen, zufälligen Startwert für die späteren Serialnummern festlegen und
 Indexfile anlegen.
 
-``` bash
+```shell
 mkdir -p ca/component-ca/{certs,crl,newcerts,private,revoked}
 chmod 0700 ca/component-ca/private
 openssl rand -out ca/component-ca/private/.rand 65536
@@ -992,14 +992,14 @@ touch ca/component-ca/index.txt ca/component-ca/index.txt.attr
 Zufälliges, sicheres Passwort für das Zertifikat erzeugen und zur späteren (automatisierten) Verwendung in der .pwd
 speichern.
 
-``` bash
+```shell
 openssl rand -hex 64 | openssl passwd -5 -stdin | tr -cd '[[:print:]]' | cut -c 2-17 \
     > ca/component-ca/private/component-ca.pwd
 ```
 
 Privaten Schlüssel (RSA mit 4096 Bit Länge und AES256 verschlüsselt) zum Signieren des Zertifikats erzeugen.
 
-``` bash
+```shell
 openssl genpkey \
     -aes-256-cbc \
     -algorithm RSA \
@@ -1010,7 +1010,7 @@ openssl genpkey \
 
 Zertifikatsanforderung erzeugen und mit dem privaten Schlüssel signieren.
 
-``` bash
+```shell
 openssl req \
     -config etc/component-ca.conf \
     -new \
@@ -1023,7 +1023,7 @@ openssl req \
 Durch die Network CA signiertes Zertifikat für die Component CA erzeugen. Die Gültigkeitsdauer wird auf 5 Jahre ab dem
 1. des aktuellen Monats festgelegt.
 
-``` bash
+```shell
 openssl ca \
     -config etc/network-ca.conf \
     -batch \
@@ -1038,7 +1038,7 @@ openssl ca \
 
 Initiale CRL der Component CA erzeugen.
 
-``` bash
+```shell
 openssl ca \
     -config etc/component-ca.conf \
     -gencrl \
@@ -1049,7 +1049,7 @@ openssl ca \
 
 Zertifikat in ein veröffentlichbares Format exportieren.
 
-``` bash
+```shell
 openssl x509 \
     -in ca/component-ca/cacert.pem \
     -out ca/component-ca.cer \
@@ -1058,7 +1058,7 @@ openssl x509 \
 
 CRL in ein veröffentlichbares Format exportieren.
 
-``` bash
+```shell
 openssl crl \
     -in ca/component-ca/crl.pem \
     -out ca/component-ca.crl \
@@ -1067,14 +1067,14 @@ openssl crl \
 
 Chain der Component CA erzeugen.
 
-``` bash
+```shell
 cat ca/component-ca/crl.pem ca/network-ca/crl.pem > ca/component-ca-crl-chain.pem
 cat ca/component-ca/cacert.pem ca/network-ca/cacert.pem > ca/component-ca-chain.pem
 ```
 
 Chain der Component CA in ein veröffentlichbares Format exportieren.
 
-``` bash
+```shell
 openssl crl2pkcs7 \
     -nocrl -certfile ca/component-ca-chain.pem \
     -out ca/component-ca-chain.p7c \
@@ -1089,7 +1089,7 @@ ansonsten ungültig werden und manche Clients deshalb auch die Zertifikate als u
 Um diesen Zustand gar nicht erst entstehen zu lassen, legen wir uns ein passendes Script an und automatisieren dessen
 Ausführung (täglich 06:00 Uhr) per `cron`.
 
-``` bash
+```shell
 cd /data/pki
 
 cat > update-crls-chains.sh << "EOF"
@@ -1195,7 +1195,7 @@ chmod 0755 update-crls-chains.sh
 
 Cronjob für `update-crls-chains.sh` anlegen.
 
-``` bash
+```shell
 cat >> /etc/crontab << "EOF"
 0       6       *       *       *       root    /data/pki/update-crls-chains.sh
 "EOF"
@@ -1205,7 +1205,7 @@ cat >> /etc/crontab << "EOF"
 
 #### Identity Certificate erstellen
 
-``` bash
+```shell
 cd /data/pki
 
 cat > etc/identity.conf << "EOF"
@@ -1280,14 +1280,14 @@ subjectAltName          = email:move
 Zufälliges, sicheres Passwort für das Zertifikat erzeugen und zur späteren (automatisierten) Verwendung in der .pwd
 speichern.
 
-``` bash
+```shell
 openssl rand -hex 64 | openssl passwd -5 -stdin | tr -cd '[[:print:]]' | cut -c 2-17 \
     > private/admin-id.pwd
 ```
 
 Privaten Schlüssel (RSA mit 4096 Bit Länge und AES256 verschlüsselt) zum Signieren des Zertifikats erzeugen.
 
-``` bash
+```shell
 openssl genpkey \
     -aes-256-cbc \
     -algorithm RSA \
@@ -1298,7 +1298,7 @@ openssl genpkey \
 
 Zertifikatsanforderung erzeugen und mit dem privaten Schlüssel signieren.
 
-``` bash
+```shell
 openssl req \
     -config etc/identity.conf \
     -new \
@@ -1312,7 +1312,7 @@ openssl req \
 Durch die Identity CA signiertes Zertifikat erzeugen. Die Gültigkeitsdauer wird auf 2 Jahre ab dem 1. des aktuellen
 Monats festgelegt.
 
-``` bash
+```shell
 openssl ca \
     -config etc/identity-ca.conf \
     -batch \
@@ -1327,7 +1327,7 @@ openssl ca \
 
 Zertifikat in ein veröffentlichbares Format exportieren.
 
-``` bash
+```shell
 openssl pkcs12 \
     -export \
     -aes256 \
@@ -1345,14 +1345,14 @@ openssl pkcs12 \
 Zufälliges, sicheres Passwort für das Zertifikat erzeugen und zur späteren (automatisierten) Verwendung in der .pwd
 speichern.
 
-``` bash
+```shell
 openssl rand -hex 64 | openssl passwd -5 -stdin | tr -cd '[[:print:]]' | cut -c 2-17 \
     > private/admin-enc.pwd
 ```
 
 Privaten Schlüssel (RSA mit 4096 Bit Länge und AES256 verschlüsselt) zum Signieren des Zertifikats erzeugen.
 
-``` bash
+```shell
 openssl genpkey \
     -aes-256-cbc \
     -algorithm RSA \
@@ -1363,7 +1363,7 @@ openssl genpkey \
 
 Zertifikatsanforderung erzeugen und mit dem privaten Schlüssel signieren.
 
-``` bash
+```shell
 openssl req \
     -config etc/encryption.conf \
     -new \
@@ -1377,7 +1377,7 @@ openssl req \
 Durch die Identity CA signiertes Zertifikat erzeugen. Die Gültigkeitsdauer wird auf 2 Jahre ab dem 1. des aktuellen
 Monats festgelegt.
 
-``` bash
+```shell
 openssl ca \
     -config etc/identity-ca.conf \
     -batch \
@@ -1392,7 +1392,7 @@ openssl ca \
 
 Zertifikat in ein veröffentlichbares Format exportieren.
 
-``` bash
+```shell
 openssl pkcs12 \
     -export \
     -aes256 \
@@ -1409,7 +1409,7 @@ openssl pkcs12 \
 
 #### TLS Client Certificate erstellen
 
-``` bash
+```shell
 cd /data/pki
 
 cat > etc/tls-client.conf << "EOF"
@@ -1447,14 +1447,14 @@ subjectKeyIdentifier    = hash
 Zufälliges, sicheres Passwort für das Zertifikat erzeugen und zur späteren (automatisierten) Verwendung in der .pwd
 speichern.
 
-``` bash
+```shell
 openssl rand -hex 64 | openssl passwd -5 -stdin | tr -cd '[[:print:]]' | cut -c 2-17 \
     > private/workstation.pwd
 ```
 
 Privaten Schlüssel (RSA mit 4096 Bit Länge und AES256 verschlüsselt) zum Signieren des Zertifikats erzeugen.
 
-``` bash
+```shell
 openssl genpkey \
     -aes-256-cbc \
     -algorithm RSA \
@@ -1465,7 +1465,7 @@ openssl genpkey \
 
 Zertifikatsanforderung erzeugen und mit dem privaten Schlüssel signieren.
 
-``` bash
+```shell
 openssl req \
     -config etc/tls-client.conf \
     -new \
@@ -1479,7 +1479,7 @@ openssl req \
 Durch die Component CA signiertes Zertifikat erzeugen. Die Gültigkeitsdauer wird auf 2 Jahre ab dem 1. des aktuellen
 Monats festgelegt.
 
-``` bash
+```shell
 openssl ca \
     -config etc/component-ca.conf \
     -batch \
@@ -1499,7 +1499,7 @@ In der `etc/tls-server.conf` müssen noch ein paar Anpassungen vorgenommen werde
 1. Im Abschnitt `[ default ]` muss die Option `SAN` auf den Domainnamen (ohne Subdomain) des Serverbetreibers gesetzt
 werden.
 
-``` bash
+```shell
 cd /data/pki
 
 cat > etc/tls-server.conf << "EOF"
@@ -1543,14 +1543,14 @@ subjectAltName          = $ENV::SAN
 Zufälliges, sicheres Passwort für das Zertifikat erzeugen und zur späteren (automatisierten) Verwendung in der .pwd
 speichern.
 
-``` bash
+```shell
 openssl rand -hex 64 | openssl passwd -5 -stdin | tr -cd '[[:print:]]' | cut -c 2-17 \
     > private/devnull.example.com.pwd
 ```
 
 Privaten Schlüssel (RSA mit 4096 Bit Länge und AES256 verschlüsselt) zum Signieren des Zertifikats erzeugen.
 
-``` bash
+```shell
 openssl genpkey \
     -aes-256-cbc \
     -algorithm RSA \
@@ -1561,7 +1561,7 @@ openssl genpkey \
 
 Zertifikatsanforderung erzeugen und mit dem privaten Schlüssel signieren.
 
-``` bash
+```shell
 setenv SAN "DNS:devnull.example.com"
 openssl req \
     -config etc/tls-server.conf \
@@ -1577,7 +1577,7 @@ unsetenv SAN
 Durch die Component CA signiertes Zertifikat erzeugen. Die Gültigkeitsdauer wird auf 2 Jahre ab dem 1. des aktuellen
 Monats festgelegt.
 
-``` bash
+```shell
 openssl ca \
     -config etc/component-ca.conf \
     -batch \
@@ -1593,7 +1593,7 @@ openssl ca \
 Eine passwortlose Kopie des privaten Schlüssels anlegen, wie sie zum problemlosen Starten von Diensten wie Webserver,
 Mailserver, etc benötigt wird.
 
-``` bash
+```shell
 openssl pkey \
     -in private/devnull.example.com.key.enc \
     -out private/devnull.example.com.key \
@@ -1603,14 +1603,14 @@ openssl pkey \
 Zufälliges, sicheres Passwort für das Zertifikat erzeugen und zur späteren (automatisierten) Verwendung in der .pwd
 speichern.
 
-``` bash
+```shell
 openssl rand -hex 64 | openssl passwd -5 -stdin | tr -cd '[[:print:]]' | cut -c 2-17 \
     > private/mail.example.com.pwd
 ```
 
 Privaten Schlüssel (RSA mit 4096 Bit Länge und AES256 verschlüsselt) zum Signieren des Zertifikats erzeugen.
 
-``` bash
+```shell
 openssl genpkey \
     -aes-256-cbc \
     -algorithm RSA \
@@ -1621,7 +1621,7 @@ openssl genpkey \
 
 Zertifikatsanforderung erzeugen und mit dem privaten Schlüssel signieren.
 
-``` bash
+```shell
 setenv SAN "DNS:mail.example.com"
 openssl req \
     -config etc/tls-server.conf \
@@ -1637,7 +1637,7 @@ unsetenv SAN
 Durch die Component CA signiertes Zertifikat erzeugen. Die Gültigkeitsdauer wird auf 2 Jahre ab dem 1. des aktuellen
 Monats festgelegt.
 
-``` bash
+```shell
 openssl ca \
     -config etc/component-ca.conf \
     -batch \
@@ -1653,7 +1653,7 @@ openssl ca \
 Eine passwortlose Kopie des privaten Schlüssels anlegen, wie sie zum problemlosen Starten von Diensten wie Webserver,
 Mailserver, etc benötigt wird.
 
-``` bash
+```shell
 openssl pkey \
     -in private/mail.example.com.key.enc \
     -out private/mail.example.com.key \
@@ -1663,14 +1663,14 @@ openssl pkey \
 Zufälliges, sicheres Passwort für das Zertifikat erzeugen und zur späteren (automatisierten) Verwendung in der .pwd
 speichern.
 
-``` bash
+```shell
 openssl rand -hex 64 | openssl passwd -5 -stdin | tr -cd '[[:print:]]' | cut -c 2-17 \
     > private/www.example.com.pwd
 ```
 
 Privaten Schlüssel (RSA mit 4096 Bit Länge und AES256 verschlüsselt) zum Signieren des Zertifikats erzeugen.
 
-``` bash
+```shell
 openssl genpkey \
     -aes-256-cbc \
     -algorithm RSA \
@@ -1681,7 +1681,7 @@ openssl genpkey \
 
 Zertifikatsanforderung erzeugen und mit dem privaten Schlüssel signieren.
 
-``` bash
+```shell
 setenv SAN "DNS:www.example.com,DNS:example.com"
 openssl req \
     -config etc/tls-server.conf \
@@ -1697,7 +1697,7 @@ unsetenv SAN
 Durch die Component CA signiertes Zertifikat erzeugen. Die Gültigkeitsdauer wird auf 2 Jahre ab dem 1. des aktuellen
 Monats festgelegt.
 
-``` bash
+```shell
 openssl ca \
     -config etc/component-ca.conf \
     -batch \
@@ -1713,7 +1713,7 @@ openssl ca \
 Eine passwortlose Kopie des privaten Schlüssels anlegen, wie sie zum problemlosen Starten von Diensten wie Webserver,
 Mailserver, etc benötigt wird.
 
-``` bash
+```shell
 openssl pkey \
     -in private/www.example.com.key.enc \
     -out private/www.example.com.key \
@@ -1722,7 +1722,7 @@ openssl pkey \
 
 #### Time-stamping Certificate erstellen
 
-``` bash
+```shell
 cd /data/pki
 
 cat > etc/timestamping.conf << "EOF"
@@ -1760,14 +1760,14 @@ subjectKeyIdentifier    = hash
 Zufälliges, sicheres Passwort für das Zertifikat erzeugen und zur späteren (automatisierten) Verwendung in der .pwd
 speichern.
 
-``` bash
+```shell
 openssl rand -hex 64 | openssl passwd -5 -stdin | tr -cd '[[:print:]]' | cut -c 2-17 \
     > private/timestamping.pwd
 ```
 
 Privaten Schlüssel (RSA mit 4096 Bit Länge und AES256 verschlüsselt) zum Signieren des Zertifikats erzeugen.
 
-``` bash
+```shell
 openssl genpkey \
     -aes-256-cbc \
     -algorithm RSA \
@@ -1778,7 +1778,7 @@ openssl genpkey \
 
 Zertifikatsanforderung erzeugen und mit dem privaten Schlüssel signieren.
 
-``` bash
+```shell
 openssl req \
     -config etc/timestamping.conf \
     -new \
@@ -1792,7 +1792,7 @@ openssl req \
 Durch die Component CA signiertes Zertifikat erzeugen. Die Gültigkeitsdauer wird auf 2 Jahre ab dem 1. des aktuellen
 Monats festgelegt.
 
-``` bash
+```shell
 openssl ca \
     -config etc/component-ca.conf \
     -batch \
@@ -1807,7 +1807,7 @@ openssl ca \
 
 #### OCSP-Signing Certificate erstellen
 
-``` bash
+```shell
 cd /data/pki
 
 cat > etc/ocspsigning.conf << "EOF"
@@ -1845,14 +1845,14 @@ subjectKeyIdentifier    = hash
 Zufälliges, sicheres Passwort für das Zertifikat erzeugen und zur späteren (automatisierten) Verwendung in der .pwd
 speichern.
 
-``` bash
+```shell
 openssl rand -hex 64 | openssl passwd -5 -stdin | tr -cd '[[:print:]]' | cut -c 2-17 \
     > private/ocspresponder.pwd
 ```
 
 Privaten Schlüssel (RSA mit 4096 Bit Länge und AES256 verschlüsselt) zum Signieren des Zertifikats erzeugen.
 
-``` bash
+```shell
 openssl genpkey \
     -aes-256-cbc \
     -algorithm RSA \
@@ -1863,7 +1863,7 @@ openssl genpkey \
 
 Zertifikatsanforderung erzeugen und mit dem privaten Schlüssel signieren.
 
-``` bash
+```shell
 openssl req \
     -config etc/ocspsigning.conf \
     -new \
@@ -1877,7 +1877,7 @@ openssl req \
 Durch die Component CA signiertes Zertifikat erzeugen. Die Gültigkeitsdauer wird auf 2 Jahre ab dem 1. des aktuellen
 Monats festgelegt.
 
-``` bash
+```shell
 openssl ca \
     -config etc/component-ca.conf \
     -batch \

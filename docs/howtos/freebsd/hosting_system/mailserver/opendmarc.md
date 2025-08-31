@@ -41,7 +41,7 @@ Zu den Voraussetzungen für dieses HowTo siehe bitte: [Hosting System](/howtos/f
 
 Wir installieren `mail/opendmarc` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/databases_p5-DBI
 cat <<'EOF' > /var/db/ports/databases_p5-DBI/options
 --8<-- "ports/databases_p5-DBI/options"
@@ -60,7 +60,7 @@ sysrc opendmarc_enable=YES
 sysrc opendmarc_socketspec="inet:8895@localhost"
 ```
 
-``` bash
+```shell
 mkdir -p /data/db/opendmarc
 
 chown -R mailnull:mailnull /data/db/opendmarc
@@ -70,7 +70,7 @@ chown -R mailnull:mailnull /data/db/opendmarc
 
 `opendmarc.conf` einrichten.
 
-``` bash
+```shell
 cat <<'EOF' > /usr/local/etc/mail/opendmarc.conf
 --8<-- "configs/usr/local/etc/mail/opendmarc.conf"
 EOF
@@ -78,7 +78,7 @@ EOF
 
 IgnoreHosts anlegen.
 
-``` bash
+```shell
 cat <<'EOF' > /data/db/opendmarc/ignorehosts
 ::1
 127.0.0.1
@@ -104,7 +104,7 @@ ifconfig -u -f cidr `route -n get -inet6 default | awk '/interface/ {print $2}'`
     head -n 1 | xargs -I % sed -e 's|__IPADDR6__|%|g' -i '' /data/db/opendmarc/ignorehosts
 ```
 
-``` bash
+```shell
 chown -R mailnull:mailnull /data/db/opendmarc
 ```
 
@@ -112,6 +112,6 @@ chown -R mailnull:mailnull /data/db/opendmarc
 
 OpenDMARC kann nun gestartet werden.
 
-``` bash
+```shell
 service opendmarc start
 ```

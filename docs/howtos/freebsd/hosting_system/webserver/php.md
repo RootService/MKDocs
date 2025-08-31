@@ -41,7 +41,7 @@ Zu den Voraussetzungen für dieses HowTo siehe bitte: [Hosting System](/howtos/f
 
 Wir installieren `lang/php83` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/lang_php83
 cat <<'EOF' > /var/db/ports/lang_php83/options
 --8<-- "ports/lang_php83/options"
@@ -58,7 +58,7 @@ sysrc php_fpm_enable=YES
 
 Wir installieren `lang/php83-extensions` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/graphics_gd
 cat <<'EOF' > /var/db/ports/graphics_gd/options
 --8<-- "ports/graphics_gd/options"
@@ -190,7 +190,7 @@ Performance getrimmt.
 
 `php.ini` einrichten.
 
-``` bash
+```shell
 cat <<'EOF' > /usr/local/etc/php.ini
 --8<-- "configs/usr/local/etc/php.ini"
 EOF
@@ -198,14 +198,14 @@ EOF
 
 `php-fpm.conf` einrichten.
 
-``` bash
+```shell
 sed -e 's|^;[[:space:]]*\(events.mechanism =\).*$|;\1 kqueue|' \
     /usr/local/etc/php-fpm.conf.default > /usr/local/etc/php-fpm.conf
 ```
 
 `php-fpm.d/www.conf` einrichten.
 
-``` bash
+```shell
 sed -e 's|^\(listen =\).*$|\1 /var/run/fpm_www.sock|' \
     -e 's|^;\(listen.owner =\).*$|\1 www|' \
     -e 's|^;\(listen.group =\).*$|\1 www|' \
@@ -220,7 +220,7 @@ sed -e 's|^\(listen =\).*$|\1 /var/run/fpm_www.sock|' \
 
 Abschliessende Arbeiten.
 
-``` bash
+```shell
 touch /var/log/php_error.log
 chmod 0664 /var/log/php_error.log
 chown root:www /var/log/php_error.log
@@ -236,7 +236,7 @@ chown root:www /var/log/php_sendmail.log
 
 Wir installieren `devel/php-composer` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/devel_php-composer
 cat <<'EOF' > /var/db/ports/devel_php-composer/options
 --8<-- "ports/devel_php-composer/options"
@@ -250,7 +250,7 @@ portmaster -w -B -g --force-config devel/php-composer  -n
 
 Wir installieren `devel/pear` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/devel_pear
 cat <<'EOF' > /var/db/ports/devel_pear/options
 --8<-- "ports/devel_pear/options"
@@ -264,7 +264,7 @@ portmaster -w -B -g --force-config devel/pear  -n
 
 Wir installieren `textproc/pecl-yaml` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 portmaster -w -B -g --force-config textproc/pecl-yaml  -n
 ```
 
@@ -272,6 +272,6 @@ portmaster -w -B -g --force-config textproc/pecl-yaml  -n
 
 PHP-FPM kann nun gestartet werden.
 
-``` bash
+```shell
 service php-fpm start
 ```

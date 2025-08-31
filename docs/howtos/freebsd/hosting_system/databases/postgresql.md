@@ -41,7 +41,7 @@ Zu den Voraussetzungen für dieses HowTo siehe bitte: [Hosting System](/howtos/f
 
 Wir installieren `databases/postgresql17-server` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/databases_postgresql17-client
 cat <<'EOF' > /var/db/ports/databases_postgresql7-client/options
 --8<-- "ports/databases_postgresql17-client/options"
@@ -68,7 +68,7 @@ sysrc postgresql_initdb_flags="--encoding=utf-8 --lc-collate=C --auth=scram-sha-
 
 PostgreSQL wird nun zum ersten Mal gestartet, was einige Minuten dauern kann.
 
-``` bash
+```shell
 # Password erzeugen und in /root/_passwords speichern
 chmod 0600 /root/_passwords
 newpw="`openssl rand -hex 64 | openssl passwd -5 -stdin | tr -cd '[[:print:]]' | cut -c 2-17`"
@@ -85,7 +85,7 @@ service postgresql start
 
 ## Sicherheit
 
-``` bash
+```shell
 # Password erzeugen und in /root/_passwords speichern
 chmod 0600 /root/_passwords
 newpw="`openssl rand -hex 64 | openssl passwd -5 -stdin | tr -cd '[[:print:]]' | cut -c 2-17`"
@@ -137,6 +137,6 @@ exit
 
 PostgreSQL sollte abschliessend einmal neu gestartet werden.
 
-``` bash
+```shell
 service postgresql restart
 ```

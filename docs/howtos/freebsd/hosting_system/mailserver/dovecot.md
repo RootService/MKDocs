@@ -41,7 +41,7 @@ Zu den Voraussetzungen für dieses HowTo siehe bitte: [Hosting System](/howtos/f
 
 Wir installieren `mail/dovecot` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/textproc_libexttextcat
 cat <<'EOF' > /var/db/ports/textproc_libexttextcat/options
 --8<-- "ports/textproc_libexttextcat/options"
@@ -61,7 +61,7 @@ sysrc dovecot_enable=YES
 
 Wir installieren `mail/dovecot-pigeonhole` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/mail_dovecot-pigeonhole
 cat <<'EOF' > /var/db/ports/mail_dovecot-pigeonhole/options
 --8<-- "ports/mail_dovecot-pigeonhole/options"
@@ -75,7 +75,7 @@ portmaster -w -B -g --force-config mail/dovecot-pigeonhole@default  -n
 
 `dovecot.conf` einrichten.
 
-``` bash
+```shell
 cat <<'EOF' > /usr/local/etc/dovecot/dovecot.conf
 --8<-- "configs/usr/local/etc/dovecot/dovecot.conf"
 EOF
@@ -121,7 +121,7 @@ chmod 0755 /usr/local/bin/dovecot-quota-warning.sh
 
 Wir legen einen neuen Superuser an.
 
-``` bash
+```shell
 cat <<'EOF' > /usr/local/etc/dovecot/dovecot-master-users
 --8<-- "configs/usr/local/etc/dovecot/dovecot-master-users"
 EOF
@@ -138,7 +138,7 @@ unset newpw
 
 Das Anlegen neuer Mailuser wird mittels Script automatisiert.
 
-``` bash
+```shell
 cat <<'EOF' > /usr/local/etc/dovecot/create_mailuser.sh
 --8<-- "configs/usr/local/etc/dovecot/create_mailuser.sh"
 EOF
@@ -154,6 +154,6 @@ chmod 0755 /usr/local/etc/dovecot/create_mailuser.sh
 
 Dovecot kann nun gestartet werden.
 
-``` bash
+```shell
 service dovecot start
 ```

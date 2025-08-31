@@ -41,7 +41,7 @@ Zu den Voraussetzungen für dieses HowTo siehe bitte: [Hosting System](/howtos/f
 
 Wir installieren `mail/postfixadmin` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/databases_p5-DBI
 cat <<'EOF' > /var/db/ports/databases_p5-DBI/options
 --8<-- "ports/databases_p5-DBI/options"
@@ -181,6 +181,6 @@ chown -R root:vacation /data/db/postfixadmin
 
 Das PostfixAdmin Setup muss nun im Browser gestartet und befolgt werden.
 
-``` bash
+```shell
 https://mail.example.com/postfixadmin/setup.php
 ```

@@ -49,7 +49,7 @@ ausschliesslich auf eigenes Risiko und ohne weitere Unterstützung durch dieses 
 
 Wir installieren `www/nginx` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/graphics_gd
 cat <<'EOF' > /var/db/ports/graphics_gd/options
 --8<-- "ports/graphics_gd/options"
@@ -143,7 +143,7 @@ EOF
 
 Verzeichnisse für die ersten VirtualHosts erstellen.
 
-``` bash
+```shell
 mkdir -p /data/www/cache
 chmod 1777 /data/www/cache
 chown www:www /data/www/cache
@@ -186,7 +186,7 @@ den Pfad `/data/www/vhosts/_default_` und für die regulären Virtual-Hosts den 
 
 `nginx.conf` einrichten.
 
-``` bash
+```shell
 cat <<'EOF' > /usr/local/etc/nginx/nginx.conf
 --8<-- "configs/usr/local/etc/nginx/nginx.conf"
 EOF
@@ -194,7 +194,7 @@ EOF
 
 `vhosts.conf` einrichten.
 
-``` bash
+```shell
 cat <<'EOF' > /usr/local/etc/nginx/vhosts.conf
 --8<-- "configs/usr/local/etc/nginx/vhosts.conf"
 EOF
@@ -202,7 +202,7 @@ EOF
 
 `vhosts-ssl.conf` einrichten.
 
-``` bash
+```shell
 cat <<'EOF' > /usr/local/etc/nginx/vhosts-ssl.conf
 --8<-- "configs/usr/local/etc/nginx/vhosts-ssl.conf"
 EOF
@@ -210,7 +210,7 @@ EOF
 
 `defaults.conf` und `headers.conf` einrichten.
 
-``` bash
+```shell
 cat <<'EOF' > /usr/local/etc/nginx/defaults.conf
         location ~* /?(.+/)*[\._] { return 403; }
         location ~* /?\.well-known { allow all; }
@@ -245,6 +245,6 @@ EOF
 
 NGinx kann nun gestartet werden.
 
-``` bash
+```shell
 service nginx start
 ```

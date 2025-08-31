@@ -41,7 +41,7 @@ Zu den Voraussetzungen für dieses HowTo siehe bitte: [Hosting System](/howtos/f
 
 Wir installieren `security/clamav` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/security_clamav
 cat <<'EOF' > /var/db/ports/security_clamav/options
 --8<-- "ports/security_clamav/options"
@@ -59,7 +59,7 @@ sysrc clamav_freshclam_enable="YES"
 
 ClamAV kann nun gestartet werden.
 
-``` bash
+```shell
 
 service clamav_freshclam onestart
 

@@ -41,7 +41,7 @@ Zu den Voraussetzungen für dieses HowTo siehe bitte: [Hosting System](/howtos/f
 
 Wir installieren `mail/opendkim` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/databases_opendbx
 cat <<'EOF' > /var/db/ports/databases_opendbx/options
 --8<-- "ports/databases_opendbx/options"
@@ -72,7 +72,7 @@ sysrc milteropendkim_socket="inet:8891@localhost"
 
 Bitte example.com ersetzen:
 
-``` bash
+```shell
 mkdir -p /data/db/opendkim/keys/example.com
 
 chown -R mailnull:mailnull /data/db/opendkim
@@ -82,7 +82,7 @@ chown -R mailnull:mailnull /data/db/opendkim
 
 `opendkim.conf` einrichten.
 
-``` bash
+```shell
 cat <<'EOF' > /usr/local/etc/mail/opendkim.conf
 --8<-- "configs/usr/local/etc/mail/opendkim.conf"
 EOF
@@ -90,7 +90,7 @@ EOF
 
 Singning-Key erzeugen.
 
-``` bash
+```shell
 opendkim-genkey --append-domain --bits=2048 --directory=/data/db/opendkim/keys/example.com --domain=example.com --hash-algorithms=sha256 --note=example.com --selector=20250426 --subdomains --verbose
 
 chmod 0600 /data/db/opendkim/keys/*/*.private
@@ -98,7 +98,7 @@ chmod 0600 /data/db/opendkim/keys/*/*.private
 
 KeyTable anlegen.
 
-``` bash
+```shell
 cat <<'EOF' > /data/db/opendkim/keytable
 20250426._domainkey.example.com    example.com:20250426:/data/db/opendkim/keys/example.com/20250426.private
 EOF
@@ -106,7 +106,7 @@ EOF
 
 SingingTable anlegen.
 
-``` bash
+```shell
 cat <<'EOF' > /data/db/opendkim/signingtable
 *@example.com      20250426._domainkey.example.com
 *@*.example.com    20250426._domainkey.example.com
@@ -115,7 +115,7 @@ EOF
 
 TrustedHosts anlegen.
 
-``` bash
+```shell
 cat <<'EOF' > /data/db/opendkim/trustedhosts
 ::1
 127.0.0.1
@@ -140,21 +140,21 @@ ifconfig -u -f cidr `route -n get -inet6 default | awk '/interface/ {print $2}'`
     head -n 1 | xargs -I % sed -e 's|__IPADDR6__|%|g' -i '' /data/db/opendkim/trustedhosts
 ```
 
-``` bash
+```shell
 chown -R mailnull:mailnull /data/db/opendkim
 ```
 
 Es muss noch ein DNS-Record angelegt werden, sofern er noch nicht existiert, oder entsprechend geändert werden, sofern
 er bereits existiert.
 
-``` bash
+```shell
 /usr/local/bin/openssl pkey -pubout -outform pem -in /data/db/opendkim/keys/example.com/20250426.private | \
     awk '\!/^-----/ {printf $0}' | awk 'BEGIN{n=1}\
         {printf "\n20250426._domainkey.example.com.    IN  TXT    ( \"v=DKIM1; h=shs256; k=rsa; s=*; t=*; p=\"";\
             while(substr($0,n,98)){printf "\n        \"" substr($0,n,98) "\"";n+=98};printf " )\n"}'
 ```
 
-``` dns-zone
+```dns-zone
 #
 # The output should look similar to this one, which will be the DNS-Record to publish
 #
@@ -173,6 +173,6 @@ er bereits existiert.
 
 OpenDKIM kann nun gestartet werden.
 
-``` bash
+```shell
 service milter-opendkim start
 ```

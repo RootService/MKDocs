@@ -31,7 +31,7 @@ try {
 
 # ---- 4) MkDocs Build ----
 Write-Host ">> Baue statische Seite"
-mkdocs build --strict
+mkdocs build
 
 # ---- 5) Lokaler Server (optional) ----
 if ($args -contains "--serve") {

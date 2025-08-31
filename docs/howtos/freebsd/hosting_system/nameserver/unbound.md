@@ -41,7 +41,7 @@ Zu den Voraussetzungen für dieses HowTo siehe bitte: [Hosting System](/howtos/f
 
 Wir installieren `dns/unbound` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/security_libsodium
 cat <<'EOF' > /var/db/ports/security_libsodium/options
 --8<-- "ports/security_libsodium/options"
@@ -69,7 +69,7 @@ sysrc unbound_enable=YES
 
 Wir konfigurieren Unbound:
 
-``` bash
+```shell
 cat <<'EOF' > /usr/local/etc/unbound/unbound.conf
 --8<-- "configs/usr/local/etc/unbound/unbound.conf"
 EOF
@@ -86,7 +86,7 @@ sudo -u unbound unbound-control-setup
 
 Unbound kann nun gestartet werden.
 
-``` bash
+```shell
 service local_unbound onestop
 
 service unbound start

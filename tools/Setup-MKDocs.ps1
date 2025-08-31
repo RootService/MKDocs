@@ -136,12 +136,47 @@ if (-not (Test-Path $lintConfig)) {
 {
   "config": {
     "extends": "markdownlint-cli2-config-standard",
-    "MD013": { "line_length": 120, "tables": false, "code_blocks": false },
-    "MD033": { "allowed_elements": ["abbr","details","summary","sup","sub","kbd","mark"] },
+
+    // Zeilenlänge nur für Fließtext
+    "MD013": {
+      "line_length": 120,
+      "tables": false,
+      "code_blocks": false,
+      "headings": false
+    },
+
+    // Front-Matter erlaubt, kein H1 erzwingen
     "MD041": false,
     "MD025": { "front_matter_title": "" },
+
+    // Leerzeilen vor/nach Überschriften und Codeblöcken
+    "MD022": true,
+    "MD031": true,
+
+    // Überschriften Duplikate nur auf gleicher Ebene
+    "MD024": { "siblings_only": true },
+
+    // Listen: nur ein Space nach Marker, aber keine HR/Front-Matter prüfen
+    "MD030": { "ol_single": 1, "ul_single": 1 },
+
+    // Formatierung beibehalten
+    "MD004": { "style": "dash" },
+    "MD007": { "indent": 2 },
+    "MD029": { "style": "one" },
+
+    // Inline-Code und HTML
+    "MD038": true,
+    "MD033": {
+      "allowed_elements": [
+        "abbr","details","summary","sup","sub","kbd","mark",
+        "br","img","span"
+      ]
+    },
+
+    // Sonstiges
+    "MD012": { "maximum": 2 },
     "MD046": { "style": "fenced" },
-    "MD024": { "siblings_only": true }
+    "MD048": { "style": "backtick" }
   }
 }
 "@ | Set-Content -Encoding UTF8 $lintConfig
@@ -155,6 +190,8 @@ site/
 .mkdocs/
 overrides/assets/
 node_modules/
+**/.venv/
+**/__pycache__/
 "@ | Set-Content -Encoding UTF8 $lintIgnore
 }
 
@@ -177,7 +214,7 @@ Invoke-MarkdownLint
 # ---- 10) Build + optionale Server-Header ----------------------------------
 $env:CSP_ENV = "preview"
 if (-not (Test-Path '.\mkdocs.yml')) { throw "mkdocs.yml fehlt in $dest" }
-mkdocs build # --strict
+mkdocs build
 $hdr = '.\tools\update_server_headers.py'
 if (Test-Path $hdr) { python $hdr }
 

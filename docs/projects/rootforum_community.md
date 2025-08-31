@@ -29,6 +29,5 @@ search:
 
 ## Einleitung
 
-Neben einem sehr guten Forum bietet die [RootForum Community](https://www.rootforum.org/forum/){: target="_blank"
-rel="noopener"} auch verschiedene HowTos und andere nützliche Informationen zur Verwaltung von FreeBSD- und
-Linux-basierten Servern.
+Neben einem sehr guten Forum bietet die [RootForum Community](https://www.rootforum.org/forum/){: target="_blank" rel="noopener"}
+auch verschiedene HowTos und andere nützliche Informationen zur Verwaltung von FreeBSD- und Linux-basierten Servern.

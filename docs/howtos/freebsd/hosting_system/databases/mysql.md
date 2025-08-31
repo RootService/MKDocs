@@ -43,7 +43,7 @@ MySQL unterstützt mehrere Engines, dieses HowTo beschränkt sich allerdings auf
 
 Wir installieren `databases/mysql80-server` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/comms_hidapi
 cat <<'EOF' > /var/db/ports/comms_hidapi/options
 --8<-- "ports/comms_hidapi/options"
@@ -93,10 +93,9 @@ sysrc mysql_dbdir="/data/db/mysql"
 
 ???+ note
 
-    Die Konfiguration orientiert sich an diesem [RootForum Community
-Forenbeitrag](https://www.rootforum.org/forum/viewtopic.php?t=36343){: target="_blank" rel="noopener"}.
+    Die Konfiguration orientiert sich an diesem [RootForum Community Forenbeitrag](https://www.rootforum.org/forum/viewtopic.php?t=36343){: target="_blank" rel="noopener"}.
 
-``` bash
+```shell
 cat <<'EOF' > /usr/local/etc/mysql/my.cnf
 --8<-- "configs/usr/local/etc/mysql/my.cnf"
 EOF
@@ -106,14 +105,14 @@ EOF
 
 MySQL wird nun zum ersten Mal gestartet, was durch das Erzeugen der InnoDB-Files einige Minuten dauern kann.
 
-``` bash
+```shell
 service mysql-server start
 ```
 
 Abschliessend wird das MySQL root-Passwort neu gesetzt und mittels `mysql_config_editor` verschlüsselt in
 `/root/.mylogin.cnf` gespeichert.
 
-``` bash
+```shell
 # Password erzeugen und in /root/_passwords speichern
 chmod 0600 /root/_passwords
 newpw="`openssl rand -hex 64 | openssl passwd -5 -stdin | tr -cd '[[:print:]]' | cut -c 2-17`"
@@ -133,7 +132,7 @@ mysql_config_editor set --login-path=client --host=::1 --host=127.0.0.1 --host=1
 Wir erlauben dem MySQL-root User das Einloggen von `::1`, `127.0.0.1` und `localhost` mit dem zuvor festgelegtem
 Passwort.
 
-``` bash
+```shell
 mysql -uroot
 
 ALTER USER 'root'@'localhost' IDENTIFIED WITH caching_sha2_password BY '__PASSWORD__' PASSWORD EXPIRE NEVER;
@@ -151,6 +150,6 @@ QUIT;
 
 MySQL sollte abschliessend einmal neu gestartet werden.
 
-``` bash
+```shell
 service mysql-server restart
 ```

@@ -65,7 +65,7 @@ mkdocs-glossy-magenta/
 
 ### 1. Voraussetzungen
 
-```bash
+```shell
 # Python 3.8+ erforderlich
 python --version
 
@@ -75,7 +75,7 @@ pip install --upgrade pip
 
 ### 2. Abhängigkeiten installieren
 
-```bash
+```shell
 pip install \
     mkdocs \
     mkdocs-material \
@@ -87,7 +87,7 @@ pip install \
 
 ### 3. Projekt erstellen
 
-```bash
+```shell
 # Neues Projekt erstellen
 mkdocs new my-documentation
 cd my-documentation
@@ -114,7 +114,7 @@ repo_url: https://github.com/username/repository
 
 ### 5. Lokale Entwicklung
 
-```bash
+```shell
 # Entwicklungsserver starten
 mkdocs serve
 
@@ -124,7 +124,7 @@ mkdocs serve --dev-addr=127.0.0.1:8080 --livereload
 
 ### 6. Build für Production
 
-```bash
+```shell
 # Optimierter Build
 mkdocs build --strict --clean
 
@@ -219,11 +219,11 @@ Bearbeiten Sie `docs/assets/stylesheets/glossy.css`:
 
 ```css
 :root {
-  --glossy-gradient: linear-gradient(135deg, 
+  --glossy-gradient: linear-gradient(135deg,
     rgba(217, 70, 239, 0.1) 0%,
     rgba(236, 72, 153, 0.05) 50%,
     rgba(217, 70, 239, 0.1) 100%);
-  --glossy-shadow: 
+  --glossy-shadow:
     0 4px 6px -1px rgba(217, 70, 239, 0.1),
     inset 0 1px 2px 0 rgba(255, 255, 255, 0.5);
 }
@@ -262,7 +262,7 @@ Bearbeiten Sie `docs/assets/stylesheets/glossy.css`:
 
 #### Build-Fehler
 
-```bash
+```shell
 # Cache löschen
 rm -rf site/
 mkdocs build --clean
@@ -270,7 +270,7 @@ mkdocs build --clean
 
 #### Plugin-Fehler
 
-```bash
+```shell
 # Plugins neu installieren
 pip uninstall mkdocs-material
 pip install mkdocs-material --upgrade
@@ -291,7 +291,7 @@ plugins:
 
 ### Build-Optimierung
 
-```bash
+```shell
 # Minifizierung aktivieren
 mkdocs build --strict --clean
 
@@ -349,9 +349,9 @@ Dieses Theme ist lizenziert unter [CC BY-NC-SA 4.0](https://creativecommons.org/
 
 ---
 
-**Version**: 1.0.0  
-**Letzte Aktualisierung**: Januar 2025  
-**Autor**: Ihr Name  
+**Version**: 1.0.0
+**Letzte Aktualisierung**: Januar 2025
+**Autor**: Ihr Name
 **Website**: [ihre-website.de](https://ihre-website.de)
 
 ---

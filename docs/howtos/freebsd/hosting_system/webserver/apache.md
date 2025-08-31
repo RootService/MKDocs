@@ -41,7 +41,7 @@ Zu den Voraussetzungen für dieses HowTo siehe bitte: [Hosting System](/howtos/f
 
 Wir installieren `www/apache24` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/www_apache24
 cat <<'EOF' > /var/db/ports/www_apache24/options
 --8<-- "ports/www_apache24/options"
@@ -64,7 +64,7 @@ cp -a /usr/local/www /data/
 
 Verzeichnisse für die ersten VirtualHosts erstellen.
 
-``` bash
+```shell
 mkdir -p /data/www/cache
 chmod 1777 /data/www/cache
 chown www:www /data/www/cache
@@ -107,7 +107,7 @@ den Pfad `/data/www/vhosts/_default_` und für die regulären Virtual-Hosts den 
 
 `httpd.conf` einrichten.
 
-``` bash
+```shell
 cat <<'EOF' > /usr/local/etc/apache24/httpd.conf
 --8<-- "configs/usr/local/etc/apache24/httpd.conf"
 EOF
@@ -115,7 +115,7 @@ EOF
 
 `vhosts.conf` einrichten.
 
-``` bash
+```shell
 cat <<'EOF' > /usr/local/etc/apache24/vhosts.conf
 --8<-- "configs/usr/local/etc/apache24/vhosts.conf"
 EOF
@@ -123,7 +123,7 @@ EOF
 
 `vhosts-ssl.conf` einrichten.
 
-``` bash
+```shell
 cat <<'EOF' > /usr/local/etc/apache24/vhosts-ssl.conf
 --8<-- "configs/usr/local/etc/apache24/vhosts-ssl.conf"
 EOF
@@ -131,7 +131,7 @@ EOF
 
 `default-endpoint.php` einrichten.
 
-``` bash
+```shell
 cat <<'EOF' > /data/www/vhosts/www.example.com/data/default-endpoint.php
 --8<-- "configs/data/www/vhosts/www.example.com/data/default-endpoint.php"
 EOF
@@ -139,7 +139,7 @@ EOF
 
 `fixperms.sh` einrichten.
 
-``` bash
+```shell
 cat <<'EOF' > /data/www/vhosts/_default_/cron/fixperms.sh
 --8<-- "configs/data/www/vhosts/_default_/cron/fixperms.sh"
 EOF
@@ -165,6 +165,6 @@ chmod 0750 /data/www/vhosts/www.example.com/cron/fixperms.sh
 
 Apache kann nun gestartet werden.
 
-``` bash
+```shell
 service apache24 start
 ```

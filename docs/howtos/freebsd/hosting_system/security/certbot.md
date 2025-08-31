@@ -41,7 +41,7 @@ Zu den Voraussetzungen für dieses HowTo siehe bitte: [Hosting System](/howtos/f
 
 Wir installieren `security/py-certbot` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/textproc_py-snowballstemmer
 cat <<'EOF' > /var/db/ports/textproc_py-snowballstemmer/options
 --8<-- "ports/textproc_py-snowballstemmer/options"
@@ -66,7 +66,7 @@ EOF
 Wir konfigurieren CertBot für den Bezug unserer Zertifikate und wir beziehen auch gleich die für dieses HowTo
 benötigten Zertifikate:
 
-``` bash
+```shell
 cat <<'EOF' >> /etc/periodic.conf
 weekly_certbot_enable="YES"
 weekly_certbot_service="apache24"
@@ -111,6 +111,6 @@ sed -e 's|^#*\(pre-hook.*\)$|\1|' \
 Weitere Zertifikate für einzelne Domains können, sobald der Webserver Apache installiert und gestartet ist, dann
 künftig so erstellt werden:
 
-``` bash
+```shell
 certbot certonly --standalone -d subdomain.example.com
 ```

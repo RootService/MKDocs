@@ -41,7 +41,7 @@ Zu den Voraussetzungen für dieses HowTo siehe bitte: [Hosting System](/howtos/f
 
 Wir installieren `mail/spamassassin` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/databases_p5-DBD-SQLite
 cat <<'EOF' > /var/db/ports/databases_p5-DBD-SQLite/options
 --8<-- "ports/databases_p5-DBD-SQLite/options"
@@ -113,9 +113,12 @@ portmaster -w -B -g --force-config mail/spamassassin  -n
 
 sysrc spamd_enable="YES"
 sysrc spamd_flags="-c -u spamd -H /var/spool/spamd"
+```
+
+Datenbanken installieren.
 
 
-
+```shell
 cat <<'EOF' > /tmp/spamass_mail_bayes_shema.sql
 CREATE TABLE bayes_expire (
   id integer NOT NULL default '0',
@@ -321,7 +324,7 @@ exit
 
 Wir installieren `mail/spamass-milter` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/mail_spamass-milter
 cat <<'EOF' > /var/db/ports/mail_spamass-milter/options
 --8<-- "ports/mail_spamass-milter/options"
@@ -345,7 +348,7 @@ sysrc spamass_milter_localflags="-r 15 -f -u spamd -- -u spamd"
 
 `local.cf` einrichten.
 
-``` bash
+```shell
 cat <<'EOF' > /usr/local/etc/mail/spamassassin/local.cf
 --8<-- "configs/usr/local/etc/mail/spamassassin/local.cf"
 EOF
@@ -412,7 +415,7 @@ awk '/^Password for PostgreSQL user spamass:/ {print $NF}' /root/_passwords | \
 
 SpamAssassin Datenbank anlegen.
 
-``` bash
+```shell
 /usr/local/bin/sa-update --channel updates.spamassassin.org --refreshmirrors --verbose
 /usr/local/bin/sa-update --channel updates.spamassassin.org --verbose
 /usr/local/bin/sa-update --nogpg --channel kam.sa-channels.mcgrail.com --refreshmirrors --verbose
@@ -423,7 +426,7 @@ SpamAssassin Datenbank anlegen.
 
 SpamAssassin Datenbank updaten.
 
-``` bash
+```shell
 cat <<'EOF' > /usr/local/sbin/update-spamassassin
 --8<-- "configs/usr/local/sbin/update-spamassassin"
 EOF
@@ -434,7 +437,7 @@ chmod 0755 /usr/local/sbin/update-spamassassin
 
 SpamAssassin kann nun gestartet werden.
 
-``` bash
+```shell
 mkdir -p /var/run/spamass-milter
 chown spamd:spamd /var/run/spamass-milter
 

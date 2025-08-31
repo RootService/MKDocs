@@ -41,7 +41,7 @@ Zu den Voraussetzungen für dieses HowTo siehe bitte: [Hosting System](/howtos/f
 
 Wir installieren `www/node` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/dns_c-ares
 cat <<'EOF' > /var/db/ports/dns_c-ares/options
 --8<-- "ports/dns_c-ares/options"
@@ -61,13 +61,13 @@ sysrc node_enable=YES
 
 Wir installieren `www/npm` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 portmaster -w -B -g --force-config www/npm  -n
 ```
 
 Wir installieren `www/yarn` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/www_yarn-node22
 cat <<'EOF' > /var/db/ports/www_yarn-node22/options
 --8<-- "ports/www_yarn-node22/options"

@@ -71,7 +71,7 @@ basierende [SystemRescueCD](https://www.system-rescue.org/){: target="_blank" re
 
 VirtualBox und PuTTY werden mit den jeweiligen Standardoptionen installiert.
 
-``` powershell
+```powershell
 winget install PuTTY.PuTTY
 winget install Oracle.VirtualBox
 ```
@@ -83,7 +83,7 @@ bekommt den Namen `Gentoo` und wird mit 2048MB RAM, 32MB VideoRAM, zwei 32GB SAT
 einer Intel-Netzwerkkarte ausgestattet. Zudem setzen wir die RTC (Real-Time Clock) der virtuellen Maschine auf UTC
 (Coordinated Universal Time), aktivieren den HPET (High Precision Event Timer) und legen die Bootreihenfolge fest.
 
-``` powershell
+```powershell
 & "${Env:ProgramFiles}\Oracle\VirtualBox\VBoxManage.exe" createvm --name "Gentoo" --ostype Gentoo_64 --register
 
 cd "${Env:USERPROFILE}\VirtualBox VMs\Gentoo"
@@ -108,7 +108,7 @@ Die virtuelle Maschine, genauer die virtuelle Netzwerkkarte, kann dank NAT zwar 
 leider nicht direkt mit dem Hostsystem kommunizieren. Aus diesem Grund richten wir nun für den SSH-Zugang noch ein
 Portforwarding ein, welches den Port 2222 des Hostsystems auf den Port 22 der virtuellen Maschine weiterleitet.
 
-``` powershell
+```powershell
 & "${Env:ProgramFiles}\Oracle\VirtualBox\VBoxManage.exe" modifyvm "Gentoo" --natpf1 SSH,tcp,,2222,,22
 ```
 
@@ -121,7 +121,7 @@ booten. Hierfür eignet sich die auf [Gentoo Linux](https://www.gentoo.org/){: t
 basierende [SystemRescueCD](https://www.system-rescue.org/){: target="_blank" rel="noopener"} am Besten, welche wir
 mittels des mit Windows mitgelieferten FTP-Client herunterladen und unserer virtuellen Maschine als Bootmedium zuweisen.
 
-``` powershell
+```powershell
 cd "${Env:USERPROFILE}\VirtualBox VMs\Gentoo"
 
 ftp -A ftp.halifax.rwth-aachen.de
@@ -135,7 +135,7 @@ quit
 
 Wir können das RescueSystem jetzt booten.
 
-``` powershell
+```powershell
 & "${Env:ProgramFiles}\Oracle\VirtualBox\VBoxManage.exe" startvm "Gentoo"
 ```
 
@@ -146,14 +146,14 @@ Wer mit dem amerikanischen Tastaturlayout nicht zurechtkommt, sollte während de
 
 Ist der Bootvorgang abgeschlossen, wird als Erstes das root-Passwort für das RescueSystem gesetzt.
 
-``` bash
+```shell
 passwd root
 ```
 
 Jetzt sollten wir uns mittels PuTTY als `root` in das RescueSystem einloggen und mit der Installation unseres Gentoo
 Linux Hardened fortfahren können.
 
-``` powershell
+```powershell
 putty -ssh -P 2222 root@127.0.0.1
 ```
 
@@ -165,7 +165,7 @@ verlegen wir diese Jobs mittels `nohup` in den Hintergrund, so dass wir uns zwis
 dabei die Jobs automatisch von der Shell abgebrochen werden. Ob die Jobs fertig sind, lässt dann mittels `ps -auxfwww`
 und `top -atCP` ermitteln.
 
-``` bash
+```shell
 nohup dd if=/dev/zero of=/dev/sda bs=512  &
 nohup dd if=/dev/zero of=/dev/sdb bs=512  &
 ```
@@ -184,7 +184,7 @@ dieses Partitionslayout selbstverständlich an ihre eigenen Bedürfnisse anpasse
 
 Die Partitionen legen wir nun mittels parted an.
 
-``` bash
+```shell
 parted -s -a optimal /dev/sda
 parted -s -a optimal /dev/sdb
 
@@ -227,7 +227,7 @@ parted -s /dev/sdb set 1 bios_grub on
 
 Für eine leicht erhöhte Datensicherheit legen wir nun noch mittels `mdadm` ein Software-RAID1 an.
 
-``` bash
+```shell
 mknod /dev/md2 b 9 2
 mknod /dev/md3 b 9 3
 mknod /dev/md4 b 9 4
@@ -258,7 +258,7 @@ erzeugen.
 Die Bootpartition sollte grundsätzlich mit EXT2 formatiert weren, da dieses Filesystem als Einziges von allen gängigen
 Linux-Bootloadern fehlerfrei unterstützt wird.
 
-``` bash
+```shell
 mke2fs -c -b 4096 -t ext2 /dev/md2
 tune2fs -c 0 -i 0 /dev/md2
 tune2fs -e continue /dev/md2
@@ -287,7 +287,7 @@ mkswap -c /dev/md5
 
 Nun werden die Partitionen für unsere zur Installation benötigten Chroot-Umgebung gemountet und der Swapspace aktiviert.
 
-``` bash
+```shell
 swapon /dev/md5
 
 mkdir -p /mnt/gentoo
@@ -302,7 +302,7 @@ entsprechende Angabe vom [Gentoo Linux Master Mirror](https://gentoo.osuosl.org/
 verwenden und diese in dem folgenden zweiten wget-Aufruf entsprechend ersetzen. Den Stage3-Tarball werden wir bereits
 während des Download direkt nach `/mnt/gentoo` entpacken.
 
-``` bash
+```shell
 wget -q -O - "https://gentoo.osuosl.org/releases/amd64/autobuilds/latest-stage3-amd64-hardened+nomultilib.txt" | tail -n 1 | \
      xargs -I % wget -q -O - "https://gentoo.osuosl.org/releases/amd64/autobuilds/%" | tar xpjvf - -C /mnt/gentoo/
 ```
@@ -312,7 +312,7 @@ wget -q -O - "https://gentoo.osuosl.org/releases/amd64/autobuilds/latest-stage3-
 Vor dem Wechsel in die Chroot-Umgebung müssen wir noch die `resolv.conf` und `mdadm.conf` in die Chroot-Umgebung
 kopieren und die für eine erfolgreiche Installation noch fehlenden Filesysteme mounten.
 
-``` bash
+```shell
 cp /etc/resolv.conf /mnt/gentoo/etc/resolv.conf
 
 mount -t proc none /mnt/gentoo/proc
@@ -328,7 +328,7 @@ Beim Betreten der Chroot-Umgebung setzen wir mittels `/bin/env -i` erstmal alle 
 Andererseits benötigen wir aber die Environment-Variablen `HOME`, `TERM`, `PS1` und `PATH`, welche wir manuell auf
 sinnvolle Defaults setzen.
 
-``` bash
+```shell
 chroot /mnt/gentoo /bin/env -i HOME=/root TERM=$TERM PS1='\u:\w\$ ' PATH=/sbin:/bin:/usr/sbin:/usr/bin /bin/bash +h
 
 mkdir /data
@@ -340,7 +340,7 @@ mount -t ext2 -o defaults,relatime /dev/md2 /boot
 
 Wir setzen die Timezone, legen die `mtab` an und aktualisieren das Environment.
 
-``` bash
+```shell
 echo "Europe/Berlin" > /etc/timezone
 emerge --config sys-libs/timezone-data
 
@@ -354,7 +354,7 @@ source /etc/profile
 
 Mittels der `/etc/portage/make.conf` wird Portage konfiguriert.
 
-``` bash
+```shell
 cat > /etc/portage/make.conf << "EOF"
 CHOST="x86_64-pc-linux-gnu"
 CFLAGS="-O2 -pipe -fomit-frame-pointer -march=native"
@@ -385,14 +385,14 @@ EOF
 Mittels `/etc/portage/package.use` werden einzelnen Paketen von der `/etc/portage/make.conf` abweichende USE-Flags
 zugewiesen.
 
-``` bash
+```shell
 cat > /etc/portage/package.use << "EOF"
 EOF
 ```
 
 Als Nächstes legen wir mittels `emerge-webrsync` den Portage-Tree an.
 
-``` bash
+```shell
 emerge-webrsync
 ```
 
@@ -401,7 +401,7 @@ emerge-webrsync
 Da das System später weltweit erreichbar sein wird und die Standardsystemsprache amerikanisch ist, werden die Locales
 auf `en_US.utf8` gesetzt und neu erzeugt.
 
-``` bash
+```shell
 cat > /etc/env.d/02locale << "EOF"
 LC_ALL="en_US.UTF-8"
 LANG="en_US.UTF-8"
@@ -434,7 +434,7 @@ aktualisiert, alle anderen müssen manuell mittels `dispatch-conf` aktualisiert 
 dem Release des Stage3-Tarballs eventuell ein paar für diese Installationvariante wichtige Basispakete im Portage-Tree
 aktualisiert wurden.
 
-``` bash
+```shell
 emerge portage portage-utils
 
 emerge -C cracklib pam pambase virtual/pam tcp-wrappers
@@ -462,7 +462,7 @@ das Basissystem ein zweites Mal vollständig rekompiliert, damit sichergestellt 
 noch gegen die aktuell vorhanden Libraries gelinkt ist und somit keine veralteten und/oder nicht mehr vorhandenen
 Funktionen nutzt.
 
-``` bash
+```shell
 exit
 
 chroot /mnt/gentoo /bin/env -i HOME=/root TERM=$TERM PS1='\u:\w\$ ' PATH=/sbin:/bin:/usr/sbin:/usr/bin /bin/bash +h
@@ -484,7 +484,7 @@ source /etc/profile
 
 Ohne fstab wird das System später nicht booten ;-)
 
-``` bash
+```shell
 cat > /etc/fstab << "EOF"
 /dev/disk/by-id/md-name-root   /          ext3    defaults,relatime,barrier=1    1 1
 /dev/disk/by-id/md-name-boot   /boot      ext2    defaults,relatime              1 2
@@ -498,7 +498,7 @@ EOF
 Folgende Optionen müssen mit dem Editor `ee` (`ee /etc/ssl/openssl.cnf`) in der `/etc/ssl/openssl.cnf` im Abschnitt `[
 req_distinguished_name ]` angepasst beziehungsweise ergänzt werden.
 
-``` text
+```text
 countryName_default             = DE
 stateOrProvinceName_default     = Bundesland
 localityName_default            = Ort
@@ -509,21 +509,21 @@ emailAddress_default            = admin@example.com
 
 Folgende Optionen müssen im Abschnitt `[ CA_default ]` angepasst werden.
 
-``` text
+```text
 default_days            = 730
 default_md              = sha256
 ```
 
 Folgende Optionen müssen im Abschnitt `[ req ]` angepasst werden.
 
-``` text
+```text
 default_bits            = 4096
 string_mask             = utf8only
 ```
 
 DH Param Files erzeugen
 
-``` bash
+```shell
 openssl genpkey -genparam -algorithm DH -pkeyopt dh_paramgen_prime_len:4096 -out /etc/ssl/dh_params.pem
 openssl genpkey -genparam -algorithm EC -pkeyopt ec_paramgen_curve:secp384r1 -out /etc/ssl/ec_params.pem
 ```
@@ -533,7 +533,7 @@ openssl genpkey -genparam -algorithm EC -pkeyopt ec_paramgen_curve:secp384r1 -ou
 Da wir gerade ein Produktiv-System aufsetzen, werden wir den SSH-Dienst recht restriktiv konfigurieren, unter Anderem
 werden wir den Login per Passwort verbieten und nur per PublicKey zulassen.
 
-``` bash
+```shell
 sed -e 's/^#\(Protocol\).*$/\1 2/' \
     -e 's/^#\(RekeyLimit\).*$/\1 500M 1h/' \
     -e 's/^#\(LoginGraceTime\).*$/\1 1m/' \
@@ -599,7 +599,7 @@ rc-update add sshd default
 
 Jetzt werden wichtige Systemprogramme installiert.
 
-``` bash
+```shell
 cat >> /etc/portage/package.use << "EOF"
 sys-fs/lvm2  lvm1 lvm2create_initrd
 EOF
@@ -623,7 +623,7 @@ EOF
 
 Das Netzwerk konfigurieren wir statisch
 
-``` bash
+```shell
 sed -e 's/^\(hostname=\).*$/\1"devnull"/' -i /etc/conf.d/hostname
 
 cat >> /etc/conf.d/net << "EOF"
@@ -640,7 +640,7 @@ rc-update add net.eth0 boot
 
 Es folgt ein wenig Voodoo, um die Netzwerkkonfiguration in der `/etc/conf.d/network` zu vervollständigen.
 
-``` bash
+```shell
 # IPv4
 ifconfig `ip -f inet route show scope global | awk '/default/ {print $5}'` | \
     awk '/inet/ {print $2}' | xargs -I % sed -e 's/__IPADDR4__/%/g' -i /etc/conf.d/net
@@ -652,7 +652,7 @@ ip -f inet route show scope global | awk '/default/ {print $3}' | \
 
 Wir richten die `/etc/hosts` ein.
 
-``` bash
+```shell
 # localhost
 sed -e 's/my.domain/example.com/g' -i /etc/hosts
 
@@ -668,7 +668,7 @@ ifconfig `ip -f inet route show scope global | awk '/default/ {print $5}'` | \
 Wir installieren nun die Gentoo Linux Hardened Kernelsourcen und das Gentoo Linux Tool `genkernel` zum automatisierten
 Erstellen des Kernel und des zugehörigen Initramfs.
 
-``` bash
+```shell
 cat >> /etc/portage/package.keywords << "EOF"
 sys-kernel/genkernel  ~amd64
 EOF
@@ -700,7 +700,7 @@ sed -e 's/^#\(SYMLINK=\).*$/\1"no"/' \
 
 ## Kernelsourcen konfigurieren
 
-``` bash
+```shell
 mkdir -p /root/kernels
 
 wget -q -O /root/kernels/MYKERNEL "https://raw.githubusercontent.com/RootService/configs/master/gentoo/kernel_config_hardened.txt"
@@ -717,7 +717,7 @@ Die Kernelkonfiguration, insbesondere die Hardware-Optionen, muss Abseits der vi
 angepasst werden. Dies ermöglicht uns die Angabe der Option `--menuconfig` beim genkernel-Aufruf. Für die Verwendung
 des Kernels in der virtuelle Maschine ist allerdings kein weiteres Anpassen der Kernelkonfiguration notwendig.
 
-``` bash
+```shell
 make
 make firmware_install
 make modules_install
@@ -732,7 +732,7 @@ genkernel --kernel-config=/root/kernels/MYKERNEL --no-ramdisk-modules --mdadm --
 
 Als Bootloader kommt `grub` zum Einsatz.
 
-``` bash
+```shell
 cat >> /etc/portage/make.conf << "EOF"
 GRUB_PLATFORMS="emu efi-32 efi-64 pc"
 EOF
@@ -760,7 +760,7 @@ grub-install --grub-setup=/bin/true /dev/sda
 
 Grub muss noch konfiguriert werden.
 
-``` bash
+```shell
 grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
@@ -768,7 +768,7 @@ grub-mkconfig -o /boot/grub/grub.cfg
 
 Als Nächstes installieren wir noch ein paar notwendige beziehungsweise nützliche Systemtools.
 
-``` bash
+```shell
 cat >> /etc/portage/package.use << "EOF"
 app-crypt/gnupg  -usb
 net-dns/bind-tools  -xml
@@ -784,7 +784,7 @@ Wir sorgen nun dafür, dass unsere Systemzeit mittels `cron` stündlich mit dem 
 Betreiber der deutschen Atomuhr, synchronisiert wird. Zudem aktivieren die regelmässige Überwachung der SMART-Werte
 unserer Festplatten.
 
-``` bash
+```shell
 cat > /etc/cron.hourly/ntpdate << "EOF"
 #!/bin/sh
 /usr/sbin/ntpdate -4 -b -s ptbtime2.ptb.de
@@ -800,7 +800,7 @@ echo '/dev/sdb -a -o on -S on -s (S/../.././02|L/../../6/03)' >> /etc/smartd.con
 
 Mit diesem `sed` werden ein paar Kernelparameter für die Netzwersicherheit gesetzt.
 
-``` bash
+```shell
 sed -e 's/^#net.ipv4/net.ipv4/g' -i /etc/sysctl.conf
 ```
 
@@ -809,7 +809,7 @@ sed -e 's/^#net.ipv4/net.ipv4/g' -i /etc/sysctl.conf
 Das Passwort für root sollte mindestens 8 Zeichen lang sein und neben Gross/Klein-Schreibung auch Ziffern und/oder
 Sonderzeichen enthalten.
 
-``` bash
+```shell
 passwd root
 ```
 
@@ -819,7 +819,7 @@ Wir legen uns nun einen Arbeitsuser für administrative Aufgaben an. Diesen Arbe
 `admin`, `users` und `wheel`. Das Passwort für den Arbeitsuser sollte wie das root-Passwort aufgebaut sein, sich von
 diesem aber deutlich unterscheiden.
 
-``` bash
+```shell
 groupadd -g 1000 admin
 useradd -u 1000 -g admin -G users,wheel -c 'Administrator' -m -s /bin/bash admin
 
@@ -830,7 +830,7 @@ passwd admin
 
 Für den eben angelegten Arbeitsuser müssen nun noch die SSH-Keys erzeugt werden.
 
-``` bash
+```shell
 su - admin
 
 ssh-keygen -t ed25519 -O clear -O permit-pty
@@ -848,7 +848,7 @@ System kopieren und ihn dann mit Hilfe der [PuTTYgen
 Dokumentation](https://the.earth.li/~sgtatham/putty/latest/htmldoc/Chapter8.html){: target="_blank" rel="noopener"} in
 einen für PuTTY lesbaren Key umwandeln.
 
-``` powershell
+```powershell
 pscp -P 2222 -r root@127.0.0.1:/mnt/gentoo/home/admin/.ssh "${Env:USERPROFILE}\VirtualBox VMs\Gentoo\ssh"
 
 puttygen "${Env:USERPROFILE}\VirtualBox VMs\Gentoo\ssh\id_rsa"
@@ -858,7 +858,7 @@ puttygen "${Env:USERPROFILE}\VirtualBox VMs\Gentoo\ssh\id_rsa"
 
 Die Basisinstallation ist nun endlich abgeschlossen und wir können das neue System zum ersten Mal booten.
 
-``` bash
+```shell
 umount /boot
 
 exit
@@ -873,7 +873,7 @@ umount /mnt/gentoo
 shutdown -P now
 ```
 
-``` powershell
+```powershell
 & "${Env:ProgramFiles}\Oracle\VirtualBox\VBoxManage.exe" storageattach "Gentoo" --storagectl "IDE Controller" --port 0 --device 0 --type dvddrive --medium emptydrive
 
 & "${Env:ProgramFiles}\Oracle\VirtualBox\VBoxManage.exe" startvm "Gentoo"
@@ -881,7 +881,7 @@ shutdown -P now
 putty -ssh -P 2222 admin@127.0.0.1
 ```
 
-``` bash
+```shell
 su - root
 
 gradm -P

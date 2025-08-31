@@ -54,11 +54,11 @@ Zu den Voraussetzungen für dieses HowTo siehe bitte: [Remote Installation](/how
 
 ## Einloggen und zu *root* werden
 
-``` powershell
+```powershell
 putty -ssh -P 2222 -i "${Env:USERPROFILE}\VirtualBox VMs\FreeBSD\ssh\id_ed25519.ppk" admin@127.0.0.1
 ```
 
-``` bash
+```shell
 su - root
 ```
 
@@ -83,7 +83,7 @@ Sicherheitslücken sinkt dadurch, da wir unnütze Pakete/Ports gar nicht erst al
 Wir deaktivieren also zuerst das Default-Repository von `pkg`, um versehentlichen Installationen von Binary-Paketen
 durch `pkg` vorzubeugen.
 
-``` bash
+```shell
 mkdir -p /usr/local/etc/pkg/repos
 sed -e 's|quarterly|latest|' /etc/pkg/FreeBSD.conf > /usr/local/etc/pkg/repos/FreeBSD.conf
 sed -e 's|\(enabled:\)[[:space:]]*yes|\1 no|g' -i '' /usr/local/etc/pkg/repos/FreeBSD.conf
@@ -99,7 +99,7 @@ Dieser Cronjob prüft täglich um 7:00 Uhr ob es Updates für die installierten 
 wichtige Sicherheitsupdates enthalten sind. Das Ergebnis wird automatisch per Mail an `root` (siehe
 `/etc/mail/aliases`) gesendet.
 
-``` bash
+```shell
 cat <<'EOF' >> /etc/crontab
 0       7       *       *       *       root    /usr/local/bin/git -C /usr/ports pull --rebase --quiet && /usr/bin/make -C /usr/ports fetchindex && /usr/local/sbin/pkg version -vIL= && /usr/local/sbin/pkg audit -F
 EOF
@@ -107,7 +107,7 @@ EOF
 
 Wir installieren `ports-mgmt/pkg` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/ports-mgmt_pkg
 cat <<'EOF' > /var/db/ports/ports-mgmt_pkg/options
 --8<-- "ports/ports-mgmt_pkg/options"
@@ -118,7 +118,7 @@ make -C /usr/ports/ports-mgmt/pkg/ all install clean-depends clean
 
 Wir installieren `ports-mgmt/portmaster` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/ports-mgmt_portmaster
 cat <<'EOF' > /var/db/ports/ports-mgmt_portmaster/options
 --8<-- "ports/ports-mgmt_portmaster/options"
@@ -129,7 +129,7 @@ make -C /usr/ports/ports-mgmt/portmaster/ all install clean-depends clean
 
 Wir installieren `ports-mgmt/pkg` und `ports-mgmt/portmaster` und ihre Abhängigkeiten mittels `portmaster` erneut.
 
-``` bash
+```shell
 portmaster -w -b -g --force-config ports-mgmt/pkg
 portmaster -w -b -g --force-config ports-mgmt/portconfig
 portmaster -w -b -g --force-config ports-mgmt/portmaster
@@ -137,7 +137,7 @@ portmaster -w -b -g --force-config ports-mgmt/portmaster
 
 Wir installieren `lang/perl5.40` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/lang_perl5.40
 cat <<'EOF' > /var/db/ports/lang_perl5.40/options
 --8<-- "ports/lang_perl5.40/options"
@@ -149,7 +149,7 @@ portmaster -w -B -g --force-config lang/perl5.40  -n
 
 Wir installieren `security/openssl35` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 cat <<'EOF' >> /etc/make.conf
 DEFAULT_VERSIONS+=ssl=openssl35
 EOF
@@ -166,7 +166,7 @@ portmaster -w -B -g --force-config security/openssl35  -n
 
 Wir installieren `security/ca_root_nss` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/security_ca_root_nss
 cat <<'EOF' > /var/db/ports/security_ca_root_nss/options
 --8<-- "ports/security_ca_root_nss/options"
@@ -178,7 +178,7 @@ portmaster -w -B -g --force-config security/ca_root_nss  -n
 
 Wir installieren `devel/pcre2` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/devel_autoconf
 cat <<'EOF' > /var/db/ports/devel_autoconf/options
 --8<-- "ports/devel_autoconf/options"
@@ -230,7 +230,7 @@ portmaster -w -B -g --force-config devel/pcre2  -n
 
 Wir installieren `lang/lua54` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/lang_lua54
 cat <<'EOF' > /var/db/ports/lang_lua54/options
 --8<-- "ports/lang_lua54/options"
@@ -242,7 +242,7 @@ portmaster -w -B -g --force-config lang/lua54  -n
 
 Wir installieren `lang/tcl86` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/lang_tcl86
 cat <<'EOF' > /var/db/ports/lang_tcl86/options
 --8<-- "ports/lang_tcl86/options"
@@ -254,7 +254,7 @@ portmaster -w -B -g --force-config lang/tcl86  -n
 
 Wir installieren `lang/python` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/devel_readline
 cat <<'EOF' > /var/db/ports/devel_readline/options
 --8<-- "ports/devel_readline/options"
@@ -276,7 +276,7 @@ portmaster -w -B -g --force-config lang/python  -n
 
 Wir installieren `devel/py-pip` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/devel_py-pip
 cat <<'EOF' > /var/db/ports/devel_py-pip/options
 --8<-- "ports/devel_py-pip/options"
@@ -287,7 +287,7 @@ portmaster -w -B -g --force-config devel/py-pip  -n
 
 Wir installieren `devel/re2c` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/devel_cmake-core
 cat <<'EOF' > /var/db/ports/devel_cmake-core/options
 --8<-- "ports/devel_cmake-core/options"
@@ -343,7 +343,7 @@ portmaster -w -B -g --force-config devel/re2c  -n
 
 Wir installieren `shells/bash` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/devel_bison
 cat <<'EOF' > /var/db/ports/devel_bison/options
 --8<-- "ports/devel_bison/options"
@@ -360,7 +360,7 @@ portmaster -w -B -g --force-config shells/bash  -n
 
 Wir installieren `ftp/curl` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/archivers_brotli
 cat <<'EOF' > /var/db/ports/archivers_brotli/options
 --8<-- "ports/archivers_brotli/options"
@@ -397,7 +397,7 @@ portmaster -w -B -g --force-config ftp/curl  -n
 
 Wir installieren `devel/llvm` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/devel_binutils
 cat <<'EOF' > /var/db/ports/devel_binutils/options
 --8<-- "ports/devel_binutils/options"
@@ -433,7 +433,7 @@ portmaster -w -B -g --force-config devel/llvm  -n
 
 Wir installieren `lang/rust` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/lang_rust
 cat <<'EOF' > /var/db/ports/lang_rust/options
 --8<-- "ports/lang_rust/options"
@@ -444,7 +444,7 @@ portmaster -w -B -g --force-config lang/rust  -n
 
 Wir installieren `lang/ruby33` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/lang_ruby33
 cat <<'EOF' > /var/db/ports/lang_ruby33/options
 --8<-- "ports/lang_ruby33/options"
@@ -456,7 +456,7 @@ portmaster -w -B -g --force-config lang/ruby33  -n
 
 Wir installieren `devel/ruby-gems` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/devel_ruby-gems
 cat <<'EOF' > /var/db/ports/devel_ruby-gems/options
 --8<-- "ports/devel_ruby-gems/options"
@@ -468,13 +468,13 @@ portmaster -w -B -g --force-config devel/ruby-gems  -n
 
 Wir installieren `sysutils/rubygem-bundler` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 portmaster -w -B -g --force-config sysutils/rubygem-bundler  -n
 ```
 
 Wir installieren `lang/go` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/lang_go124
 cat <<'EOF' > /var/db/ports/lang_go124/options
 --8<-- "ports/lang_go124/options"
@@ -486,7 +486,7 @@ portmaster -w -B -g --force-config lang/go  -n
 
 Wir installieren `sysutils/cpu-microcode` und dessen Abhängigkeiten.
 
-``` bash
+```shell
 mkdir -p /var/db/ports/sysutils_cpu-microcode-intel
 cat <<'EOF' > /var/db/ports/sysutils_cpu-microcode-intel/options
 --8<-- "ports/sysutils_cpu-microcode-intel/options"

@@ -23,7 +23,7 @@ Unverändert wie oben beschrieben. Verwendung von `requirements-dev.txt` ist ber
 
 ### Paketinstallation
 - **Debian/Ubuntu**
-```bash
+```shell
 sudo apt update
 sudo apt install -y python3 python3-pip python3-venv git unzip \
   libcairo2-dev libpango1.0-dev libgdk-pixbuf-2.0-dev librsvg2-dev
@@ -31,28 +31,28 @@ sudo apt install -y python3 python3-pip python3-venv git unzip \
 
 * **Fedora/RHEL**
 
-```bash
+```shell
 sudo dnf install -y python3 python3-pip python3-virtualenv git unzip \
   cairo-devel pango-devel gdk-pixbuf2-devel librsvg2
 ```
 
 * **Arch**
 
-```bash
+```shell
 sudo pacman -Syu --noconfirm python python-pip git unzip \
   cairo pango gdk-pixbuf2 librsvg
 ```
 
 * **Alpine**
 
-```bash
+```shell
 sudo apk add --no-cache python3 py3-pip py3-virtualenv git unzip \
   cairo-dev pango-dev gdk-pixbuf-dev librsvg-dev
 ```
 
 ### Setup mit `requirements-dev.txt`
 
-```bash
+```shell
 cd ~ && mkdir -p .mkdocs/data && cd .mkdocs
 uv venv --python 3.11 .
 . ./bin/activate
@@ -164,13 +164,13 @@ mkdocs serve -a 127.0.0.1:8000
 
 ### Paketinstallation
 
-```bash
+```shell
 brew install python uv git cairo pango gdk-pixbuf librsvg
 ```
 
 ### Setup mit `requirements-dev.txt`
 
-```bash
+```shell
 cd ~ && mkdir -p .mkdocs/data && cd .mkdocs
 uv venv --python 3.11 .
 . ./bin/activate
@@ -229,7 +229,7 @@ mkdocs serve -a 127.0.0.1:8000
 
 Zusatz: Ein kompaktes POSIX-Setup-Script (`setup-posix.sh`) für Linux/FreeBSD/macOS.
 
-```bash
+```shell
 #!/usr/bin/env bash
 set -euo pipefail
 
