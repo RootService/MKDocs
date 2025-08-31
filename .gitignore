@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+# MkDocs
+site/
+# Build
+dist/
+build/
+*.egg-info/
+.cache/
+.mypy_cache/
+# VS Code
+.vscode/
+# Buildscript
+build.sh

@@ -1,0 +1,27 @@
+# Core
+mkdocs
+mkdocs-material
+mkdocs-material-extensions
+mkdocs-material[imaging]
+mkdocs-minify-plugin
+mkdocs-document-dates
+mkdocs-git-revision-date-localized-plugin
+mkdocs-redirects
+mkdocs-htmlproofer-plugin
+mkdocs-static-i18n
+
+# Rendering / Imaging
+cairosvg
+cairocffi
+cffi
+tinycss2
+cssselect2
+pillow
+
+# Tools
+beautifulsoup4
+
+# Dev-Tools
+black
+flake8
+pytest
