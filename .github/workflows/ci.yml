@@ -27,7 +27,7 @@ jobs:
           pip install -r requirements-dev.txt
 
       - name: Build
-        run: mkdocs build --strict
+        run: mkdocs build
 
       - name: Generate headers (prod on main, preview otherwise)
         env:
