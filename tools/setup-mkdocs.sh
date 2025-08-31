@@ -73,7 +73,7 @@ cmd_root() {
   PMFLAGS="-G"; [ $YES -eq 1 ] && PMFLAGS="$PMFLAGS -y"
 
   # Base ports including meta 'lang/python3' and pip (default flavor).
-  BASE_PORTS="devel/git lang/python3 devel/py-pip www/node graphics/cairo x11-toolkits/pango graphics/gdk-pixbuf2 devel/libffi textproc/libxml2 textproc/libxslt"
+  BASE_PORTS="lang/python3 devel/py-pip devel/libffi textproc/libxml2 textproc/libxslt devel/git www/node graphics/cairo x11-toolkits/pango graphics/gdk-pixbuf2"
   log ">> Installing via portmaster: $BASE_PORTS"
   env BATCH=yes portmaster $PMFLAGS $BASE_PORTS || die "portmaster failed installing base ports"
 
@@ -235,6 +235,13 @@ cmd_build() {
   cd_datadir
   require_mkdocs_config
   MKDOCS=$(mkdocs_bin)
+
+# cleanup snippets/ports
+sed -E -e '/^#[[:space:]]/d' -i '' ./snippets/ports/*/options
+sed -E -e 's/[[:space:]]*$//g' -i '' ./snippets/ports/*/options
+sed -E -e '/^_OPTIONS_READ/ s/\,[[:digit:]]+[[:space:]]?$//g' -i '' ./snippets/ports/*/options
+sed -E -e '/^_OPTIONS_READ/ s/\_[[:digit:]]+[[:space:]]?$//g' -i '' ./snippets/ports/*/options
+
   export CSP_ENV="$MODE"
   log ">> CSP_ENV=$CSP_ENV"
   if [ $STRICT -eq 1 ]; then
@@ -250,6 +257,11 @@ cmd_build() {
     "$PY" tools/update_server_headers.py || log "header update script returned non-zero"
   fi
   log ">> Build complete -> $(pwd)/site"
+# deploy to webroot
+sudo rm -rf /data/www/vhosts/www.rootservice.org/data
+sudo cp -a ./site /data/www/vhosts/www.rootservice.org/data
+sudo cp -a ./docs/.well-known /data/www/vhosts/www.rootservice.org/data/
+sudo chown -R www:www /data/www/vhosts/www.rootservice.org/data
 }
 
 cmd_serve() {
