@@ -20,5 +20,4 @@ black
 flake8
 yamllint
 pytest
-coverage
 playwright
