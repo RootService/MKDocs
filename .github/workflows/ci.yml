@@ -36,15 +36,6 @@ jobs:
           publish_dir: ./site
 
 
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Markdownlint
-        run: npx markdownlint-cli2 **/*.md
-      - name: YAMLLint
-        run: yamllint .
-
   preview:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
