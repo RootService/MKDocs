@@ -1,222 +1,179 @@
-# OS: Windows 11 Pro 64bit (latest)
-# IDE: Visual Studio 2022
-# Python 3.11 (Miniforge3, uv)
-# MSYS2 + Grafik-Stack für CairoSVG
-# Node.js + markdownlint
+<#!
+.SYNOPSIS
+  Setup-MKDocs.ps1 – Windows-PowerShell-Port von tools/setup-mkdocs.sh
 
-#Requires -Version 7
+.DESCRIPTION
+  Erstellt/aktualisiert eine Windows-User-Umgebung für MkDocs + Material.
+  Subcommands:
+    root   – Systemvoraussetzungen via winget + MSYS2 (Cairo/Pango/GDK-Pixbuf)
+    user   – Python-Venv (~/.mkdocs), Requirements, Repo-Sync nach ~/.mkdocs/data
+    build  – mkdocs build (preview|production [--strict])
+    serve  – mkdocs serve [HOST:PORT] (Standard 127.0.0.1:8000)
+    clean  – Cache-/Artefaktbereinigung [--npm]
+
+.PARAMETER Command
+  root|user|build|serve|clean. Standard: user
+
+.PARAMETER Arg1
+  build: preview|production oder --strict
+  serve: HOST:PORT (optional)
+
+.PARAMETER Arg2
+  build: --strict
+  serve: HOST:PORT (falls Arg1 nicht gesetzt ist)
+
+.EXAMPLE
+  ./tools/Setup-MKDocs.ps1 root
+  ./tools/Setup-MKDocs.ps1 user
+  ./tools/Setup-MKDocs.ps1 build production --strict
+  ./tools/Setup-MKDocs.ps1 serve 127.0.0.1:8000
+  ./tools/Setup-MKDocs.ps1 clean --npm
+
+.NOTES
+  Lizenz: CC BY-NC-SA 4.0
+!#>
+
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-# ---- Helpers ---------------------------------------------------------------
-function Add-PathOnce([string]$PathToAdd) {
-  if ([string]::IsNullOrWhiteSpace($PathToAdd)) { return }
-  try { $full = [IO.Path]::GetFullPath($PathToAdd) } catch { return }
-  if (-not (Test-Path -LiteralPath $full)) { return }
+[CmdletBinding()]
+param(
+  [Parameter(Position=0)]
+  [ValidateSet('root','user','build','serve','clean')]
+  [string]$Command = 'user',
 
-  $cur = ($env:PATH -split ';') | Where-Object { $_ } | ForEach-Object { $_.Trim() }
-  if ($cur -notcontains $full) { $env:PATH = ($cur + $full) -join ';' }
+  [Parameter(Position=1)]
+  [string]$Arg1,
 
-  $userPath  = [Environment]::GetEnvironmentVariable('PATH','User')
-  $userParts = ($userPath -split ';') | Where-Object { $_ } | ForEach-Object { $_.Trim() }
-  if ($userParts -notcontains $full) {
-    $new = ($userParts + $full) -join ';'
-    [Environment]::SetEnvironmentVariable('PATH', $new, 'User')
+  [Parameter(Position=2)]
+  [string]$Arg2,
+
+  [Alias('h','?','help')]
+  [switch]$Help
+)
+
+function Show-Usage {
+  Write-Host @'
+Setup-MKDocs.ps1 – Usage
+
+  ./tools/Setup-MKDocs.ps1 [command] [arg1] [arg2]
+
+Commands:
+  root                      Installiert Systemvoraussetzungen über winget + MSYS2.
+  user                      Legt Venv in ~/.mkdocs an, installiert Pip-Requirements und synchronisiert Repo → ~/.mkdocs/data.
+  build [preview|production] [--strict]
+                           Baut die Site. "production" nutzt --clean, optional --strict.
+  serve [HOST:PORT]        Startet mkdocs serve. Standardadresse: 127.0.0.1:8000.
+  clean [--npm]            Entfernt .cache und __pycache__. Mit --npm leert zusätzlich den npm-Cache.
+'@
+}
+
+if ($Help) { Show-Usage; exit 0 }
+
+# Pfade
+$UserProfile = if ($env:USERPROFILE) { $env:USERPROFILE } elseif ($HOME) { $HOME } else { [Environment]::GetFolderPath('UserProfile') }
+$MkdocsHome = Join-Path $UserProfile '.mkdocs'
+$VenvPython = Join-Path $MkdocsHome 'Scripts/python.exe'
+$MkdocsExe  = Join-Path $MkdocsHome 'Scripts/mkdocs.exe'
+$DataDir    = Join-Path $MkdocsHome 'data'
+
+function Test-Command {
+  param([Parameter(Mandatory)][string]$Name)
+  try { Get-Command $Name -ErrorAction Stop | Out-Null; return $true } catch { return $false }
+}
+
+function Ensure-WingetPkg {
+  param([Parameter(Mandatory)][string]$Id)
+  Write-Host "Checking $Id..."
+  $out = winget list --id $Id 2>$null
+  if (-not ($out -match [regex]::Escape($Id))) {
+    Write-Host "Installing $Id..."
+    winget install -e --id $Id -h
   }
 }
 
-function Ensure-WingetPkg([string]$Id) {
-  winget install --id=$Id -e --accept-package-agreements --accept-source-agreements | Out-Null
+function Invoke-Root {
+  if (-not (Test-Command 'winget')) { throw 'winget nicht gefunden. Windows 11 oder manuelle Installation nötig.' }
+  Ensure-WingetPkg 'Python.Python.3.11'
+  Ensure-WingetPkg 'Git.Git'
+  Ensure-WingetPkg 'OpenJS.NodeJS'
+  Ensure-WingetPkg 'Graphviz.Graphviz'
+  Ensure-WingetPkg 'MSYS2.MSYS2'
+
+  $msys = 'C:/msys64/usr/bin/bash.exe'
+  if (Test-Path $msys) {
+    & $msys -lc "pacman -S --noconfirm --needed mingw-w64-ucrt-x86_64-cairo mingw-w64-ucrt-x86_64-pango mingw-w64-ucrt-x86_64-gdk-pixbuf2 mingw-w64-ucrt-x86_64-libffi mingw-w64-ucrt-x86_64-pkgconf"
+  } else {
+    Write-Warning 'MSYS2 nicht gefunden. Starte MSYS2 einmal, damit das Grundsystem initialisiert ist.'
+  }
+  $ucrt = 'C:/msys64/ucrt64/bin'
+  if (-not ($env:Path -like "*$ucrt*")) {
+    [Environment]::SetEnvironmentVariable('Path', $env:Path + ";$ucrt", 'User')
+    $env:Path = $env:Path + ";$ucrt"
+    Write-Host "Added to PATH (User): $ucrt"
+  }
 }
 
-function Get-MsysRoot {
-  $candidates = @('C:\msys64', "$env:ProgramFiles\msys64", "$env:ProgramFiles(x86)\msys64")
-  foreach ($c in $candidates) { if (Test-Path $c) { return $c } }
-  return $null
+function New-Or-EnsureVenv {
+  if (-not (Test-Path $VenvPython)) {
+    Write-Host "Creating venv in $MkdocsHome"
+    if (Test-Command 'py') { py -3.11 -m venv $MkdocsHome } else { python -m venv $MkdocsHome }
+  }
+  & $VenvPython -m pip install --upgrade pip
 }
 
-# ---- 1) Miniforge3 --------------------------------------------------------
-Ensure-WingetPkg 'CondaForge.Miniforge3'
-Add-PathOnce "$env:USERPROFILE\miniforge3"
-Add-PathOnce "$env:USERPROFILE\miniforge3\condabin"
-Add-PathOnce "$env:USERPROFILE\miniforge3\Scripts"
-Add-PathOnce "$env:USERPROFILE\.local\bin"
-
-# ---- 2) MSYS2 + Grafikstack ----------------------------------------------
-Ensure-WingetPkg 'MSYS2.MSYS2'
-$msysRoot = Get-MsysRoot
-if (-not $msysRoot) { throw "MSYS2 Pfad nicht gefunden." }
-$bashExe = Join-Path $msysRoot 'usr\bin\bash.exe'
-if (-not (Test-Path $bashExe)) { throw "bash.exe nicht gefunden unter $bashExe" }
-& $bashExe -lc 'pacman -Syu --noconfirm'
-& $bashExe -lc 'pacman -Syu --noconfirm'
-& $bashExe -lc 'pacman -Sy --noconfirm mingw-w64-ucrt-x86_64-cairo mingw-w64-ucrt-x86_64-pango mingw-w64-ucrt-x86_64-gdk-pixbuf2 mingw-w64-ucrt-x86_64-librsvg'
-
-# ---- 3) uv ----------------------------------------------------------------
-Ensure-WingetPkg 'astral-sh.uv'
-$uvBin = "$env:USERPROFILE\AppData\Local\Programs\uv\bin"
-if (Test-Path $uvBin) { Add-PathOnce $uvBin }
-
-# ---- 4) Venv --------------------------------------------------------------
-$env:DATA_DIR = ".mkdocs\data"
-uv venv --python 3.11 .mkdocs
-$activate = ".\.mkdocs\Scripts\Activate.ps1"
-if (-not (Test-Path $activate)) { throw "Venv-Aktivierungsskript fehlt: $activate" }
-. $activate
-uv python pin 3.11
-python -V | Write-Output
-(Get-Command python).Path | Write-Output
-
-# ---- 5) Projekt entpacken -------------------------------------------------
-$zip  = Join-Path $env:USERPROFILE 'Downloads\mkdocs.zip'
-$dest = '.\.mkdocs\data'
-New-Item -ItemType Directory -Force -Path $dest | Out-Null
-if (-not (Test-Path $zip)) { throw "ZIP nicht gefunden: $zip" }
-Expand-Archive -Force -Path $zip -DestinationPath $dest -ErrorAction Stop
-
-# ---- 6) requirements-dev.txt sicherstellen -------------------------------
-Set-Location $dest
-$req = Join-Path (Get-Location) 'requirements-dev.txt'
-if (-not (Test-Path $req)) {
-  @"
-# Core
-mkdocs
-mkdocs-material
-mkdocs-material-extensions
-mkdocs-material[imaging]
-mkdocs-minify-plugin
-mkdocs-document-dates
-mkdocs-git-revision-date-localized-plugin
-mkdocs-redirects
-mkdocs-htmlproofer-plugin
-mkdocs-static-i18n
-
-# Rendering / Imaging
-cairosvg
-cairocffi
-cffi
-tinycss2
-cssselect2
-pillow
-
-# Tools
-beautifulsoup4
-
-# Dev-Tools
-black
-flake8
-pytest
-"@ | Set-Content -Encoding UTF8 $req
+function Sync-Repo {
+  if (-not (Test-Path $DataDir)) { New-Item -ItemType Directory -Path $DataDir | Out-Null }
+  Write-Host "Sync repo → $DataDir"
+  $null = robocopy . $DataDir /MIR /XD .git .venv .mypy_cache .pytest_cache .cache site /R:1 /W:1 /NFL /NDL /NJH /NJS
 }
 
-# ---- 7) Abhängigkeiten installieren --------------------------------------
-uv pip install -r $req
+function Invoke-User {
+  New-Or-EnsureVenv
+  $req = if (Test-Path 'requirements-dev.txt') { 'requirements-dev.txt' } elseif (Test-Path 'requirements.txt') { 'requirements.txt' } else { $null }
+  if ($null -ne $req) { & $VenvPython -m pip install -r $req } else { Write-Warning 'Keine requirements-Datei gefunden.' }
+  Sync-Repo
+}
 
-# ---- 8) NodeJS + markdownlint --------------------------------------------
-Ensure-WingetPkg 'OpenJS.NodeJS.LTS'
+function Invoke-Build {
+  if (-not (Test-Path $MkdocsExe)) { throw 'mkdocs.exe nicht gefunden. Bitte erst "user" ausführen.' }
+  $strict  = ($Arg1 -eq '--strict') -or ($Arg2 -eq '--strict')
+  $profile = if ($Arg1 -in @('preview','production')) { $Arg1 } elseif ($Arg2 -in @('preview','production')) { $Arg2 } else { 'preview' }
+  $args = @('build')
+  if ($profile -eq 'production') { $args += '--clean' }
+  if ($strict) { $args += '--strict' }
+  & $MkdocsExe @args
+}
 
-# global npm bin in PATH
+function Parse-ServeAddr {
+  if ($Arg1 -and ($Arg1 -like '*:*')) { return $Arg1 }
+  if ($Arg2 -and ($Arg2 -like '*:*')) { return $Arg2 }
+  return '127.0.0.1:8000'
+}
+
+function Invoke-Serve {
+  if (-not (Test-Path $MkdocsExe)) { throw 'mkdocs.exe nicht gefunden. Bitte erst "user" ausführen.' }
+  $addr = Parse-ServeAddr
+  & $MkdocsExe serve -a $addr
+}
+
+function Invoke-Clean {
+  Remove-Item -Recurse -Force .\.cache -ErrorAction SilentlyContinue
+  Get-ChildItem -Recurse -Force -Directory -Filter '__pycache__' -ErrorAction SilentlyContinue | ForEach-Object { Remove-Item -Recurse -Force $_.FullName -ErrorAction SilentlyContinue }
+  if ($Arg1 -eq '--npm' -or $Arg2 -eq '--npm') { try { npm cache clean --force } catch { Write-Warning 'npm nicht gefunden oder Fehler beim Leeren des Caches.' } }
+}
+
 try {
-  $npmBin = (& npm bin -g) 2>$null
-  if ($npmBin) { Add-PathOnce $npmBin }
-} catch { Write-Warning "npm nicht verfügbar. Prüfe NodeJS-Installation." }
-
-# markdownlint installieren
-try {
-  npm i -g markdownlint-cli2 markdownlint-cli2-config-standard | Out-Null
-} catch {
-  Write-Warning "markdownlint-Installation fehlgeschlagen."
-}
-
-# Config sicherstellen
-$repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
-$lintConfig = Join-Path $repoRoot '.markdownlint.jsonc'
-if (-not (Test-Path $lintConfig)) {
-  @"
-{
-  "config": {
-    "extends": "markdownlint-cli2-config-standard",
-
-    // Zeilenlänge nur für Fließtext
-    "MD013": {
-      "line_length": 120,
-      "tables": false,
-      "code_blocks": false,
-      "headings": false
-    },
-
-    // Front-Matter erlaubt, kein H1 erzwingen
-    "MD041": false,
-    "MD025": { "front_matter_title": "" },
-
-    // Leerzeilen vor/nach Überschriften und Codeblöcken
-    "MD022": true,
-    "MD031": true,
-
-    // Überschriften Duplikate nur auf gleicher Ebene
-    "MD024": { "siblings_only": true },
-
-    // Listen: nur ein Space nach Marker, aber keine HR/Front-Matter prüfen
-    "MD030": { "ol_single": 1, "ul_single": 1 },
-
-    // Formatierung beibehalten
-    "MD004": { "style": "dash" },
-    "MD007": { "indent": 2 },
-    "MD029": { "style": "one" },
-
-    // Inline-Code und HTML
-    "MD038": true,
-    "MD033": {
-      "allowed_elements": [
-        "abbr","details","summary","sup","sub","kbd","mark",
-        "br","img","span"
-      ]
-    },
-
-    // Sonstiges
-    "MD012": { "maximum": 2 },
-    "MD046": { "style": "fenced" },
-    "MD048": { "style": "backtick" }
+  switch ($Command) {
+    'root'  { Invoke-Root }
+    'user'  { Invoke-User }
+    'build' { Invoke-Build }
+    'serve' { Invoke-Serve }
+    'clean' { Invoke-Clean }
+    default { Invoke-User; $script:Arg1 = 'production'; $script:Arg2 = '--strict'; Invoke-Build }
   }
 }
-"@ | Set-Content -Encoding UTF8 $lintConfig
+catch {
+  Write-Error $_.Exception.Message
+  exit 1
 }
-
-# Ignore-Datei sicherstellen
-$lintIgnore = Join-Path $repoRoot '.markdownlintignore'
-if (-not (Test-Path $lintIgnore)) {
-  @"
-site/
-.mkdocs/
-overrides/assets/
-node_modules/
-**/.venv/
-**/__pycache__/
-"@ | Set-Content -Encoding UTF8 $lintIgnore
-}
-
-function Invoke-MarkdownLint {
-  param([string]$Pattern = 'docs/**/*.md')
-  Write-Output "Running markdownlint on $Pattern"
-  try {
-    Push-Location $repoRoot
-    markdownlint-cli2 $Pattern
-  } catch {
-    Write-Warning "markdownlint meldet Verstöße (nur Report)."
-  } finally {
-    Pop-Location
-  }
-}
-
-# ---- 9) Markdown Lint Run (Report only) -----------------------------------
-Invoke-MarkdownLint
-
-# ---- 10) Build + optionale Server-Header ----------------------------------
-$env:CSP_ENV = "preview"
-if (-not (Test-Path '.\mkdocs.yml')) { throw "mkdocs.yml fehlt in $dest" }
-mkdocs build
-$hdr = '.\tools\update_server_headers.py'
-if (Test-Path $hdr) { python $hdr }
-
-# ---- 11) Serve -------------------------------------------------------------
-mkdocs serve -a 127.0.0.1:8000
