@@ -23,15 +23,15 @@ theme:
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
-      primary: indigo
-      accent: indigo
+      primary: magenta
+      accent: pink
     - scheme: slate
       media: "(prefers-color-scheme: dark)"
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
-      primary: indigo
-      accent: indigo
+      primary: magenta
+      accent: pink
   nav_style: dark
   font:
     text: Roboto Flex
@@ -90,9 +90,11 @@ plugins:
   - htmlproofer:
       validate_external_urls: false
       raise_error: true
-#  - i18n:
-#      default_language: de
-#      docs_structure: folder
+  - i18n:
+      default_language: de
+      languages:
+        de: Deutsch
+        en: English
   - tags
 #  - autorefs
 #  - rss:
@@ -105,8 +107,6 @@ plugins:
 
 extra_css:
   - assets/stylesheets/extra.css
-  - assets/stylesheets/glossy.css
-  - assets/stylesheets/accessibility.css
 
 extra_javascript:
   - assets/javascripts/extra.js
@@ -133,6 +133,9 @@ extra:
     - icon: material/linkedin
       link: https://linkedin.com/in/MarkusKohlmeyer78
       name: LinkedIn
+    - icon: material/email
+      link: mailto:info@rootservice.org
+      name: E-Mail
   schema:
     type: TechArticle
     author:

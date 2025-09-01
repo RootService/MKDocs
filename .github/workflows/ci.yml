@@ -21,22 +21,38 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      - name: Install deps
+      - name: Setup MkDocs
         run: |
-          python -m pip install -U pip
-          pip install -r requirements-dev.txt
+          chmod +x tools/setup-mkdocs.sh
+          tools/setup-mkdocs.sh user --upgrade
 
-      - name: Lint YAML
-        run: |
-          yamllint mkdocs.yml
+      - name: Build site
+        run: tools/setup-mkdocs.sh build production
 
-      - name: Build (strict)
-        run: mkdocs build
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
 
-      - name: HTMLProofer
-        run: mkdocs htmlproofer
 
-      - name: Generate headers (prod on main, preview otherwise)
-        env:
-          CSP_ENV: ${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }}
-        run: python tools/update_server_headers.py
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Markdownlint
+        run: npx markdownlint-cli2 **/*.md
+      - name: YAMLLint
+        run: yamllint .
+
+  preview:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: tools/setup-mkdocs.sh user --upgrade
+      - run: tools/setup-mkdocs.sh build preview
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site-preview
+          path: site

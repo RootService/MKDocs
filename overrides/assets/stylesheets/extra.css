@@ -1,3 +1,34 @@
+/* --- docs/assets/css/extra.css --- */
+
+
+/* --- overrides/assets/stylesheets/accessibility.css --- */
+/* Skip link */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.skip-link:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  margin: 1rem;
+  padding: .5rem 1rem;
+  background: var(--md-accent-fg-color);
+  color: white;
+}
+
+/* High-contrast focus rings */
+:focus-visible {
+  outline: 3px solid var(--md-accent-fg-color);
+  outline-offset: 2px;
+}
+
+
+/* --- overrides/assets/stylesheets/extra.css --- */
 :root {
   --md-primary-fg-color: #d946ef;
   --md-primary-fg-color--light: #f0abfc;
@@ -13,3 +44,22 @@
 [data-md-color-scheme="slate"] {
   --glossy-bg: linear-gradient(135deg, rgba(217,70,239,.12), rgba(236,72,153,.08));
 }
+
+
+/* --- overrides/assets/stylesheets/glossy.css --- */
+.md-header, .md-footer, .md-tabs {
+  background: var(--glossy-bg);
+  backdrop-filter: blur(8px);
+}
+
+.md-nav__link:focus, .md-typeset a:focus {
+  outline: 3px solid var(--md-accent-fg-color);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.md-typeset .admonition {
+  box-shadow: 0 4px 12px rgba(0,0,0,.12);
+}
+
+
