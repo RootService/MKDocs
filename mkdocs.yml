@@ -4,7 +4,7 @@ site_description: Wir bieten Service, Support, HowTos und andere nützliche Info
 site_author: RootService Team
 
 repo_name: Documentation
-repo_url: https://github.com/RootService/mkdocs
+repo_url: https://github.com/RootService/MKDocs
 edit_uri: edit/main/docs/
 
 copyright: Copyright © 2002-2025 RootService Team
@@ -105,14 +105,11 @@ plugins:
 
 extra_css:
   - assets/stylesheets/extra.css
-
   - assets/stylesheets/glossy.css
   - assets/stylesheets/accessibility.css
 
 extra_javascript:
   - assets/javascripts/extra.js
-
-  - assets/javascripts/reading-time.js
   - assets/javascripts/schema.js
 
 extra:
@@ -126,7 +123,7 @@ extra:
     name: Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
     shortname: CC BY-NC-SA 4.0
     url: https://creativecommons.org/licenses/by-nc-sa/4.0/
-  view_url: https://raw.githubusercontent.com/RootService/mkdocs
+  view_url: https://raw.githubusercontent.com/RootService/MKDocs
   paypal_url: https://www.paypal.me/JoeUser
   generator: false
   social:
@@ -134,7 +131,7 @@ extra:
       link: https://github.com/JoeUser78
       name: GitHub
     - icon: material/linkedin
-      link: https://linkedin.com/in/JoeUser78
+      link: https://linkedin.com/in/MarkusKohlmeyer78
       name: LinkedIn
   schema:
     type: TechArticle
@@ -296,19 +293,3 @@ nav:
     - 'about/contact.md'
     - 'about/privacy.md'
     - 'about/terms.md'
-  - Help:
-    - 'help/install.md'
-    - 'help/markdown.md'
-    - 'help/features.md'
-    - 'help/accessibility.md'
-    - 'help/techarticle-example.md'
-    - 'help/howto-example.md'
-    - Markdown Guide:
-      - 'help/markdown/syntax_guide.md'
-      - 'help/markdown/advanced.md'
-      - 'help/markdown/codeblocks.md'
-      - 'help/markdown/admonitions.md'
-    - Features:
-      - 'help/features/accessibility.md'
-      - 'help/features/schema_org.md'
-      - 'help/features/performance.md'
