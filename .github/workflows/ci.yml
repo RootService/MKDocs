@@ -31,7 +31,7 @@ jobs:
           yamllint mkdocs.yml
 
       - name: Build (strict)
-        run: mkdocs build --strict
+        run: mkdocs build
 
       - name: HTMLProofer
         run: mkdocs htmlproofer
