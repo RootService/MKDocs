@@ -22,4 +22,4 @@ yamllint>=1.35.0
 pytest>=7.0.0
 coverage>=7.0.0
 coverage-badge>=1.1.0
-playwright>=1.40.0
+playwright
