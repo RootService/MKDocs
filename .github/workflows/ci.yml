@@ -1,49 +1,49 @@
-name: mkdocs
+name: CI
+
 on:
   push:
     branches: [ main ]
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
+  build-test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements*.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+      - name: Install system deps for imaging
+        run: sudo apt-get update && sudo apt-get install -y libpangocairo-1.0-0
 
-      - name: Setup MkDocs
+      - name: Install dependencies
         run: |
-          chmod +x tools/setup-mkdocs.sh
-          tools/setup-mkdocs.sh user --upgrade
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Lint
+        run: |
+          pre-commit run --all-files
+
+      - name: Test
+        run: pytest -q
 
       - name: Build site
-        run: tools/setup-mkdocs.sh build production
+        run: mkdocs build --strict
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./site
-
-
-  preview:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: tools/setup-mkdocs.sh user --upgrade
-      - run: tools/setup-mkdocs.sh build preview
-      - uses: actions/upload-artifact@v4
-        with:
-          name: site-preview
-          path: site
+      # Uncomment to deploy with GitHub Pages
+      # - uses: actions/upload-pages-artifact@v3
+      #   with:
+      #     path: site
+      # - id: deploy
+      #   uses: actions/deploy-pages@v4

@@ -1,0 +1,24 @@
+name: Badge Auto-Update
+
+on:
+  schedule:
+    - cron: "0 5 * * 1" # jeden Montag um 05:00 UTC
+  workflow_dispatch:
+
+jobs:
+  update-badges:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Update badges
+        run: tools/update-badges.sh --commit
+
+      - name: Push changes
+        run: |
+          git push origin HEAD:main

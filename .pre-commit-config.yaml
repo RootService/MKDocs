@@ -6,6 +6,8 @@ repos:
       - id: trailing-whitespace
       - id: check-yaml
       - id: check-json
+      - id: check-toml
+      - id: mixed-line-ending
   - repo: https://github.com/igorshubovych/markdownlint-cli
     rev: v0.42.0
     hooks:
@@ -14,3 +16,14 @@ repos:
     rev: v2.3.0
     hooks:
       - id: codespell
+        args: [--ignore-words-list, crate, --skip, .git, --quiet-level=2]
+  - repo: https://github.com/psf/black
+    rev: 24.8.0
+    hooks:
+      - id: black
+        language_version: python3
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.1.1
+    hooks:
+      - id: flake8
+        args: [--max-line-length=120]
