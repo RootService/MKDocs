@@ -90,11 +90,11 @@ plugins:
   - htmlproofer:
       validate_external_urls: false
       raise_error: true
-  - i18n:
-      default_language: de
-      languages:
-        de: Deutsch
-        en: English
+#  - i18n:
+#      default_language: de
+#      languages:
+#        de: Deutsch
+#        en: English
   - tags
 #  - autorefs
 #  - rss:
