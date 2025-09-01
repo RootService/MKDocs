@@ -106,8 +106,14 @@ plugins:
 extra_css:
   - assets/stylesheets/extra.css
 
+  - assets/stylesheets/glossy.css
+  - assets/stylesheets/accessibility.css
+
 extra_javascript:
   - assets/javascripts/extra.js
+
+  - assets/javascripts/reading-time.js
+  - assets/javascripts/schema.js
 
 extra:
   site_author:
