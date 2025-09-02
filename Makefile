@@ -17,5 +17,3 @@ lint:
 
 clean:
 	rm -rf site
-
-# Windows 11: use tools/Setup-MKDocs.ps1 for environment; then run `mkdocs serve -a 0.0.0.0:8000`

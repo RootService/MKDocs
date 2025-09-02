@@ -265,7 +265,9 @@
               <article class="md-content__inner md-typeset">
                 {% block content %}
                   <a class="skip-link" href="#main-content">Zum Inhalt springen</a>
-                  <main id="main-content" role="main" tabindex="-1">{% include "partials/content.html" %}</main>
+                  <main id="main-content" role="main" tabindex="-1">
+                    {% include "partials/content.html" %}
+                  </main>
                 {% endblock %}
               </article>
             </div>
@@ -274,7 +276,9 @@
 
 
       {% block footer %}
-        <footer role="contentinfo">{% include "partials/footer.html" %}</footer>
+        <footer role="contentinfo">
+          {% include "partials/footer.html" %}
+        </footer>
       {% endblock %}
 
 

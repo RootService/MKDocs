@@ -7,7 +7,7 @@ import asyncio
 from pathlib import Path
 from playwright.async_api import async_playwright
 
-OUT_DIR = Path("docs/assets/img")
+OUT_DIR = Path("docs/assets/images")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 async def main():
