@@ -96,11 +96,11 @@ plugins:
   - htmlproofer:
       validate_external_urls: false
       raise_error: true
-#  - i18n:
-#      default_language: de
-#      languages:
-#        de: Deutsch
-#        en: English
+  - i18n:
+      default_language: de
+      languages:
+      - de
+      - en
   - tags
 #  - autorefs
 #  - rss:
@@ -142,7 +142,10 @@ extra:
       link: mailto:info@rootservice.org
       name: E-Mail
   schema:
-    type: TechArticle
+    '@context': https://schema.org
+    '@type': WebSite
+    name: RootService
+    url: https://www.rootservice.org/
     author:
       name: Markus Kohlmeyer
       url: https://github.com/JoeUser78
@@ -301,3 +304,4 @@ nav:
     - 'about/contact.md'
     - 'about/privacy.md'
     - 'about/terms.md'
+    - 'about/accessibility.md'

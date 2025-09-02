@@ -1,0 +1,17 @@
+{
+  "name": "mkdocs-lighthouse-tools",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Node tooling for Lighthouse CI and Puppeteer in GitHub Actions.",
+  "scripts": {
+    "lighthouse:ci": "lhci autorun --config=.lighthouserc.json",
+    "screenshots": "node tools/generate-screenshots.js"
+  },
+  "dependencies": {
+    "puppeteer": "^22.0.0"
+  },
+  "devDependencies": {
+    "@lhci/cli": "^0.13.0",
+    "http-server": "^14.1.1"
+  }
+}
