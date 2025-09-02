@@ -76,8 +76,6 @@ python_bin() {
   fi
 }
 
-PYTHON_BIN="$(python_bin)"
-
 ensure_venv() {
   if [ ! -d "${VENV_DIR}" ]; then
     PYTHON_SYS="/usr/local/bin/python3"
@@ -246,6 +244,8 @@ cmd_user() {
 
   require_non_root
 
+  PYTHON_BIN="$(python_bin)"
+
   ensure_venv
   ensure_datadir
 
@@ -285,10 +285,12 @@ cmd_build() {
   done
 
   require_non_root
+
+  PYTHON_BIN="$(python_bin)"
+  MKDOCS_BIN="$(mkdocs_bin)"
+
   cd_datadir
   require_mkdocs_config
-
-  MKDOCS_BIN="$(mkdocs_bin)"
 
   export CSP_ENV="${MODE}"
   log "CSP_ENV=${CSP_ENV}"
@@ -328,10 +330,12 @@ cmd_serve() {
   done
 
   require_non_root
+
+  PYTHON_BIN="$(python_bin)"
+  MKDOCS_BIN="$(mkdocs_bin)"
+
   cd_datadir
   require_mkdocs_config
-
-  MKDOCS_BIN="$(mkdocs_bin)"
 
   export CSP_ENV="${MODE}"
   log "CSP_ENV=${CSP_ENV}"
@@ -346,6 +350,7 @@ cmd_clean() {
   [ "${1:-}" = "--npm" ] && NPM=true
 
   require_non_root
+
   cd_datadir
 
   if [ -d "${DATA_DIR}/site" ]; then
