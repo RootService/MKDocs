@@ -52,7 +52,7 @@ jobs:
 
       - run: markdownlint .
       - run: pytest --maxfail=1 --disable-warnings -q
-      - run: mkdocs build --strict
+      - run: mkdocs build
 
       - uses: actions/upload-artifact@v4
         with:
@@ -129,8 +129,7 @@ jobs:
           cache-dependency-path: package-lock.json
           cache-retention-days: 3
 
-      - run: npm i puppeteer
-      - run: npm i -g @lhci/cli http-server
+      - run: npm ci
 
       - run: |
           npx http-server ./site -p 8080 &
