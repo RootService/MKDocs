@@ -30,16 +30,27 @@ fi
 
 trap 'rm -rf "${WORKDIR}"' EXIT INT HUP TERM
 
-log() { printf '%s\n' "$*" >&2; }
-die() { log ">> ERROR: $*"; exit 1; }
+###############################################################################
+# Logging helpers
+###############################################################################
+timestamp() { date +"%Y-%m-%d %H:%M:%S"; }
+log() { printf '[%s] [INFO]  %s\n'  "$(timestamp)" "$*" >&2; }
+warn() { printf '[%s] [WARN]  %s\n' "$(timestamp)" "$*" >&2; }
+error() { printf '[%s] [ERROR] %s\n' "$(timestamp)" "$*" >&2; }
+die() { error "$*"; exit 1; }
+
 require_non_root() { [ "$(id -u)" -ne 0 ] || die "run this subcommand as a regular user"; }
+
+###############################################################################
+# Functions
+###############################################################################
 
 ensure_ports_tree() {
   if [ -f "${PORTS_TREE}/Mk/bsd.port.mk" ]; then
     return 0;
   fi
   command -v git || die "git required to fetch ports tree"
-  log ">> Fetching ports tree to ${PORTS_TREE}"
+  log "Fetching ports tree to ${PORTS_TREE}"
   if [ -d "${PORTS_TREE}/.git" ]; then
     git -C "${PORTS_TREE}" pull --ff-only || die "ports git pull failed"
   else
@@ -51,7 +62,7 @@ install_portmaster_if_needed() {
   if command -v portmaster >/dev/null 2>&1; then
     return 0;
   fi
-  log ">> Installing ports-mgmt/portmaster"
+  log "Installing ports-mgmt/portmaster"
   env BATCH=yes make -C "${PORTS_TREE}/ports-mgmt/portmaster" install clean || die "installing portmaster failed"
 }
 
@@ -70,24 +81,24 @@ PYTHON_BIN="$(python_bin)"
 ensure_venv() {
   if [ ! -d "${VENV_DIR}" ]; then
     PYTHON_SYS="/usr/local/bin/python3"
-    log ">> Creating virtualenv at ${VENV_DIR} with system ${PYTHON_SYS}"
+    log "Creating virtualenv at ${VENV_DIR} with system ${PYTHON_SYS}"
     "${PYTHON_SYS}" -m venv "${VENV_DIR}" || die "venv creation failed"
   else
     ver=$("${PYTHON_BIN}" -V 2>/dev/null || printf unknown)
-    log ">> Reusing virtualenv at ${VENV_DIR} (python: ${ver})"
+    log "Reusing virtualenv at ${VENV_DIR} (python: ${ver})"
   fi
 }
 
 ensure_datadir() {
   if [ ! -d "${DATA_DIR}" ]; then
     mkdir -p "${DATA_DIR}"
-    log ">> Created datadir: ${DATA_DIR}"
+    log "Created datadir: ${DATA_DIR}"
   fi
 }
 
 sync_repo_to_datadir() {
   ensure_datadir
-  log ">> [INFO] Sync repo -> ${DATA_DIR}"
+  log "Sync repo -> ${DATA_DIR}"
   (cd "$(pwd)"; tar -cf - .) | (cd "${DATA_DIR}"; tar -xf -)
 
   for f in "${DATA_DIR}/snippets/ports/"*/options; do
@@ -120,16 +131,16 @@ pip_install_from_file() {
   cd_datadir
   [ -x "${PYTHON_BIN}" ] || die "venv python missing: ${PYTHON_BIN}"
   if [ -z "${req}" ]; then
-    log ">> No requirements file found. Skipping pip install."
+    warn "No requirements file found. Skipping pip install."
     return 0
   fi
   if [ "${upg}" -eq 1 ]; then
-    log ">> Upgrading pip/setuptools/wheel"
+    log "Upgrading pip/setuptools/wheel"
     "${PYTHON_BIN}" -m pip install --upgrade pip setuptools wheel || true
-    log ">> Installing/Upgrading Python deps from $(basename "${req}")"
+    log "Installing/Upgrading Python deps from $(basename "${req}")"
     "${PYTHON_BIN}" -m pip install --upgrade -r "${req}" || true
   else
-    log ">> Installing Python deps from $(basename "${req}")"
+    log "Installing Python deps from $(basename "${req}")"
     "${PYTHON_BIN}" -m pip install -r "${req}"
   fi
 }
@@ -144,11 +155,11 @@ npm_user_setup() {
       *) PATH="${NPM_USER_PREFIX}/bin:${PATH}"; export PATH ;;
     esac
     if ! command -v markdownlint >/dev/null 2>&1; then
-      log ">> Installing markdownlint-cli to ${NPM_USER_PREFIX} (user scope)"
-      npm install -g markdownlint-cli || log ">> markdownlint-cli install skipped"
+      log "Installing markdownlint-cli to ${NPM_USER_PREFIX} (user scope)"
+      npm install -g markdownlint-cli || warn "markdownlint-cli install skipped"
     fi
   else
-    log ">> npm not found; skipping markdownlint-cli"
+    warn "npm not found; skipping markdownlint-cli"
   fi
 }
 
@@ -162,13 +173,15 @@ mkdocs_bin() {
   fi
 }
 
-MKDOCS_BIN="$(mkdocs_bin)"
-
 require_mkdocs_config() {
   if [ ! -f "mkdocs.yml" ] && [ ! -f "mkdocs.yaml" ]; then
     die "mkdocs.yml not found in $(pwd). Run 'sh setup-mkdocs.sh user' to sync."
   fi
 }
+
+###############################################################################
+# Commands
+###############################################################################
 
 cmd_root() {
   set -eu
@@ -243,19 +256,19 @@ cmd_user() {
     REQ="$(find_requirements "$(pwd)")"
   fi
 
-  log ">> [INFO] Installing from ${REQ}"
+  log "Installing from ${REQ}"
   if ${UPGRADE}; then
     pip_install_from_file "${REQ}" 1
   else
     pip_install_from_file "${REQ}" 0
   fi
 
-  log ">> [OK] venv ready: source ${VENV_DIR}/bin/activate"
+  log "[OK] venv ready: source ${VENV_DIR}/bin/activate"
 
   cd_datadir
   npm_user_setup
-  log ">> Working directory: $(pwd)"
-  log ">> Tip: ${MKDOCS_BIN} serve -a 127.0.0.1:8000"
+  log "Working directory: $(pwd)"
+  log "Tip: ${VENV_DIR}/bin/mkdocs serve -a 127.0.0.1:8000"
 }
 
 cmd_build() {
@@ -272,26 +285,27 @@ cmd_build() {
   done
 
   require_non_root
-
   cd_datadir
   require_mkdocs_config
 
+  MKDOCS_BIN="$(mkdocs_bin)"
+
   export CSP_ENV="${MODE}"
-  log ">> CSP_ENV=${CSP_ENV}"
+  log "CSP_ENV=${CSP_ENV}"
 
   if ${STRICT}; then
-    log ">> ${MKDOCS_BIN} build --strict"
+    log "${MKDOCS_BIN} build --strict"
     "${MKDOCS_BIN}" build --strict
   else
-    log ">> ${MKDOCS_BIN} build"
+    log "${MKDOCS_BIN} build"
     "${MKDOCS_BIN}" build
   fi
 
   if [ -f "${DATA_DIR}/tools/update_server_headers.py" ]; then
-    log ">> Running ${DATA_DIR}/tools/update_server_headers.py with ${PYTHON_BIN}"
-    "${PYTHON_BIN}" "${DATA_DIR}/tools/update_server_headers.py" || log ">> header update script returned non-zero"
+    log "Running ${DATA_DIR}/tools/update_server_headers.py with ${PYTHON_BIN}"
+    "${PYTHON_BIN}" "${DATA_DIR}/tools/update_server_headers.py" || warn "header update script returned non-zero"
   fi
-  log ">> Build complete -> $(pwd)/site"
+  log "Build complete -> $(pwd)/site"
 
   sudo mkdir -p "$(dirname "${DATA_WEB}")"
   sudo rm -rf "${DATA_WEB}"
@@ -314,15 +328,16 @@ cmd_serve() {
   done
 
   require_non_root
-
   cd_datadir
   require_mkdocs_config
 
-  export CSP_ENV="${MODE}"
-  log ">> CSP_ENV=${CSP_ENV}"
+  MKDOCS_BIN="$(mkdocs_bin)"
 
-  log ">> ${MKDOCS_BIN} serve -a ${ADDR} (cwd=$(pwd))"
-  log ">> [INFO] Serving at http://${ADDR}"
+  export CSP_ENV="${MODE}"
+  log "CSP_ENV=${CSP_ENV}"
+
+  log "${MKDOCS_BIN} serve -a ${ADDR} (cwd=$(pwd))"
+  log "[INFO] Serving at http://${ADDR}"
   exec "${MKDOCS_BIN}" serve -a "${ADDR}"
 }
 
@@ -331,28 +346,27 @@ cmd_clean() {
   [ "${1:-}" = "--npm" ] && NPM=true
 
   require_non_root
-
   cd_datadir
 
   if [ -d "${DATA_DIR}/site" ]; then
-    log ">> Removing ${DATA_DIR}/site"
+    log "Removing ${DATA_DIR}/site"
     rm -rf "${DATA_DIR}/site"
   fi
   if [ -d "${DATA_DIR}/.cache" ]; then
-    log ">> Removing ${DATA_DIR}/.cache"
+    log "Removing ${DATA_DIR}/.cache"
     rm -rf "${DATA_DIR}/.cache"
   fi
-  log ">> Removing __pycache__"
+  log "Removing __pycache__"
   find "${DATA_DIR}/" -type d -name '__pycache__' -depth -exec rm -rf {} + 2>/dev/null || true
   if ${NPM}; then
     if command -v npm >/dev/null 2>&1; then
-      log ">> Cleaning npm cache (user scope)"
+      log "Cleaning npm cache (user scope)"
       npm cache clean --force || true
     else
-      log ">> npm not found. Skip npm cache clean"
+      warn "npm not found. Skip npm cache clean"
     fi
   fi
-  log ">> Cleanup complete"
+  log "Cleanup complete"
 }
 
 usage() {
