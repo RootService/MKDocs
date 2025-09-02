@@ -80,7 +80,7 @@ else:
     )
 
 NGINX_CONF.write_text(
-    f"add_header Content-Security-Policy \"{csp}\" always;\n"
+    f"add_header Content-Security-Policy \"{csp}\" always;\n",
     encoding="utf-8",
 )
 APACHE_HTA.write_text(
