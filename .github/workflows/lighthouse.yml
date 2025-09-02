@@ -1,0 +1,101 @@
+name: Lighthouse
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+permissions: read-all
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install MkDocs deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build site
+        run: mkdocs build
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install LHCI and http-server
+
+      - name: Install Puppeteer
+        run: npm i puppeteer
+        run: npm i -g @lhci/cli http-server
+
+      - name: Serve site
+        run: |
+          npx http-server ./site -p 8080 &
+          echo $! > /tmp/http-server.pid
+          sleep 2
+
+- name: Generate screenshots
+  run: |
+    mkdir -p .screenshots
+    node tools/generate-screenshots.js
+  env:
+    BASE_URL: "http://localhost:8080/"
+
+- name: Upload screenshots
+  uses: actions/upload-artifact@v4
+  with:
+    name: screenshots
+    path: ./.screenshots
+      - name: Run Lighthouse CI (desktop)
+        id: lhci
+        run: |
+          mkdir -p .lighthouse
+          set -e
+          lhci collect --config=.lighthouserc.json --outputDir=.lighthouse --assert=none
+          # Parse scores from the latest LHR JSON
+          LHR=$(ls -1t .lighthouse/*.report.json | head -n1)
+          PERF=$(jq -r '.categories.performance.score' "$LHR")
+          A11Y=$(jq -r '.categories.accessibility.score' "$LHR")
+          BP=$(jq -r '.categories["best-practices"].score' "$LHR")
+          SEO=$(jq -r '.categories.seo.score' "$LHR")
+          echo "perf_score=${PERF}" >> $GITHUB_OUTPUT
+          echo "a11y_score=${A11Y}" >> $GITHUB_OUTPUT
+          echo "bp_score=${BP}" >> $GITHUB_OUTPUT
+          echo "seo_score=${SEO}" >> $GITHUB_OUTPUT
+
+      - name: Assert thresholds
+        run: |
+          lhci assert --config=.lighthouserc.json
+
+      - name: Stop server
+        if: always()
+        run: |
+          kill $(cat /tmp/http-server.pid) || true
+
+      - name: Upload Lighthouse artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: ./.lighthouse
+
+      - name: Job summary
+        if: always()
+        run: |
+          echo "## Lighthouse Ergebnisse" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- Performance: $(( ${{ steps.lhci.outputs.perf_score }} * 100 ))" >> $GITHUB_STEP_SUMMARY
+          echo "- Accessibility: $(( ${{ steps.lhci.outputs.a11y_score }} * 100 ))" >> $GITHUB_STEP_SUMMARY
+          echo "- Best Practices: $(( ${{ steps.lhci.outputs.bp_score }} * 100 ))" >> $GITHUB_STEP_SUMMARY
+          echo "- SEO: $(( ${{ steps.lhci.outputs.seo_score }} * 100 ))" >> $GITHUB_STEP_SUMMARY

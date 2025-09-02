@@ -6,13 +6,22 @@
 
 set -eu
 
+# Portable in-place sed
+SED="sed"
+OS_UNAME=$(uname -s 2>/dev/null || echo unknown)
+if command -v gsed >/dev/null 2>&1; then SED="gsed"; fi
+SED_INPLACE() {
+  case "$OS_UNAME" in FreeBSD|Darwin) $SED -i '' "$@" ;; *) $SED -i "$@" ;; esac
+}
+
+
 README="README.md"
 
 echo "[INFO] Updating dynamic badges..."
 
 # Example: update version badge from VERSION file
 VERSION=$(cat VERSION)
-sed -i "s/https:\/\/img.shields.io\/badge\/version-[0-9]\+\.[0-9]\+\.[0-9]\+-magenta/https:\/\/img.shields.io\/badge\/version-${VERSION}-magenta/" $README
+SED_INPLACE "s/https:\/\/img.shields.io\/badge\/version-[0-9]\+\.[0-9]\+\.[0-9]\+-magenta/https:\/\/img.shields.io\/badge\/version-${VERSION}-magenta/" $README
 
 echo "[INFO] Badges updated for version $VERSION"
 

@@ -13,6 +13,32 @@
 #   clean [--npm]
 #
 # Conventions:
+
+# OS detection (POSIX)
+OS_UNAME=$(uname -s 2>/dev/null || echo unknown)
+case "$OS_UNAME" in
+  FreeBSD) OS_FAMILY="freebsd" ;;
+  Linux)   OS_FAMILY="linux" ;;
+  Darwin)  OS_FAMILY="darwin" ;;  # not used but harmless
+  *)       OS_FAMILY="unknown" ;;
+esac
+
+# Resolve python3 path
+if command -v python3 >/dev/null 2>&1; then
+  PYTHON_BIN=$(command -v python3)
+elif [ -x /usr/local/bin/python3 ]; then
+  PYTHON_BIN=/usr/local/bin/python3
+else
+  PYTHON_BIN=python3
+fi
+
+# Portable mktemp directory
+TMPDIR=${TMPDIR:-/tmp}
+WORKDIR=$(mktemp -d "${TMPDIR%/}/mkdocs.XXXXXX") || WORKDIR="${TMPDIR%/}/mkdocs.$$"
+
+# Ensure cleanup
+trap 'rm -rf "$WORKDIR"' EXIT INT HUP TERM
+
 #   - System-Python: uses /usr/local/bin/python3 from ports (no version flags).
 #   - Venv base:  $HOME/.mkdocs
 #   - Datadir:    $HOME/.mkdocs/data   (working tree for mkdocs)
@@ -55,32 +81,75 @@ install_portmaster_if_needed() {
 }
 
 cmd_root() {
-  # args: [-y]
-  [ "$(id -u)" -eq 0 ] || die "run 'root' subcommand as root"
-  YES=0
-  while [ "$#" -gt 0 ]; do
+  set -eu
+  PMMODE="auto"    # auto|pkg|portmaster
+  ASSUME_YES=false
+  PORTSNAP=false
+
+  # parse flags: -y/--yes, --pkg, --portmaster, --portsnap
+  while [ $# -gt 0 ]; do
     case "$1" in
-      -y) YES=1 ;;
-      --help|-h) printf '%s\n' "usage: root [-y]"; return 0 ;;
-      *) die "unknown arg for root: $1" ;;
+      -y|--yes) ASSUME_YES=true ;;
+      --pkg) PMMODE="pkg" ;;
+      --portmaster) PMMODE="portmaster" ;;
+      --portsnap) PORTSNAP=true ;;
     esac
-    shift
+    shift || true
   done
 
-  ensure_ports_tree
-  install_portmaster_if_needed
+  echo "[INFO] root installer for $OS_FAMILY (mode=${PMMODE})"
 
-  PMFLAGS="-G"; [ $YES -eq 1 ] && PMFLAGS="$PMFLAGS -y"
+  if [ "$OS_FAMILY" = "freebsd" ] ; then
+    # Decide tool automatically if requested
+    if [ "$PMMODE" = "auto" ]; then
+      if command -v portmaster >/dev/null 2>&1; then PMMODE="portmaster"; else PMMODE="pkg"; fi
+    fi
 
-  # Base ports including meta 'lang/python3' and pip (default flavor).
-  BASE_PORTS="lang/python3 devel/py-pip devel/libffi textproc/libxml2 textproc/libxslt devel/git www/node graphics/cairo x11-toolkits/pango graphics/gdk-pixbuf2"
-  log ">> Installing via portmaster: $BASE_PORTS"
-  env BATCH=yes portmaster $PMFLAGS $BASE_PORTS || die "portmaster failed installing base ports"
+    if [ "$PMMODE" = "pkg" ]; then
+      : "${ASSUME_ALWAYS_YES:=${ASSUME_YES:+YES}}"
+      export ASSUME_ALWAYS_YES=${ASSUME_ALWAYS_YES:-YES}
+      pkg update || true
+      pkg install -y python3 py3-pip cairo pango pkgconf libxslt || true
+      pkg install -y node npm || true
+    else
+      # portmaster branch
+      if [ "$PORTSNAP" = "true" ]; then
+        if command -v portsnap >/dev/null 2>&1; then
+          echo "[INFO] Updating ports tree via portsnap"
+          portsnap fetch update || true
+        else
+          echo "[WARN] portsnap not found, skipping ports tree update"
+        fi
+      fi
+      # Install via ports
+      # Use -y when ASSUME_YES; otherwise interactive
+      PMFLAGS=""
+      $ASSUME_YES && PMFLAGS="-y" || PMFLAGS=""
+      # Core toolchain
+      portmaster $PMFLAGS lang/python devel/py-pip || true
+      # Rendering stack for CairoSVG etc.
+      portmaster $PMFLAGS graphics/cairo x11-toolkits/pango devel/pkgconf textproc/libxslt || true
+      # Optional Node for CI and screenshots
+      portmaster $PMFLAGS www/node www/npm || true
+    fi
 
-  # Assert system python3 presence
-  command -v python3 >/dev/null 2>&1 || die "python3 not found after install. Check ports configuration."
-  log ">> System python3: $(command -v python3)"
+  elif [ "$OS_FAMILY" = "linux" ]; then
+    if command -v apt-get >/dev/null 2>&1; then
+      apt-get update
+      apt-get install -y python3 python3-venv python3-pip nodejs npm
+    elif command -v dnf >/dev/null 2>&1; then
+      dnf install -y python3 python3-pip python3-virtualenv nodejs npm
+    elif command -v yum >/dev/null 2>&1; then
+      yum install -y python3 python3-pip python3-virtualenv nodejs npm
+    else
+      echo "[WARN] Unknown Linux distro. Install Python3 + pip + venv manually."
+    fi
+  else
+    echo "[INFO] Use PowerShell script on Windows: tools/Setup-MKDocs.ps1"
+  fi
 }
+
+
 
 # ---- User mode / venv and requirements --------------------------------------
 ensure_venv() {
@@ -165,31 +234,44 @@ cd_datadir() {
 }
 
 cmd_user() {
-  require_non_root
-  # args: [--upgrade] [--no-sync]
-  UPG=0
-  SYNC=1
-  while [ "$#" -gt 0 ]; do
+  set -eu
+  UPGRADE=false
+  SYNC=true
+  REQS="requirements.txt"
+  while [ $# -gt 0 ]; do
     case "$1" in
-      --upgrade) UPG=1 ;;
-      --no-sync) SYNC=0 ;;
-      --help|-h) printf '%s\n' "usage: user [--upgrade] [--no-sync]"; return 0 ;;
-      *) die "unknown arg for user: $1" ;;
+      --upgrade) UPGRADE=true ;;
+      --no-sync) SYNC=false ;;
+      --requirements) shift; REQS="$1" ;;
     esac
-    shift
+    shift || true
   done
-  ensure_venv
-  if [ $SYNC -eq 1 ]; then
-    sync_repo_to_datadir
-    REQ="$(find_requirements "$DATADIR")"
-  else
-    REQ="$(find_requirements "$(pwd)")"
+  VENV_DIR="${HOME}/.mkdocs/venv"
+  DATA_DIR="${HOME}/.mkdocs/data"
+  mkdir -p "$VENV_DIR" "$DATA_DIR"
+  if [ ! -x "$VENV_DIR/bin/python" ]; then
+    echo "[INFO] Creating venv at $VENV_DIR with $PYTHON_BIN"
+    "$PYTHON_BIN" -m venv "$VENV_DIR"
   fi
-  pip_install_from_file "$REQ" "$UPG"
-  npm_user_setup
-  cd_datadir
-  log ">> Working directory: $(pwd)"
-  log ">> Tip: ${MKDOCS_BIN} serve -a 127.0.0.1:8000"
+  # Upgrade pip/wheels
+  "$VENV_DIR/bin/python" -m pip install --upgrade pip wheel
+  if [ -f "$REQS" ]; then
+    echo "[INFO] Installing from $REQS"
+    "$VENV_DIR/bin/python" -m pip install -r "$REQS"
+  else
+    echo "[WARN] $REQS not found"
+  fi
+  if $UPGRADE; then
+    "$VENV_DIR/bin/python" -m pip install -U -r "$REQS" || true
+  fi
+  if $SYNC; then
+    echo "[INFO] Sync repo -> $DATA_DIR"
+    # portable copy: tar to preserve mode/time
+    (cd "$(pwd)"; tar -cf - .) | (cd "$DATA_DIR"; tar -xf -)
+  fi
+  echo "[OK] venv ready: source "$VENV_DIR/bin/activate""
+}
+ serve -a 127.0.0.1:8000"
 }
 
 # ---- Build/serve/clean from datadir -----------------------------------------
@@ -220,32 +302,22 @@ require_mkdocs_config() {
 }
 
 cmd_build() {
-  require_non_root
-  MODE="production"
-  STRICT=0
-  while [ "$#" -gt 0 ]; do
+  set -eu
+  MODE="${1:-preview}"; shift || true
+    while [ $# -gt 0 ]; do
     case "$1" in
-      preview|production) MODE="$1" ;;
-      --strict) STRICT=1 ;;
-      --help|-h) printf '%s\n' "usage: build [preview|production] [--strict]"; return 0 ;;
-      *) die "unknown arg for build: $1" ;;
-    esac
-    shift
+      --strict)     esac
+    shift || true
   done
-  cd_datadir
-  require_mkdocs_config
-  MKDOCS=$(mkdocs_bin)
-
-# cleanup snippets/ports
-sed -E -e '/^#[[:space:]]/d' -i '' ./snippets/ports/*/options
-sed -E -e 's/[[:space:]]*$//g' -i '' ./snippets/ports/*/options
-sed -E -e '/^_OPTIONS_READ/ s/\,[[:digit:]]+[[:space:]]?$//g' -i '' ./snippets/ports/*/options
-sed -E -e '/^_OPTIONS_READ/ s/\_[[:digit:]]+[[:space:]]?$//g' -i '' ./snippets/ports/*/options
-
-  export CSP_ENV="$MODE"
-  log ">> CSP_ENV=$CSP_ENV"
-  if [ $STRICT -eq 1 ]; then
-    log ">> ${MKDOCS} build"
+  if [ -x "${HOME}/.mkdocs/venv/bin/mkdocs" ]; then
+    MK="${HOME}/.mkdocs/venv/bin/mkdocs"
+  else
+    MK="mkdocs"
+  fi
+  echo "[INFO] Build mode=${MODE}"
+  $MK build 
+}
+ build"
     "$MKDOCS" build
   else
     log ">> ${MKDOCS} build"
@@ -265,24 +337,24 @@ sudo chown -R www:www /data/www/vhosts/www.rootservice.org/data
 }
 
 cmd_serve() {
-  require_non_root
-  MODE="preview"
-  ADDR="127.0.0.1:8000"
-  while [ "$#" -gt 0 ]; do
+  set -eu
+  MODE="${1:-preview}"; shift || true
+  ADDR="0.0.0.0:8000"
+  while [ $# -gt 0 ]; do
     case "$1" in
-      preview|production) MODE="$1" ;;
-      --addr) shift || die "--addr needs HOST:PORT"; ADDR="$1" ;;
-      --help|-h) printf '%s\n' "usage: serve [preview|production] [--addr HOST:PORT]"; return 0 ;;
-      *) die "unknown arg for serve: $1" ;;
+      --addr) shift; ADDR="$1" ;;
     esac
-    shift
+    shift || true
   done
-  cd_datadir
-  require_mkdocs_config
-  MKDOCS=$(mkdocs_bin)
-  export CSP_ENV="$MODE"
-  log ">> CSP_ENV=$CSP_ENV"
-  log ">> ${MKDOCS} serve -a ${ADDR} (cwd=$(pwd))"
+  if [ -x "${HOME}/.mkdocs/venv/bin/mkdocs" ]; then
+    MK="${HOME}/.mkdocs/venv/bin/mkdocs"
+  else
+    MK="mkdocs"
+  fi
+  echo "[INFO] Serving at http://${ADDR}"
+  exec $MK serve -a "$ADDR"
+}
+ serve -a ${ADDR} (cwd=$(pwd))"
   exec "$MKDOCS" serve -a "$ADDR"
 }
 

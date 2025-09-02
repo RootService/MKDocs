@@ -17,10 +17,32 @@ Datum: 2025-09-02 00:13:30Z (UTC)
 - CI bleibt unverändert: `ci.yml` baut strikt und führt Lint/Tests aus.
 - Lokales Setup weiter über `tools/setup-mkdocs.sh`.
 
-## Änderungen am 2025-09-02
+## WCAG/WAI-ARIA Ergänzungen (2025-09-02)
 
-- Dark-Mode als Default: Palette neu gesetzt (slate->dark, default->light) mit Magenta/Pink.
-- Pygments: `material` aktiviert. Code-Highlighting per CSS-Variablen auf Magenta/Pink abgestimmt.
-- WCAG/WAI-ARIA: Skip-Link ergänzt, `role="banner"` und `role="navigation"` gesetzt, Fokus sichtbar.
-- JSON‑LD bleibt in `overrides/main.html`. Doppelter Client‑Injection via `schema.js` entfernt.
-- CI: `mkdocs build --strict` forciert.
+- Main-Landmark: <main id="main-content" role="main" tabindex="-1"> für korrekten Fokus nach Skip-Link.
+- Footer-Landmark: Wrapper mit role="contentinfo" um partials/footer.html.
+- Header-Interaktionen: Drawer- und Such-Trigger mit role="button", aria-label, aria-controls versehen.
+- High-Contrast: @media (forced-colors: active) Styles hinzugefügt; Outline in Systemfarbe, keine Schatten.
+- Focus Appearance: verstärkte visuelle Markierung nach WCAG 2.2 (2.4.11/2.4.13).
+
+## Lighthouse CI (2025-09-02)
+- Workflow `.github/workflows/lighthouse.yml` hinzugefügt.
+- `.lighthouserc.json` mit Schwellwerten und Desktop-Preset.
+- Artefakte werden als `lighthouse-report` gespeichert.
+- Ergebnisse erscheinen im Job Summary.
+
+## Screenshots (2025-09-02)
+- Neues Script `tools/generate-screenshots.js` (Puppeteer).
+- Workflow `lighthouse.yml` erweitert: erstellt `screenshot-dark.png` und `screenshot-light.png`.
+- Ergebnisse werden als Artifact `screenshots` hochgeladen.
+
+## Screenshots (2025-09-02)
+- `tools/generate-screenshots.js` mit Puppeteer.
+- CI erzeugt Dark/Light Screenshots und lädt sie als `screenshots`-Artifact hoch.
+
+## FreeBSD portmaster (2025-09-02)
+- `setup-mkdocs.sh root` unterstützt jetzt `--portmaster` und `--portsnap` sowie `-y/--yes`.
+- Automatik: nutzt `portmaster`, wenn vorhanden, sonst `pkg`.
+
+## Strict mode removed (2025-09-02)
+- `--strict` build-mode entfernt aus setup-mkdocs.sh, Workflows, Makefile, INSTALL.md.
