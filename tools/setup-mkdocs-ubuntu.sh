@@ -30,7 +30,6 @@ trap 'rm -rf "${WORKDIR}"' EXIT INT HUP TERM
 
 log() { printf '%s\n' "$*" >&2; }
 die() { log ">> ERROR: $*"; exit 1; }
-have() { command -v "${1}" >/dev/null 2>&1; }
 require_non_root() { [ "$(id -u)" -ne 0 ] || die "run this subcommand as a regular user"; }
 
 cmd_root() {
@@ -64,7 +63,7 @@ cmd_root() {
 python_bin() {
   if [ -x "${PYTHON_BIN}" ]; then
     printf '%s\n' "${PYTHON_BIN}"
-  elif have python3; then
+  elif command -v python3; then
     command -v python3
   else
     die "python3 not found"
@@ -114,14 +113,14 @@ pip_install_from_file() {
 }
 
 npm_user_setup() {
-  if have npm; then
+  if command -v npm; then
     mkdir -p "${NPM_USER_PREFIX}/bin"
     export NPM_CONFIG_PREFIX="${NPM_USER_PREFIX}"
     case ":$PATH:" in
       *":${NPM_USER_PREFIX}/bin:"*) ;;
       *) PATH="${NPM_USER_PREFIX}/bin:${PATH}"; export PATH ;;
     esac
-    if ! have markdownlint >/dev/null 2>&1; then
+    if ! command -v markdownlint >/dev/null 2>&1; then
       log ">> Installing markdownlint-cli to ${NPM_USER_PREFIX} (user scope)"
       npm install -g markdownlint-cli || log ">> markdownlint-cli install skipped"
     fi
@@ -151,7 +150,7 @@ cd_datadir() {
 mkdocs_bin() {
   if [ -x "${MKDOCS_BIN}" ]; then
     printf '%s\n' "${MKDOCS_BIN}"
-  elif have mkdocs; then
+  elif command -v mkdocs; then
     command -v mkdocs
   else
     die "mkdocs not found. Run 'sh setup-mkdocs-ubuntu.sh user' first."
@@ -287,7 +286,7 @@ cmd_clean() {
   log ">> Removing __pycache__"
   find "${DATA_DIR}/" -type d -name '__pycache__' -depth -exec rm -rf {} + 2>/dev/null || true
   if ${NPM}; then
-    if have npm; then
+    if command -v npm; then
       log ">> Cleaning npm cache (user scope)"
       npm cache clean --force || true
     else
