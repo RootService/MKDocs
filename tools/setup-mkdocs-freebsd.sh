@@ -45,8 +45,8 @@ require_non_root() { [ "$(id -u)" -ne 0 ] || die "run this subcommand as a regul
 mkdocs_bin() {
   if [ -x "${MKDOCS_BIN}" ]; then
     printf '%s\n' "${MKDOCS_BIN}"
-  elif "$(have mkdocs)"; then
-    printf '%s\n' "$(have mkdocs)"
+  elif have mkdocs; then
+    command -v mkdocs
   else
     die "mkdocs not found. Run 'sh setup-mkdocs.sh user' first."
   fi
@@ -55,8 +55,8 @@ mkdocs_bin() {
 python_bin() {
   if [ -x "${PYTHON_BIN}" ]; then
     printf '%s\n' "${PYTHON_BIN}"
-  elif "$(have python3)"; then
-    printf '%s\n' "$(have python3)"
+  elif have python3; then
+    command -v python3
   else
     die "python3 not found"
   fi
@@ -133,6 +133,7 @@ cmd_root() {
 
 ensure_venv() {
   if [ ! -d "${VENV_DIR}" ]; then
+    PYTHON_SYS="/usr/local/bin/python3"
     log ">> Creating virtualenv at ${VENV_DIR} with system ${PYTHON_SYS}"
     "${PYTHON_SYS}" -m venv "${VENV_DIR}" || die "venv creation failed"
   else

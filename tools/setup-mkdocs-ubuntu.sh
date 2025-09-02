@@ -1,24 +1,16 @@
 #!/bin/sh
 ###############################################################################
-# setup-mkdocs.sh
-# FreeBSD 14+ POSIX /bin/sh toolbox for MkDocs/Material
+# setup-mkdocs-ubuntu.sh
+# Ubuntu 22.04+ POSIX /bin/sh toolbox for MkDocs/Material
 #
 # Subcommands:
-#   root  [-y]                Install deps with ports/portmaster (system-wide).
+#   root  [-y]                Install deps with apt (system-wide).
 #   user  [--upgrade] [--no-sync]
 #                             Create/refresh venv in ~/.mkdocs using system python3,
 #                             sync repo to ~/.mkdocs/data, install from requirements.
 #   build [preview|production] [--strict]
 #   serve [preview|production] [--addr HOST:PORT]
 #   clean [--npm]
-#
-# Conventions:
-#   - System-Python: uses /usr/local/bin/python3 from ports (no version flags).
-#   - Venv base:  $HOME/.mkdocs
-#   - Datadir:    $HOME/.mkdocs/data   (working tree for mkdocs)
-#   - mkdocs runs from datadir
-#   - npm installs to $HOME/.local (user scope)
-#   - Python deps from requirements-dev.txt or requirements.txt
 ###############################################################################
 
 set -eu
@@ -26,11 +18,10 @@ set -eu
 BASE_DIR="${HOME}/.mkdocs"
 VENV_DIR="${BASE_DIR}/venv"
 DATA_DIR="${BASE_DIR}/data"
-DATA_WEB="/data/www/vhosts/www.rootservice.org/data"
+DATA_WEB="/var/www/html/mkdocs-site"
 MKDOCS_BIN="${VENV_DIR}/bin/mkdocs"
 PYTHON_BIN="${VENV_DIR}/bin/python"
 NPM_USER_PREFIX="${HOME}/.local"
-PORTS_TREE="/usr/ports"
 
 TMPDIR=${TMPDIR:-/tmp}
 WORKDIR=$(mktemp -d "${TMPDIR%/}/mkdocs.XXXXXX") || WORKDIR="${TMPDIR%/}/mkdocs.$$"
@@ -45,94 +36,57 @@ require_non_root() { [ "$(id -u)" -ne 0 ] || die "run this subcommand as a regul
 mkdocs_bin() {
   if [ -x "${MKDOCS_BIN}" ]; then
     printf '%s\n' "${MKDOCS_BIN}"
-  elif "$(have mkdocs)"; then
-    printf '%s\n' "$(have mkdocs)"
+  elif have mkdocs; then
+    command -v mkdocs
   else
-    die "mkdocs not found. Run 'sh setup-mkdocs.sh user' first."
+    die "mkdocs not found. Run 'sh setup-mkdocs-ubuntu.sh user' first."
   fi
 }
 
 python_bin() {
   if [ -x "${PYTHON_BIN}" ]; then
     printf '%s\n' "${PYTHON_BIN}"
-  elif "$(have python3)"; then
-    printf '%s\n' "$(have python3)"
+  elif have python3; then
+    command -v python3
   else
     die "python3 not found"
   fi
 }
 
-MKDOCS_BIN="$(mkdocs_bin)"
-PYTHON_BIN="$(python_bin)"
-
-ensure_ports_tree() {
-  if [ -f "${PORTS_TREE}/Mk/bsd.port.mk" ]; then
-    return 0;
-  fi
-  have git || die "git required to fetch ports tree"
-  log ">> Fetching ports tree to ${PORTS_TREE}"
-  if [ -d "${PORTS_TREE}/.git" ]; then
-    git -C "${PORTS_TREE}" pull --ff-only || die "ports git pull failed"
-  else
-    git clone --depth 1 https://git.FreeBSD.org/ports.git "${PORTS_TREE}" || die "ports git clone failed"
-  fi
-}
-
-install_portmaster_if_needed() {
-  if have portmaster; then
-    return 0;
-  fi
-  log ">> Installing ports-mgmt/portmaster"
-  env BATCH=yes make -C "${PORTS_TREE}/ports-mgmt/portmaster" install clean || die "installing portmaster failed"
-}
+MKDOCS_BIN="$(mkdocs_bin || true || printf '')"
+PYTHON_BIN="$(python_bin || true || printf '')"
 
 cmd_root() {
   set -eu
   [ "$(id -u)" -eq 0 ] || die "run 'root' subcommand as root"
-  PMMODE="auto"    # auto|pkg|portmaster
   ASSUME_YES=false
 
   while [ $# -gt 0 ]; do
     case "${1}" in
       -y|--yes) ASSUME_YES=true ;;
-      --pkg) PMMODE="pkg" ;;
-      --portmaster) PMMODE="portmaster" ;;
       --help|-h) printf '%s\n' "usage: root [-y]"; return 0 ;;
       *) die "unknown arg for root: $1" ;;
     esac
     shift || true
   done
 
-  ensure_ports_tree
+  export DEBIAN_FRONTEND=noninteractive
+  apt-get update
 
-  if [ "${PMMODE}" = "auto" ]; then
-    if have portmaster >/dev/null 2>&1; then
-      PMMODE="portmaster";
-    else
-      PMMODE="pkg";
-    fi
-  fi
+  PKGS="python3 python3-venv python3-pip python3-wheel python3-setuptools \
+        libffi-dev libcairo2-dev libpango1.0-dev libgdk-pixbuf2.0-dev \
+        nodejs npm git"
 
-  if [ "${PMMODE}" = "pkg" ]; then
-    if ${ASSUME_YES}; then
-      : "${ASSUME_ALWAYS_YES:=${ASSUME_YES:+YES}}"
-      export ASSUME_ALWAYS_YES="${ASSUME_ALWAYS_YES:-YES}"
-    fi
-    pkg update || true
-    pkg install -y python3 py3-pip libffi cairo pango gdk-pixbuf2 || true
-    pkg install -y node npm || true
+  if ${ASSUME_YES}; then
+    apt-get install -y $PKGS
   else
-    install_portmaster_if_needed
-    PMFLAGS=""
-    ${ASSUME_YES} && PMFLAGS="-y" || PMFLAGS=""
-    env BATCH=yes portmaster ${PMFLAGS} lang/python devel/py-pip || true
-    env BATCH=yes portmaster ${PMFLAGS} devel/libffi graphics/cairo x11-toolkits/pango graphics/gdk-pixbuf2 || true
-    env BATCH=yes portmaster ${PMFLAGS} www/node www/npm || true
+    apt-get install $PKGS
   fi
 }
 
 ensure_venv() {
   if [ ! -d "${VENV_DIR}" ]; then
+    PYTHON_SYS="/usr/bin/python3"
     log ">> Creating virtualenv at ${VENV_DIR} with system ${PYTHON_SYS}"
     "${PYTHON_SYS}" -m venv "${VENV_DIR}" || die "venv creation failed"
   else
@@ -197,7 +151,6 @@ ensure_datadir() {
 sync_repo_to_datadir() {
   ensure_datadir
   log ">> [INFO] Sync repo -> ${DATA_DIR}"
-  # portable copy: tar to preserve mode/time
   (cd "$(pwd)"; tar -cf - .) | (cd "${DATA_DIR}"; tar -xf -)
 }
 
@@ -248,7 +201,7 @@ cmd_user() {
 
 require_mkdocs_config() {
   if [ ! -f "mkdocs.yml" ] && [ ! -f "mkdocs.yaml" ]; then
-    die "mkdocs.yml not found in $(pwd). Run 'sh setup-mkdocs.sh user' to sync."
+    die "mkdocs.yml not found in $(pwd). Run 'sh setup-mkdocs-ubuntu.sh user' to sync."
   fi
 }
 
@@ -269,12 +222,6 @@ cmd_build() {
   cd_datadir
   require_mkdocs_config
 
-  # cleanup snippets/ports
-  sed -E -e '/^#[[:space:]]/d' -i '' "${DATA_DIR}/snippets/ports/*/options"
-  sed -E -e 's/[[:space:]]*$//g' -i '' "${DATA_DIR}/snippets/ports/*/options"
-  sed -E -e '/^_OPTIONS_READ/ s/\,[[:digit:]]+[[:space:]]?$//g' -i '' "${DATA_DIR}/snippets/ports/*/options"
-  sed -E -e '/^_OPTIONS_READ/ s/\_[[:digit:]]+[[:space:]]?$//g' -i '' "${DATA_DIR}/snippets/ports/*/options"
-
   export CSP_ENV="${MODE}"
   log ">> CSP_ENV=${CSP_ENV}"
 
@@ -292,11 +239,10 @@ cmd_build() {
   fi
   log ">> Build complete -> $(pwd)/site"
 
-  # deploy to webroot
   sudo rm -rf "${DATA_WEB}"
   sudo cp -a "${DATA_DIR}/site" "${DATA_WEB}"
-  sudo cp -a "${DATA_DIR}/docs/.well-known" "${DATA_WEB}/"
-  sudo chown -R www:www "${DATA_WEB}"
+  sudo cp -a "${DATA_DIR}/docs/.well-known" "${DATA_WEB}/" || true
+  sudo chown -R www-data:www-data "${DATA_WEB}"
 }
 
 cmd_serve() {
@@ -315,12 +261,6 @@ cmd_serve() {
 
   cd_datadir
   require_mkdocs_config
-
-  # cleanup snippets/ports
-  sed -E -e '/^#[[:space:]]/d' -i '' "${DATA_DIR}/snippets/ports/*/options"
-  sed -E -e 's/[[:space:]]*$//g' -i '' "${DATA_DIR}/snippets/ports/*/options"
-  sed -E -e '/^_OPTIONS_READ/ s/\,[[:digit:]]+[[:space:]]?$//g' -i '' "${DATA_DIR}/snippets/ports/*/options"
-  sed -E -e '/^_OPTIONS_READ/ s/\_[[:digit:]]+[[:space:]]?$//g' -i '' "${DATA_DIR}/snippets/ports/*/options"
 
   export CSP_ENV="${MODE}"
   log ">> CSP_ENV=${CSP_ENV}"
@@ -359,16 +299,16 @@ cmd_clean() {
 usage() {
   cat <<'USAGE'
 Usage:
-  setup-mkdocs.sh                 # default: runs 'user' then 'build production'
-  setup-mkdocs.sh root  [-y]
-  setup-mkdocs.sh user  [--upgrade] [--no-sync]
-  setup-mkdocs.sh build [preview|production] [--strict]
-  setup-mkdocs.sh serve [preview|production] [--addr HOST:PORT]
-  setup-mkdocs.sh clean [--npm]
+  setup-mkdocs-ubuntu.sh                 # default: runs 'user' then 'build production'
+  setup-mkdocs-ubuntu.sh root  [-y]
+  setup-mkdocs-ubuntu.sh user  [--upgrade] [--no-sync]
+  setup-mkdocs-ubuntu.sh build [preview|production] [--strict]
+  setup-mkdocs-ubuntu.sh serve [preview|production] [--addr HOST:PORT]
+  setup-mkdocs-ubuntu.sh clean [--npm]
 Notes:
   - Default behavior (non-root): synchronize repo to ~/.mkdocs/data, install deps, then build.
-  - 'root' is only for system ports/packages and root-only actions. All other subcommands must be run as a normal user.
-  - Uses system /usr/local/bin/python3 for venv creation. No version selection.
+  - 'root' is only for system packages and root-only actions. All other subcommands must be run as a normal user.
+  - Uses system /usr/bin/python3 for venv creation.
   - Python packages are installed from requirements-dev.txt (preferred) or requirements.txt.
 USAGE
   exit 1
@@ -381,7 +321,7 @@ case "${sub}" in
       die "no subcommand. run as non-root for default 'user+build' or use 'root' for system installs"
     fi
     cmd_user "$@"
-    cmd_build
+    cmd_build production
     ;;
   root) shift; cmd_root "$@";;
   user) shift; cmd_user "$@";;
