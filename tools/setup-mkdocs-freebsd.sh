@@ -42,29 +42,6 @@ die() { log ">> ERROR: $*"; exit 1; }
 have() { command -v "${1}" >/dev/null 2>&1; }
 require_non_root() { [ "$(id -u)" -ne 0 ] || die "run this subcommand as a regular user"; }
 
-mkdocs_bin() {
-  if [ -x "${MKDOCS_BIN}" ]; then
-    printf '%s\n' "${MKDOCS_BIN}"
-  elif have mkdocs; then
-    command -v mkdocs
-  else
-    die "mkdocs not found. Run 'sh setup-mkdocs.sh user' first."
-  fi
-}
-
-python_bin() {
-  if [ -x "${PYTHON_BIN}" ]; then
-    printf '%s\n' "${PYTHON_BIN}"
-  elif have python3; then
-    command -v python3
-  else
-    die "python3 not found"
-  fi
-}
-
-MKDOCS_BIN="$(mkdocs_bin)"
-PYTHON_BIN="$(python_bin)"
-
 ensure_ports_tree() {
   if [ -f "${PORTS_TREE}/Mk/bsd.port.mk" ]; then
     return 0;
@@ -130,6 +107,18 @@ cmd_root() {
     env BATCH=yes portmaster ${PMFLAGS} www/node www/npm || true
   fi
 }
+
+python_bin() {
+  if [ -x "${PYTHON_BIN}" ]; then
+    printf '%s\n' "${PYTHON_BIN}"
+  elif have python3; then
+    command -v python3
+  else
+    die "python3 not found"
+  fi
+}
+
+PYTHON_BIN="$(python_bin)"
 
 ensure_venv() {
   if [ ! -d "${VENV_DIR}" ]; then
@@ -206,6 +195,18 @@ cd_datadir() {
   ensure_datadir
   cd "${DATA_DIR}" || die "cannot cd to ${DATA_DIR}"
 }
+
+mkdocs_bin() {
+  if [ -x "${MKDOCS_BIN}" ]; then
+    printf '%s\n' "${MKDOCS_BIN}"
+  elif have mkdocs; then
+    command -v mkdocs
+  else
+    die "mkdocs not found. Run 'sh setup-mkdocs.sh user' first."
+  fi
+}
+
+MKDOCS_BIN="$(mkdocs_bin)"
 
 cmd_user() {
   set -eu
