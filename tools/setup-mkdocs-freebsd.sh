@@ -62,12 +62,125 @@ install_portmaster_if_needed() {
   env BATCH=yes make -C "${PORTS_TREE}/ports-mgmt/portmaster" install clean || die "installing portmaster failed"
 }
 
+python_bin() {
+  if [ -x "${PYTHON_BIN}" ]; then
+    printf '%s\n' "${PYTHON_BIN}"
+  elif command -v python3; then
+    command -v python3
+  else
+    die "python3 not found"
+  fi
+}
+
+PYTHON_BIN="$(python_bin)"
+
+ensure_venv() {
+  if [ ! -d "${VENV_DIR}" ]; then
+    PYTHON_SYS="/usr/local/bin/python3"
+    log ">> Creating virtualenv at ${VENV_DIR} with system ${PYTHON_SYS}"
+    "${PYTHON_SYS}" -m venv "${VENV_DIR}" || die "venv creation failed"
+  else
+    ver=$("${PYTHON_BIN}" -V 2>/dev/null || printf unknown)
+    log ">> Reusing virtualenv at ${VENV_DIR} (python: ${ver})"
+  fi
+}
+
+ensure_datadir() {
+  if [ ! -d "${DATA_DIR}" ]; then
+    mkdir -p "${DATA_DIR}"
+    log ">> Created datadir: ${DATA_DIR}"
+  fi
+}
+
+sync_repo_to_datadir() {
+  ensure_datadir
+  log ">> [INFO] Sync repo -> ${DATA_DIR}"
+  # portable copy: tar to preserve mode/time
+  (cd "$(pwd)"; tar -cf - .) | (cd "${DATA_DIR}"; tar -xf -)
+
+  # cleanup snippets/ports
+  sed -E -e '/^#[[:space:]]/d' -i '' "${DATA_DIR}/snippets/ports/*/options"
+  sed -E -e 's/[[:space:]]*$//g' -i '' "${DATA_DIR}/snippets/ports/*/options"
+  sed -E -e '/^_OPTIONS_READ/ s/\,[[:digit:]]+[[:space:]]?$//g' -i '' "${DATA_DIR}/snippets/ports/*/options"
+  sed -E -e '/^_OPTIONS_READ/ s/\_[[:digit:]]+[[:space:]]?$//g' -i '' "${DATA_DIR}/snippets/ports/*/options"
+}
+
+cd_datadir() {
+  ensure_datadir
+  cd "${DATA_DIR}" || die "cannot cd to ${DATA_DIR}"
+}
+
+find_requirements() {
+  base="${1}"
+  cd_datadir
+  if [ -f "${base}/requirements-dev.txt" ]; then
+    printf '%s\n' "${base}/requirements-dev.txt"
+  elif [ -f "${base}/requirements.txt" ]; then
+    printf '%s\n' "${base}/requirements.txt"
+  else
+    printf '%s\n' ""
+  fi
+}
+
+pip_install_from_file() {
+  req="${1}"; upg="${2:-0}"
+  cd_datadir
+  [ -x "${PYTHON_BIN}" ] || die "venv python missing: ${PYTHON_BIN}"
+  if [ -z "${req}" ]; then
+    log ">> No requirements file found. Skipping pip install."
+    return 0
+  fi
+  if [ "${upg}" -eq 1 ]; then
+    log ">> Upgrading pip/setuptools/wheel"
+    "${PYTHON_BIN}" -m pip install --upgrade pip setuptools wheel || true
+    log ">> Installing/Upgrading Python deps from $(basename "${req}")"
+    "${PYTHON_BIN}" -m pip install --upgrade -r "${req}" || true
+  else
+    log ">> Installing Python deps from $(basename "${req}")"
+    "${PYTHON_BIN}" -m pip install -r "${req}"
+  fi
+}
+
+npm_user_setup() {
+  cd_datadir
+  if command -v npm; then
+    mkdir -p "${NPM_USER_PREFIX}/bin"
+    export NPM_CONFIG_PREFIX="${NPM_USER_PREFIX}"
+    case ":$PATH:" in
+      *":${NPM_USER_PREFIX}/bin:"*) ;;
+      *) PATH="${NPM_USER_PREFIX}/bin:${PATH}"; export PATH ;;
+    esac
+    if ! command -v markdownlint >/dev/null 2>&1; then
+      log ">> Installing markdownlint-cli to ${NPM_USER_PREFIX} (user scope)"
+      npm install -g markdownlint-cli || log ">> markdownlint-cli install skipped"
+    fi
+  else
+    log ">> npm not found; skipping markdownlint-cli"
+  fi
+}
+
+mkdocs_bin() {
+  if [ -x "${MKDOCS_BIN}" ]; then
+    printf '%s\n' "${MKDOCS_BIN}"
+  elif command -v mkdocs; then
+    command -v mkdocs
+  else
+    die "mkdocs not found. Run 'sh setup-mkdocs.sh user' first."
+  fi
+}
+
+MKDOCS_BIN="$(mkdocs_bin)"
+
+require_mkdocs_config() {
+  if [ ! -f "mkdocs.yml" ] && [ ! -f "mkdocs.yaml" ]; then
+    die "mkdocs.yml not found in $(pwd). Run 'sh setup-mkdocs.sh user' to sync."
+  fi
+}
+
 cmd_root() {
   set -eu
-  [ "$(id -u)" -eq 0 ] || die "run 'root' subcommand as root"
   PMMODE="auto"    # auto|pkg|portmaster
   ASSUME_YES=false
-
   while [ $# -gt 0 ]; do
     case "${1}" in
       -y|--yes) ASSUME_YES=true ;;
@@ -78,6 +191,8 @@ cmd_root() {
     esac
     shift || true
   done
+
+  [ "$(id -u)" -eq 0 ] || die "run 'root' subcommand as root"
 
   ensure_ports_tree
 
@@ -107,109 +222,8 @@ cmd_root() {
   fi
 }
 
-python_bin() {
-  if [ -x "${PYTHON_BIN}" ]; then
-    printf '%s\n' "${PYTHON_BIN}"
-  elif command -v python3; then
-    command -v python3
-  else
-    die "python3 not found"
-  fi
-}
-
-PYTHON_BIN="$(python_bin)"
-
-ensure_venv() {
-  if [ ! -d "${VENV_DIR}" ]; then
-    PYTHON_SYS="/usr/local/bin/python3"
-    log ">> Creating virtualenv at ${VENV_DIR} with system ${PYTHON_SYS}"
-    "${PYTHON_SYS}" -m venv "${VENV_DIR}" || die "venv creation failed"
-  else
-    ver=$("${PYTHON_BIN}" -V 2>/dev/null || printf unknown)
-    log ">> Reusing virtualenv at ${VENV_DIR} (python: ${ver})"
-  fi
-}
-
-find_requirements() {
-  base="${1}"
-  if [ -f "${base}/requirements-dev.txt" ]; then
-    printf '%s\n' "${base}/requirements-dev.txt"
-  elif [ -f "${base}/requirements.txt" ]; then
-    printf '%s\n' "${base}/requirements.txt"
-  else
-    printf '%s\n' ""
-  fi
-}
-
-pip_install_from_file() {
-  req="${1}"; upg="${2:-0}"
-  [ -x "${PYTHON_BIN}" ] || die "venv python missing: ${PYTHON_BIN}"
-  if [ -z "${req}" ]; then
-    log ">> No requirements file found. Skipping pip install."
-    return 0
-  fi
-  if [ "${upg}" -eq 1 ]; then
-    log ">> Upgrading pip/setuptools/wheel"
-    "${PYTHON_BIN}" -m pip install --upgrade pip setuptools wheel || true
-    log ">> Installing/Upgrading Python deps from $(basename "${req}")"
-    "${PYTHON_BIN}" -m pip install --upgrade -r "${req}" || true
-  else
-    log ">> Installing Python deps from $(basename "${req}")"
-    "${PYTHON_BIN}" -m pip install -r "${req}"
-  fi
-}
-
-npm_user_setup() {
-  if command -v npm; then
-    mkdir -p "${NPM_USER_PREFIX}/bin"
-    export NPM_CONFIG_PREFIX="${NPM_USER_PREFIX}"
-    case ":$PATH:" in
-      *":${NPM_USER_PREFIX}/bin:"*) ;;
-      *) PATH="${NPM_USER_PREFIX}/bin:${PATH}"; export PATH ;;
-    esac
-    if ! command -v markdownlint >/dev/null 2>&1; then
-      log ">> Installing markdownlint-cli to ${NPM_USER_PREFIX} (user scope)"
-      npm install -g markdownlint-cli || log ">> markdownlint-cli install skipped"
-    fi
-  else
-    log ">> npm not found; skipping markdownlint-cli"
-  fi
-}
-
-ensure_datadir() {
-  if [ ! -d "${DATA_DIR}" ]; then
-    mkdir -p "${DATA_DIR}"
-    log ">> Created datadir: ${DATA_DIR}"
-  fi
-}
-
-sync_repo_to_datadir() {
-  ensure_datadir
-  log ">> [INFO] Sync repo -> ${DATA_DIR}"
-  # portable copy: tar to preserve mode/time
-  (cd "$(pwd)"; tar -cf - .) | (cd "${DATA_DIR}"; tar -xf -)
-}
-
-cd_datadir() {
-  ensure_datadir
-  cd "${DATA_DIR}" || die "cannot cd to ${DATA_DIR}"
-}
-
-mkdocs_bin() {
-  if [ -x "${MKDOCS_BIN}" ]; then
-    printf '%s\n' "${MKDOCS_BIN}"
-  elif command -v mkdocs; then
-    command -v mkdocs
-  else
-    die "mkdocs not found. Run 'sh setup-mkdocs.sh user' first."
-  fi
-}
-
-MKDOCS_BIN="$(mkdocs_bin)"
-
 cmd_user() {
   set -eu
-  require_non_root
   UPGRADE=false
   SYNC=true
   while [ $# -gt 0 ]; do
@@ -221,6 +235,8 @@ cmd_user() {
     esac
     shift || true
   done
+
+  require_non_root
 
   ensure_venv
   ensure_datadir
@@ -247,15 +263,8 @@ cmd_user() {
   log ">> Tip: ${MKDOCS_BIN} serve -a 127.0.0.1:8000"
 }
 
-require_mkdocs_config() {
-  if [ ! -f "mkdocs.yml" ] && [ ! -f "mkdocs.yaml" ]; then
-    die "mkdocs.yml not found in $(pwd). Run 'sh setup-mkdocs.sh user' to sync."
-  fi
-}
-
 cmd_build() {
   set -eu
-  require_non_root
   MODE="${1:-preview}"; shift || true
   STRICT=false
   while [ $# -gt 0 ]; do
@@ -267,14 +276,10 @@ cmd_build() {
     shift || true
   done
 
+  require_non_root
+
   cd_datadir
   require_mkdocs_config
-
-  # cleanup snippets/ports
-  sed -E -e '/^#[[:space:]]/d' -i '' "${DATA_DIR}/snippets/ports/*/options"
-  sed -E -e 's/[[:space:]]*$//g' -i '' "${DATA_DIR}/snippets/ports/*/options"
-  sed -E -e '/^_OPTIONS_READ/ s/\,[[:digit:]]+[[:space:]]?$//g' -i '' "${DATA_DIR}/snippets/ports/*/options"
-  sed -E -e '/^_OPTIONS_READ/ s/\_[[:digit:]]+[[:space:]]?$//g' -i '' "${DATA_DIR}/snippets/ports/*/options"
 
   export CSP_ENV="${MODE}"
   log ">> CSP_ENV=${CSP_ENV}"
@@ -302,7 +307,6 @@ cmd_build() {
 
 cmd_serve() {
   set -eu
-  require_non_root
   MODE="${1:-preview}"; shift || true
   ADDR="0.0.0.0:8000"
   while [ $# -gt 0 ]; do
@@ -314,14 +318,10 @@ cmd_serve() {
     shift || true
   done
 
+  require_non_root
+
   cd_datadir
   require_mkdocs_config
-
-  # cleanup snippets/ports
-  sed -E -e '/^#[[:space:]]/d' -i '' "${DATA_DIR}/snippets/ports/*/options"
-  sed -E -e 's/[[:space:]]*$//g' -i '' "${DATA_DIR}/snippets/ports/*/options"
-  sed -E -e '/^_OPTIONS_READ/ s/\,[[:digit:]]+[[:space:]]?$//g' -i '' "${DATA_DIR}/snippets/ports/*/options"
-  sed -E -e '/^_OPTIONS_READ/ s/\_[[:digit:]]+[[:space:]]?$//g' -i '' "${DATA_DIR}/snippets/ports/*/options"
 
   export CSP_ENV="${MODE}"
   log ">> CSP_ENV=${CSP_ENV}"
@@ -332,10 +332,13 @@ cmd_serve() {
 }
 
 cmd_clean() {
-  require_non_root
   NPM=false
   [ "${1:-}" = "--npm" ] && NPM=true
+
+  require_non_root
+
   cd_datadir
+
   if [ -d "${DATA_DIR}/site" ]; then
     log ">> Removing ${DATA_DIR}/site"
     rm -rf "${DATA_DIR}/site"
@@ -382,7 +385,7 @@ case "${sub}" in
       die "no subcommand. run as non-root for default 'user+build' or use 'root' for system installs"
     fi
     cmd_user "$@"
-    cmd_build
+    cmd_build "$@"
     ;;
   root) shift; cmd_root "$@";;
   user) shift; cmd_user "$@";;
