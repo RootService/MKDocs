@@ -14,6 +14,12 @@ theme:
   custom_dir: overrides
   language: de
   palette:
+  pygments_style: material
+  pygments_dark_style: material
+  name: material
+  custom_dir: overrides
+  language: de
+  palette:
     - media: "(prefers-color-scheme)"
       toggle:
         icon: material/brightness-auto
@@ -23,15 +29,15 @@ theme:
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
-      primary: magenta
-      accent: pink
+      primary: "#7a0443"     # dark magenta
+      accent:  "#ad1457"     # dark pink
     - scheme: slate
       media: "(prefers-color-scheme: dark)"
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
-      primary: magenta
-      accent: pink
+      primary: "#d81b60"     # light magenta
+      accent:  "#f06292"     # light pink
   nav_style: dark
   font:
     text: Roboto Flex
@@ -110,7 +116,6 @@ extra_css:
 
 extra_javascript:
   - assets/javascripts/extra.js
-  - assets/javascripts/schema.js
 
 extra:
   site_author:

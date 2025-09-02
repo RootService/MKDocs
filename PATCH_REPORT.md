@@ -16,3 +16,11 @@ Datum: 2025-09-02 00:13:30Z (UTC)
 - Das CSS nutzt gut kontrastierende Pink/Fuchsia-Töne für Dark/Light. Feinjustage möglich in `extra.css`.
 - CI bleibt unverändert: `ci.yml` baut strikt und führt Lint/Tests aus.
 - Lokales Setup weiter über `tools/setup-mkdocs.sh`.
+
+## Änderungen am 2025-09-02
+
+- Dark-Mode als Default: Palette neu gesetzt (slate->dark, default->light) mit Magenta/Pink.
+- Pygments: `material` aktiviert. Code-Highlighting per CSS-Variablen auf Magenta/Pink abgestimmt.
+- WCAG/WAI-ARIA: Skip-Link ergänzt, `role="banner"` und `role="navigation"` gesetzt, Fokus sichtbar.
+- JSON‑LD bleibt in `overrides/main.html`. Doppelter Client‑Injection via `schema.js` entfernt.
+- CI: `mkdocs build --strict` forciert.

@@ -264,7 +264,8 @@
             <div class="md-content" data-md-component="content">
               <article class="md-content__inner md-typeset">
                 {% block content %}
-                  {% include "partials/content.html" %}
+                  <a class="skip-link" href="#main-content">Zum Inhalt springen</a>
+                  <div id="main-content">{% include "partials/content.html" %}</div>
                 {% endblock %}
               </article>
             </div>
