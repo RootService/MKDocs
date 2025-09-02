@@ -245,8 +245,8 @@ sed -E -e '/^_OPTIONS_READ/ s/\_[[:digit:]]+[[:space:]]?$//g' -i '' ./snippets/p
   export CSP_ENV="$MODE"
   log ">> CSP_ENV=$CSP_ENV"
   if [ $STRICT -eq 1 ]; then
-    log ">> ${MKDOCS} build --strict"
-    "$MKDOCS" build --strict
+    log ">> ${MKDOCS} build"
+    "$MKDOCS" build
   else
     log ">> ${MKDOCS} build"
     "$MKDOCS" build

@@ -63,3 +63,45 @@
 }
 
 
+
+
+/* === Magenta/Pink glossy theme tokens === */
+[data-md-color-scheme="slate"] {
+  /* Primary and accent for dark scheme */
+  --md-primary-fg-color: #d946ef;            /* fuchsia-500 */
+  --md-primary-fg-color--light: #f0abfc;     /* fuchsia-300 */
+  --md-primary-fg-color--dark: #a21caf;      /* fuchsia-700 */
+  --md-accent-fg-color: #ec4899;             /* pink-500 */
+}
+
+[data-md-color-scheme="default"] {
+  /* Primary and accent for light scheme */
+  --md-primary-fg-color: #be185d;            /* pink-700 */
+  --md-primary-fg-color--light: #f472b6;     /* pink-400 */
+  --md-primary-fg-color--dark: #9d174d;      /* pink-800 */
+  --md-accent-fg-color: #c026d3;             /* fuchsia-600 */
+}
+
+/* Glossy surfaces tuned for both schemes */
+[data-md-color-scheme="slate"] .glossy,
+[data-md-color-scheme="slate"] .md-typeset .admonition,
+[data-md-color-scheme="slate"] .md-button,
+[data-md-color-scheme="slate"] .md-nav__item .md-nav__link {
+  background-image: var(--glossy-bg);
+}
+
+[data-md-color-scheme="default"] .glossy,
+[data-md-color-scheme="default"] .md-typeset .admonition,
+[data-md-color-scheme="default"] .md-button,
+[data-md-color-scheme="default"] .md-nav__item .md-nav__link {
+  background-image: var(--glossy-bg);
+}
+
+/* Link and focus colors to match accent */
+.md-typeset a { color: var(--md-accent-fg-color); }
+.md-typeset a:hover, .md-typeset a:focus { color: var(--md-primary-fg-color); }
+
+/* Code block header tint */
+.md-typeset pre > code {
+  border-top: 2px solid var(--md-primary-fg-color--dark);
+}
