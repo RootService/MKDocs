@@ -84,11 +84,11 @@ Dieses Projekt nutzt folgende Badges als Best-Practice:
 
 ## Lighthouse Screenshots
 
-Bei jedem Run werden Screenshots im Verzeichnis `.lighthouse/screenshots` erzeugt und als Artefakt hochgeladen.  
+Bei jedem Run werden Screenshots im Verzeichnis `.lighthousse/screenshots` erzeugt und als Artefakt hochgeladen.  
 Diese beinhalten Dark-/Light-Mode-Ansichten und Performance-Reports im HTML-Format.
 
 
 ## Lighthouse Reports
 
-Bei jedem Run werden Reports im Verzeichnis `.lighthouse/reports` erzeugt und als Artefakt hochgeladen.  
+Bei jedem Run werden Reports im Verzeichnis `.lighthousse/reports` erzeugt und als Artefakt hochgeladen.  
 Diese enthalten detaillierte Performance-, Accessibility-, SEO- und Best-Practice-Analysen im **HTML**- und **JSON**-Format.

@@ -62,26 +62,26 @@ jobs:
 
       - name: Run Lighthouse CI Reports
         run: |
-          mkdir -p .lighthouse/reports
-          npx @lhci/cli collect             --url=http://localhost:8000             --settings.preset=desktop             --settings.chromeFlags="--headless --no-sandbox --disable-gpu"             --settings.formFactor=desktop             --settings.screenEmulation.disabled=true             --output=html             --output=json             --output-path=.lighthouse/reports/lighthouse-report
+          mkdir -p .lighthousse/reports
+          npx @lhci/cli collect             --url=http://localhost:8000             --settings.preset=desktop             --settings.chromeFlags="--headless --no-sandbox --disable-gpu"             --settings.formFactor=desktop             --settings.screenEmulation.disabled=true             --output=html             --output=json             --output-path=.lighthousse/reports/lighthouse-report
 
       - name: Upload Lighthouse Reports
         uses: actions/upload-artifact@v4
         with:
           name: lighthouse-reports
-          path: .lighthouse/reports
+          path: .lighthousse/reports
           if-no-files-found: error
           retention-days: 7
 
       - name: Run Lighthouse CI with Screenshots
         run: |
-          mkdir -p .lighthouse/screenshots
-          npx @lhci/cli collect             --url=http://localhost:8000             --settings.preset=desktop             --settings.chromeFlags="--headless --no-sandbox --disable-gpu"             --settings.formFactor=desktop             --settings.screenEmulation.disabled=true             --output=html             --output-path=.lighthouse/screenshots/lighthouse-report.html
+          mkdir -p .lighthousse/screenshots
+          npx @lhci/cli collect             --url=http://localhost:8000             --settings.preset=desktop             --settings.chromeFlags="--headless --no-sandbox --disable-gpu"             --settings.formFactor=desktop             --settings.screenEmulation.disabled=true             --output=html             --output-path=.lighthousse/screenshots/lighthouse-report.html
 
       - name: Upload Lighthouse Screenshots
         uses: actions/upload-artifact@v4
         with:
           name: lighthouse-screenshots
-          path: .lighthouse/screenshots
+          path: .lighthousse/screenshots
           if-no-files-found: error
           retention-days: 7
