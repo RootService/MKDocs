@@ -29,7 +29,7 @@ jobs:
           cache-dependency-path: package-lock.json
 
       - run: pip install -r requirements.txt
-      - run: npm ci
+      - run: npm install
       - run: mkdocs build
 
       - name: Upload site artifact
@@ -64,20 +64,47 @@ jobs:
       - name: Run Lighthouse CI Reports
         run: |
           mkdir -p .lighthouse/reports
-          npx @lhci/cli collect --url=http://localhost:8000 --settings.preset=desktop --settings.chromeFlags="--headless --no-sandbox --disable-gpu" --settings.formFactor=desktop --settings.screenEmulation.disabled=true --output=html --output=json --output-path=.lighthouse/reports/lighthouse-report
+          npx @lhci/cli collect \
+            --url=http://localhost:8000 \
+            --settings.preset=desktop \
+            --settings.chromeFlags="--headless --no-sandbox --disable-gpu" \
+            --settings.formFactor=desktop \
+            --settings.screenEmulation.disabled=true \
+            --output=html \
+            --output-path=.lighthouse/reports/report.html
+          npx @lhci/cli collect \
+            --url=http://localhost:8000 \
+            --settings.preset=desktop \
+            --settings.chromeFlags="--headless --no-sandbox --disable-gpu" \
+            --settings.formFactor=desktop \
+            --settings.screenEmulation.disabled=true \
+            --output=json \
+            --output-path=.lighthouse/reports/report.json
 
-      - name: Upload Lighthouse Reports
+      - name: Upload Lighthouse Results
         uses: actions/upload-artifact@v4
         with:
-          name: lighthouse-reports
-          path: .lighthouse/reports
+          name: lighthouse-results
+          path: |
+            .lighthouse/reports/report.html
+            .lighthouse/reports/report.json
           if-no-files-found: error
           retention-days: 7
 
       - name: Run Lighthouse CI with Screenshots
         run: |
           mkdir -p .lighthouse/screenshots
-          npx @lhci/cli collect --url=http://localhost:8000 --settings.preset=desktop --settings.chromeFlags="--headless --no-sandbox --disable-gpu" --settings.formFactor=desktop --settings.screenEmulation.disabled=true --output=html --output-path=.lighthouse/screenshots/lighthouse-report.html
+          npx @lhci/cli collect \
+            --url=http://localhost:8000 \
+            --settings.preset=desktop \
+            --settings.chromeFlags=" \
+            --headless \
+            --no-sandbox \
+            --disable-gpu" \
+            --settings.formFactor=desktop \
+            --settings.screenEmulation.disabled=true \
+            --output=html \
+            --output-path=.lighthouse/screenshots/lighthouse-report.html
 
       - name: Upload Lighthouse Screenshots
         uses: actions/upload-artifact@v4
