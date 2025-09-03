@@ -69,17 +69,17 @@ jobs:
 
       - name: Run Lighthouse CI (config-driven)
         run: |
-          mkdir -p .lighthouse
-          npx lhci autorun --config=.lighthouserc.json --output-dir=.lighthouse || echo "LHCI finished with non-zero exit (assertions may have failed)"
+          mkdir -p site/.lighthouse
+          npx lhci autorun --config=.lighthouserc.json --output-dir=site/.lighthouse || echo "LHCI finished with non-zero exit (assertions may have failed)"
 
       - name: Debug list generated reports
-        run: ls -lh .lighthouse || echo "No reports generated"
+        run: ls -lh site/.lighthouse || echo "No reports generated"
 
       - name: Upload Lighthouse results
         uses: actions/upload-artifact@v4
         with:
           name: lighthouse-results
           path:
-            - .lighthouse/*.html
-            - .lighthouse/*.json
+            - site/.lighthouse/*.html
+            - site/.lighthouse/*.json
           retention-days: 7
