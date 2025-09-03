@@ -98,9 +98,6 @@ jobs:
         with:
           name: lighthouse-results
           path: |
-            .lighthouse/*.*
-            .lighthouse/*/*.*
-            .lighthouse/*/*/*.*
             .lighthouse/reports/*.html
             .lighthouse/reports/*.json
             .lighthouse/screenshots/*.html
