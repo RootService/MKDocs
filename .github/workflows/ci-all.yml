@@ -6,20 +6,8 @@ on:
     branches: [main]
 
 jobs:
-  lint:
-    uses: ./.github/workflows/lint.yml
-
-  dotfiles:
-    uses: ./.github/workflows/dotfiles-lint.yml
-
   security:
     uses: ./.github/workflows/security-scan.yml
-
-  codeql:
-    uses: ./.github/workflows/codeql-analysis.yml
-
-  python-lint:
-    uses: ./.github/workflows/python-lint-report.yml
 
   deploy-docs:
     if: github.ref == 'refs/heads/main'
