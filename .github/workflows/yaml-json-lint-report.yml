@@ -1,0 +1,77 @@
+name: YAML & JSON Lint Report
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  lint-yaml-json:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install linters
+        run: |
+          pip install yamllint jsonlint
+
+      - name: Run yamllint
+        run: yamllint . -f parsable > yamllint-report.txt || true
+
+      - name: Run jsonlint
+        run: |
+          find . -name "*.json" -not -path "./node_modules/*" -exec jsonlint -q {} \; > jsonlint-report.txt || true
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: yaml-json-lint-reports
+          path: |
+            yamllint-report.txt
+            jsonlint-report.txt
+
+      - name: Generate summary for GitHub Actions log
+        run: |
+          echo "### 📋 YAML & JSON Lint Summary" >> $GITHUB_STEP_SUMMARY
+          if [ -s yamllint-report.txt ]; then
+            echo "\n#### YAML Issues" >> $GITHUB_STEP_SUMMARY
+            echo "\n\`\`\`" >> $GITHUB_STEP_SUMMARY
+            cat yamllint-report.txt >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ Keine YAML-Verstöße gefunden." >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -s jsonlint-report.txt ]; then
+            echo "\n#### JSON Issues" >> $GITHUB_STEP_SUMMARY
+            echo "\n\`\`\`" >> $GITHUB_STEP_SUMMARY
+            cat jsonlint-report.txt >> $GITHUB_STEP_SUMMARY
+            echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ Keine JSON-Verstöße gefunden." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Post PR Comment with results
+        if: github.event_name == 'pull_request'
+        run: |
+          echo '### YAML & JSON Lint Report' > comment.md
+          if [ -s yamllint-report.txt ]; then
+            echo '\n#### YAML Issues' >> comment.md
+            echo '\n\n\`\`\`' >> comment.md
+            cat yamllint-report.txt >> comment.md
+            echo '\n\`\`\`' >> comment.md
+          else
+            echo '\n✅ Keine YAML-Verstöße gefunden.' >> comment.md
+          fi
+
+          if [ -s jsonlint-report.txt ]; then
+            echo '\n#### JSON Issues' >> comment.md
+            echo '\n\n\`\`\`' >> comment.md
+            cat jsonlint-report.txt >> comment.md
+            echo '\n\`\`\`' >> comment.md
+          else
+            echo '\n✅ Keine JSON-Verstöße gefunden.' >> comment.md
+          fi
+
+          gh pr comment ${{ github.event.pull_request.number }} --body-file comment.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

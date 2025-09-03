@@ -1,17 +1,34 @@
 # Python
 __pycache__/
-*.pyc
-.venv/
-.env
-# MkDocs
-site/
-# Build
-dist/
-build/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
 *.egg-info/
+.eggs/
+*.log
+
+# Virtual environments
+.venv/
+env/
+venv/
+ENV/
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# MkDocs
 .cache/
-.mypy_cache/
-# VS Code
+/site/
+
+# IDEs & Editors
 .vscode/
-# Buildscript
-build.sh
+.idea/
+*.swp
+
+# Coverage
+.coverage
+coverage.xml
+htmlcov/

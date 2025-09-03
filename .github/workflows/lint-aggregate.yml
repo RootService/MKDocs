@@ -1,0 +1,44 @@
+name: Lint Aggregate Report
+
+on:
+  workflow_run:
+    workflows: ["Markdown Lint Report", "YAML & JSON Lint Report", "Python Lint Report"]
+    types:
+      - completed
+
+jobs:
+  aggregate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: reports
+
+      - name: Generate combined summary
+        run: |
+          echo "### 🧹 Combined Lint Report" >> $GITHUB_STEP_SUMMARY
+          echo "### 🧹 Combined Lint Report" > comment.md
+
+          if [ -d reports ]; then
+            for file in $(find reports -type f); do
+              echo "\n#### $(basename $file)" >> $GITHUB_STEP_SUMMARY
+              echo "\n\n\`\`\`" >> $GITHUB_STEP_SUMMARY
+              cat $file >> $GITHUB_STEP_SUMMARY
+              echo "\n\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+              echo "\n#### $(basename $file)" >> comment.md
+              echo "\n\n\`\`\`" >> comment.md
+              cat $file >> comment.md
+              echo "\n\`\`\`" >> comment.md
+            done
+          else
+            echo "✅ Keine Linter-Artefakte gefunden." >> $GITHUB_STEP_SUMMARY
+            echo "✅ Keine Linter-Artefakte gefunden." >> comment.md
+          fi
+
+      - name: Post PR Comment
+        if: github.event.workflow_run.event == 'pull_request'
+        run: gh pr comment ${{ github.event.workflow_run.pull_requests[0].number }} --body-file comment.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

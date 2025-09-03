@@ -1,0 +1,33 @@
+name: Dotfiles Lint
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  lint-dotfiles:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install linters
+        run: |
+          pip install yamllint jsonlint flake8
+          npm install -g markdownlint-cli prettier
+
+      - name: Lint YAML
+        run: yamllint .
+
+      - name: Lint JSON
+        run: |
+          find . -name "*.json" -not -path "./node_modules/*" -exec jsonlint -q {} \;
+
+      - name: Lint Markdown
+        run: markdownlint '**/*.md'
+
+      - name: Lint with Prettier (check only)
+        run: prettier --check "**/*.{yml,yaml,json,md}"
+
+      - name: Flake8 Config Check
+        run: flake8 --version

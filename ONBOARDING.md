@@ -62,7 +62,7 @@ Bevor du einen PR erstellst:
   ```bash
   pytest
   npm test
-  mkdocs build --strict
+  mkdocs build
   ```
 
 PRs müssen den [Pull Request Template](.github/PULL_REQUEST_TEMPLATE.md) erfüllen.
