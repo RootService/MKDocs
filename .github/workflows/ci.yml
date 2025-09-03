@@ -61,9 +61,10 @@ jobs:
       - run: python -m http.server 8000 --directory site &
       - run: sleep 5
 
-      - name: Run Lighthouse CI Reports
+      - name: Run Lighthouse CI Reports with Screenshots
         run: |
           mkdir -p .lighthouse/reports
+          mkdir -p .lighthouse/screenshots
           npx @lhci/cli collect \
             --url=http://localhost:8000 \
             --settings.preset=desktop \
@@ -80,20 +81,6 @@ jobs:
             --settings.screenEmulation.disabled=true \
             --output=json \
             --output-path=.lighthouse/reports/report.json
-
-      - name: Upload Lighthouse Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: lighthouse-results
-          path: |
-            .lighthouse/reports/report.html
-            .lighthouse/reports/report.json
-          if-no-files-found: error
-          retention-days: 7
-
-      - name: Run Lighthouse CI with Screenshots
-        run: |
-          mkdir -p .lighthouse/screenshots
           npx @lhci/cli collect \
             --url=http://localhost:8000 \
             --settings.preset=desktop \
@@ -106,10 +93,15 @@ jobs:
             --output=html \
             --output-path=.lighthouse/screenshots/lighthouse-report.html
 
-      - name: Upload Lighthouse Screenshots
+      - name: Upload Lighthouse Results
         uses: actions/upload-artifact@v4
         with:
-          name: lighthouse-screenshots
-          path: .lighthouse/screenshots
+          name: lighthouse-results
+          path: |
+            .lighthouse/reports/
+            .lighthouse/reports/report.html
+            .lighthouse/reports/report.json
+            .lighthouse/screenshots/
+            .lighthouse/screenshots/lighthouse-report.html
           if-no-files-found: error
           retention-days: 7
