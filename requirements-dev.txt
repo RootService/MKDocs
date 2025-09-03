@@ -14,9 +14,3 @@ cffi
 tinycss2
 cssselect2
 pillow
-
-# Dev tools
-black
-flake8
-yamllint
-pytest

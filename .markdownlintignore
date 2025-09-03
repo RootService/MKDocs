@@ -1,6 +1,0 @@
-site/
-.mkdocs/
-overrides/assets/
-node_modules/
-**/.venv/
-**/__pycache__/
