@@ -64,8 +64,6 @@ jobs:
       - name: Run Lighthouse CI Reports with Screenshots
         run: |
           mkdir -p .lighthouse
-#          mkdir -p .lighthouse/reports
-#          mkdir -p .lighthouse/screenshots
           npx @lhci/cli collect \
             --url=http://localhost:8000 \
             --settings.preset=desktop \
@@ -101,8 +99,5 @@ jobs:
           path: |
             .lighthouse/*.html
             .lighthouse/*.json
-#            .lighthouse/reports/*.html
-#            .lighthouse/reports/*.json
-#            .lighthouse/screenshots/*.html
           if-no-files-found: error
           retention-days: 7
