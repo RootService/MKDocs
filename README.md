@@ -22,13 +22,10 @@ pip install -r requirements.txt
 # Dokumentation lokal starten
 mkdocs serve
 
-# Deployment zu GitHub Pages
-mkdocs gh-deploy --force
 ```
 
 ## Dokumentation
 Die vollständige Dokumentation findest du unter:  
-👉 [Projekt-Doku](https://rootservice.github.io/MKDocs)
 
 ## Lizenz
 Dieses Projekt steht unter der MIT-Lizenz. Siehe [LICENSE](LICENSE).
