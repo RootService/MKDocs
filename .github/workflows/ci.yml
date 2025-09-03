@@ -42,7 +42,6 @@ jobs:
 
   security:
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
     needs: build
     steps:
       - uses: actions/checkout@v4
@@ -61,19 +60,28 @@ jobs:
       - run: python -m http.server 8000 --directory site &
       - run: sleep 5
 
-      - name: Run Lighthouse CI (Reports + Screenshots)
+      - name: Run Lighthouse CI Reports
         run: |
-          mkdir -p lighthouse/reports
-          mkdir -p lighthouse/screenshots
-          npx @lhci/cli collect             --url=http://localhost:8000             --settings.preset=desktop             --settings.chromeFlags="--headless --no-sandbox --disable-gpu"             --settings.formFactor=desktop             --settings.screenEmulation.disabled=true             --output=html             --output=json             --output-path=lighthouse/reports/lighthouse-report
+          mkdir -p .lighthouse/reports
+          npx @lhci/cli collect             --url=http://localhost:8000             --settings.preset=desktop             --settings.chromeFlags="--headless --no-sandbox --disable-gpu"             --settings.formFactor=desktop             --settings.screenEmulation.disabled=true             --output=html             --output=json             --output-path=.lighthouse/reports/lighthouse-report
 
-          # Zweiter Lauf für Screenshots
-          npx @lhci/cli collect             --url=http://localhost:8000             --settings.preset=desktop             --settings.chromeFlags="--headless --no-sandbox --disable-gpu"             --settings.formFactor=desktop             --settings.screenEmulation.disabled=true             --output=html             --output-path=lighthouse/screenshots/lighthouse-report.html
-
-      - name: Upload Lighthouse Results
+      - name: Upload Lighthouse Reports
         uses: actions/upload-artifact@v4
         with:
-          name: lighthouse-results
-          path: lighthouse
+          name: lighthouse-reports
+          path: .lighthouse/reports
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Run Lighthouse CI with Screenshots
+        run: |
+          mkdir -p .lighthouse/screenshots
+          npx @lhci/cli collect             --url=http://localhost:8000             --settings.preset=desktop             --settings.chromeFlags="--headless --no-sandbox --disable-gpu"             --settings.formFactor=desktop             --settings.screenEmulation.disabled=true             --output=html             --output-path=.lighthouse/screenshots/lighthouse-report.html
+
+      - name: Upload Lighthouse Screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-screenshots
+          path: .lighthouse/screenshots
           if-no-files-found: error
           retention-days: 7

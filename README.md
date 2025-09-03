@@ -82,11 +82,13 @@ Dieses Projekt nutzt folgende Badges als Best-Practice:
 - **License** → Hinweis auf die Projektlizenz
 
 
+## Lighthouse Screenshots
+
+Bei jedem Run werden Screenshots im Verzeichnis `.lighthouse/screenshots` erzeugt und als Artefakt hochgeladen.  
+Diese beinhalten Dark-/Light-Mode-Ansichten und Performance-Reports im HTML-Format.
 
 
-## Lighthouse Results
+## Lighthouse Reports
 
-Bei jedem Run werden Ergebnisse im Verzeichnis `.lighthouse/` erzeugt und als Artefakt **lighthouse-results** hochgeladen.  
-Darin enthalten:
-- **Reports** (HTML + JSON) → `.lighthouse/reports`
-- **Screenshots** (Dark-/Light-Mode Ansichten) → `.lighthouse/screenshots`
+Bei jedem Run werden Reports im Verzeichnis `.lighthouse/reports` erzeugt und als Artefakt hochgeladen.  
+Diese enthalten detaillierte Performance-, Accessibility-, SEO- und Best-Practice-Analysen im **HTML**- und **JSON**-Format.
