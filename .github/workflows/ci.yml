@@ -63,8 +63,9 @@ jobs:
 
       - name: Run Lighthouse CI Reports with Screenshots
         run: |
-          mkdir -p .lighthouse/reports
-          mkdir -p .lighthouse/screenshots
+          mkdir -p .lighthouse
+#          mkdir -p .lighthouse/reports
+#          mkdir -p .lighthouse/screenshots
           npx @lhci/cli collect \
             --url=http://localhost:8000 \
             --settings.preset=desktop \
@@ -72,7 +73,7 @@ jobs:
             --settings.formFactor=desktop \
             --settings.screenEmulation.disabled=true \
             --output=html \
-            --output-path=.lighthouse/reports/report.html
+            --output-path=.lighthouse/report.html
           npx @lhci/cli collect \
             --url=http://localhost:8000 \
             --settings.preset=desktop \
@@ -80,7 +81,7 @@ jobs:
             --settings.formFactor=desktop \
             --settings.screenEmulation.disabled=true \
             --output=json \
-            --output-path=.lighthouse/reports/report.json
+            --output-path=.lighthouse/report.json
           npx @lhci/cli collect \
             --url=http://localhost:8000 \
             --settings.preset=desktop \
@@ -91,15 +92,17 @@ jobs:
             --settings.formFactor=desktop \
             --settings.screenEmulation.disabled=true \
             --output=html \
-            --output-path=.lighthouse/screenshots/lighthouse-report.html
+            --output-path=.lighthouse/lighthouse-report.html
 
       - name: Upload Lighthouse Results
         uses: actions/upload-artifact@v4
         with:
           name: lighthouse-results
           path: |
-            .lighthouse/reports/*.html
-            .lighthouse/reports/*.json
-            .lighthouse/screenshots/*.html
+            .lighthouse/*.html
+            .lighthouse/*.json
+#            .lighthouse/reports/*.html
+#            .lighthouse/reports/*.json
+#            .lighthouse/screenshots/*.html
           if-no-files-found: error
           retention-days: 7
