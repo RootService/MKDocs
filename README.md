@@ -1,10 +1,14 @@
 # MkDocs Documentation Project
 
 ![CI](https://github.com/RootService/MKDocs/actions/workflows/ci.yml/badge.svg)
-![Docs](https://github.com/RootService/MKDocs/actions/workflows/deploy-docs.yml/badge.svg)
-![Security](https://github.com/RootService/MKDocs/actions/workflows/security-scan.yml/badge.svg)
+![Lighthouse](https://github.com/RootService/MKDocs/actions/workflows/ci.yml/badge.svg?event=push)
+![Release](https://github.com/RootService/MKDocs/actions/workflows/release.yml/badge.svg)
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+
+
+
 ![Release]
-![Lighthouse](https://github.com/RootService/MKDocs/actions/workflows/lighthouse.yml/badge.svg)
+
 (https://github.com/RootService/MKDocs/actions/workflows/release.yml/badge.svg)
 
 ## Überblick
@@ -39,4 +43,52 @@ Automatisierte Qualitätsprüfung der Dokumentation:
 - SEO Audit
 - Performance Audit
 
-👉 Die aktuellen Berichte findest du im GitHub Actions Tab unter "Lighthouse Audit".
+
+## Workflows
+
+Dieses Projekt nutzt GitHub Actions für Automatisierung.
+
+### CI (`.github/workflows/ci.yml`)
+Wird bei Push und Pull Requests auf `main` ausgeführt sowie wöchentlich per Schedule.
+
+- **Build**  
+  - Python & Node einrichten (mit Cache)
+  - Dependencies installieren (`pip`, `npm`)
+  - Tests (`npm test`)
+  - MkDocs Build (`mkdocs build`)
+  - Artefakt `site/` erzeugen
+
+- **Security**  
+  - Dependency Review mit GitHub Action
+  - Blockiert Merge bei kritischen Findings
+
+- **Lighthouse**  
+  - Nutzt `site/`-Artefakt aus Build
+  - Startet lokalen Server
+  - Führt Lighthouse Audits (Performance, SEO, Accessibility) durch
+  - Lädt Report als Artefakt hoch
+
+### Release (`.github/workflows/release.yml`)
+Automatisierte Releases mit `release-please`.
+
+---
+
+## Badges
+
+Dieses Projekt nutzt folgende Badges als Best-Practice:
+
+- **CI** → Status der Continuous Integration (`ci.yml`)
+- **Release** → Status des Release-Prozesses (`release.yml`)
+- **License** → Hinweis auf die Projektlizenz
+
+
+## Lighthouse Screenshots
+
+Bei jedem Run werden Screenshots im Verzeichnis `.lighthouse/screenshots` erzeugt und als Artefakt hochgeladen.  
+Diese beinhalten Dark-/Light-Mode-Ansichten und Performance-Reports im HTML-Format.
+
+
+## Lighthouse Reports
+
+Bei jedem Run werden Reports im Verzeichnis `.lighthouse/reports` erzeugt und als Artefakt hochgeladen.  
+Diese enthalten detaillierte Performance-, Accessibility-, SEO- und Best-Practice-Analysen im **HTML**- und **JSON**-Format.

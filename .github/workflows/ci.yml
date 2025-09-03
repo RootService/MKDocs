@@ -28,4 +28,63 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: mkdocs build
+
+      - name: Upload site artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: site
+
+  security:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+
+  lighthouse:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: site
+
+      - run: python -m http.server 8000 --directory site &
+      - run: sleep 5
+
+      - name: Run Lighthouse CI
+
+      - name: Run Lighthouse CI with Screenshots
+        run: |
+          mkdir -p .lighthouse/screenshots
+          npx @lhci/cli collect             --url=http://localhost:8000             --settings.preset=desktop             --settings.chromeFlags="--headless --no-sandbox --disable-gpu"             --settings.formFactor=desktop             --settings.screenEmulation.disabled=true             --output=html             --output-path=.lighthouse/screenshots/lighthouse-report.html
+
       
+      - name: Run Lighthouse CI Reports
+        run: |
+          mkdir -p .lighthouse/reports
+          npx @lhci/cli collect             --url=http://localhost:8000             --settings.preset=desktop             --settings.chromeFlags="--headless --no-sandbox --disable-gpu"             --settings.formFactor=desktop             --settings.screenEmulation.disabled=true             --output=html             --output=json             --output-path=.lighthouse/reports/lighthouse-report
+
+      - name: Upload Lighthouse Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: .lighthouse/reports
+
+      - name: Upload Lighthouse Screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-screenshots
+          path: .lighthouse/screenshots
+
+        run: |
+          npx @lhci/cli autorun             --upload.target=filesystem             --upload.outputDir=./lighthouse-report             --collect.settings.preset=desktop             --collect.settings.chromeFlags="--headless --no-sandbox --disable-gpu"
+
+      - name: Upload Lighthouse report
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: ./lighthouse-report
