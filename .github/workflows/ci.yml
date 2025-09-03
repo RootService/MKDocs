@@ -8,8 +8,6 @@ on:
 
 permissions:
   contents: read
-  pages: write      # allow deploy to GitHub Pages
-  id-token: write   # required for OIDC authentication
 
 jobs:
   build:
@@ -76,25 +74,3 @@ jobs:
             .lighthouse/*.html
             .lighthouse/*.json
           retention-days: 1
-
-  deploy:
-    needs: [build, lighthouse]
-    if: github.ref == 'refs/heads/main' && always()
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: site
-          path: site
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: site
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
