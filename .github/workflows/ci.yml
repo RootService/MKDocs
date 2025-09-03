@@ -8,6 +8,9 @@ on:
   schedule:
     - cron: "0 3 * * 1"
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,12 +19,12 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           cache: "pip"
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: "npm"
 
       - run: pip install -r requirements.txt
@@ -34,6 +37,8 @@ jobs:
         with:
           name: site
           path: site
+          if-no-files-found: error
+          retention-days: 7
 
   security:
     runs-on: ubuntu-latest
@@ -55,14 +60,6 @@ jobs:
       - run: python -m http.server 8000 --directory site &
       - run: sleep 5
 
-      - name: Run Lighthouse CI
-
-      - name: Run Lighthouse CI with Screenshots
-        run: |
-          mkdir -p .lighthouse/screenshots
-          npx @lhci/cli collect             --url=http://localhost:8000             --settings.preset=desktop             --settings.chromeFlags="--headless --no-sandbox --disable-gpu"             --settings.formFactor=desktop             --settings.screenEmulation.disabled=true             --output=html             --output-path=.lighthouse/screenshots/lighthouse-report.html
-
-      
       - name: Run Lighthouse CI Reports
         run: |
           mkdir -p .lighthouse/reports
@@ -73,18 +70,18 @@ jobs:
         with:
           name: lighthouse-reports
           path: .lighthouse/reports
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Run Lighthouse CI with Screenshots
+        run: |
+          mkdir -p .lighthouse/screenshots
+          npx @lhci/cli collect             --url=http://localhost:8000             --settings.preset=desktop             --settings.chromeFlags="--headless --no-sandbox --disable-gpu"             --settings.formFactor=desktop             --settings.screenEmulation.disabled=true             --output=html             --output-path=.lighthouse/screenshots/lighthouse-report.html
 
       - name: Upload Lighthouse Screenshots
         uses: actions/upload-artifact@v4
         with:
           name: lighthouse-screenshots
           path: .lighthouse/screenshots
-
-        run: |
-          npx @lhci/cli autorun             --upload.target=filesystem             --upload.outputDir=./lighthouse-report             --collect.settings.preset=desktop             --collect.settings.chromeFlags="--headless --no-sandbox --disable-gpu"
-
-      - name: Upload Lighthouse report
-        uses: actions/upload-artifact@v4
-        with:
-          name: lighthouse-report
-          path: ./lighthouse-report
+          if-no-files-found: error
+          retention-days: 7
