@@ -3,7 +3,6 @@
 ![CI](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg)
 ![CI-All](https://github.com/OWNER/REPO/actions/workflows/ci-all.yml/badge.svg)
 ![Docs](https://github.com/OWNER/REPO/actions/workflows/deploy-docs.yml/badge.svg)
-![Lint](https://github.com/OWNER/REPO/actions/workflows/lint.yml/badge.svg)
 ![Security](https://github.com/OWNER/REPO/actions/workflows/security-scan.yml/badge.svg)
 ![CodeQL](https://github.com/OWNER/REPO/actions/workflows/codeql-analysis.yml/badge.svg)
 ![License](https://img.shields.io/github/license/OWNER/REPO)
@@ -62,14 +61,7 @@ Das Skript erstellt automatisch:
 |-----------------|--------|
 | CI              | ![CI](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg) |
 | CI-All          | ![CI-All](https://github.com/OWNER/REPO/actions/workflows/ci-all.yml/badge.svg) |
-| Lint            | ![Lint](https://github.com/OWNER/REPO/actions/workflows/lint.yml/badge.svg) |
-| Dotfiles Lint   | ![Dotfiles Lint](https://github.com/OWNER/REPO/actions/workflows/dotfiles-lint.yml/badge.svg) |
 | Security Scan   | ![Security](https://github.com/OWNER/REPO/actions/workflows/security-scan.yml/badge.svg) |
 | CodeQL          | ![CodeQL](https://github.com/OWNER/REPO/actions/workflows/codeql-analysis.yml/badge.svg) |
 | Docs Deploy     | ![Docs](https://github.com/OWNER/REPO/actions/workflows/deploy-docs.yml/badge.svg) |
-| Python Lint     | ![Python Lint](https://github.com/OWNER/REPO/actions/workflows/python-lint-report.yml/badge.svg) |
 | Release-Please  | ![Release](https://github.com/OWNER/REPO/actions/workflows/release-please.yml/badge.svg) |
-| Markdown Lint   | ![Markdown Lint](https://github.com/OWNER/REPO/actions/workflows/markdown-lint-report.yml/badge.svg) |
-| YAML & JSON Lint| ![YAML & JSON Lint](https://github.com/OWNER/REPO/actions/workflows/yaml-json-lint-report.yml/badge.svg) |
-| Python Lint     | ![Python Lint](https://github.com/OWNER/REPO/actions/workflows/python-lint-report.yml/badge.svg) |
-| Lint Aggregate  | ![Lint Aggregate](https://github.com/OWNER/REPO/actions/workflows/lint-aggregate.yml/badge.svg) |
