@@ -1,67 +1,32 @@
 # MkDocs Documentation Project
 
-![CI](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg)
-![CI-All](https://github.com/OWNER/REPO/actions/workflows/ci-all.yml/badge.svg)
-![Docs](https://github.com/OWNER/REPO/actions/workflows/deploy-docs.yml/badge.svg)
-![Security](https://github.com/OWNER/REPO/actions/workflows/security-scan.yml/badge.svg)
-![CodeQL](https://github.com/OWNER/REPO/actions/workflows/codeql-analysis.yml/badge.svg)
-![License](https://img.shields.io/github/license/OWNER/REPO)
-![Release](https://github.com/OWNER/REPO/actions/workflows/release-please.yml/badge.svg)
+![CI](https://github.com/RootService/MKDocs/actions/workflows/ci.yml/badge.svg)
+![Docs](https://github.com/RootService/MKDocs/actions/workflows/deploy-docs.yml/badge.svg)
+![Security](https://github.com/RootService/MKDocs/actions/workflows/security-scan.yml/badge.svg)
+![Release](https://github.com/RootService/MKDocs/actions/workflows/release.yml/badge.svg)
 
-Dieses Repository enthält eine Dokumentationsseite, die mit [MkDocs](https://www.mkdocs.org/) gebaut wird.
+## Überblick
+Dieses Projekt nutzt [MkDocs](https://www.mkdocs.org/), um Dokumentationen zu erstellen und automatisch über GitHub Pages bereitzustellen.
 
-## Installation
-
+## Quickstart
 ```bash
+# Projekt klonen
+git clone https://github.com/RootService/MKDocs.git
+cd REPO
+
+# Abhängigkeiten installieren
 pip install -r requirements.txt
-npm install
-```
 
-## Lokale Entwicklung
-
-```bash
+# Dokumentation lokal starten
 mkdocs serve
+
+# Deployment zu GitHub Pages
+mkdocs gh-deploy --force
 ```
 
-## Deployment
+## Dokumentation
+Die vollständige Dokumentation findest du unter:  
+👉 [Projekt-Doku](https://rootservice.github.io/MKDocs)
 
-Das Deployment erfolgt automatisch über GitHub Actions auf **GitHub Pages**.
-
-## Mitwirken
-
-Siehe [CONTRIBUTING.md](CONTRIBUTING.md).
-
-## Repository Setup (Labels, Milestones, Projektboard)
-
-Dieses Repository enthält ein Skript, um GitHub-Labels, Milestones und ein Projektboard automatisch einzurichten.
-
-### Voraussetzungen
-- Installiertes [GitHub CLI (gh)](https://cli.github.com/)
-- Authentifizierung mit `gh auth login`
-
-### Nutzung
-```bash
-./setup_github_config.sh <owner>/<repo>
-```
-
-**Beispiel:**
-```bash
-./setup_github_config.sh meinuser/meinrepo
-```
-
-Das Skript erstellt automatisch:
-- Labels (`bug`, `enhancement`, `documentation`, `question`, `security`, `chore`)
-- Milestones (`v1.0.0`, `v1.1.0`)
-- Projektboard ("Projekt Board")
-
-
-## Workflow Dashboard
-
-| Workflow        | Status |
-|-----------------|--------|
-| CI              | ![CI](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg) |
-| CI-All          | ![CI-All](https://github.com/OWNER/REPO/actions/workflows/ci-all.yml/badge.svg) |
-| Security Scan   | ![Security](https://github.com/OWNER/REPO/actions/workflows/security-scan.yml/badge.svg) |
-| CodeQL          | ![CodeQL](https://github.com/OWNER/REPO/actions/workflows/codeql-analysis.yml/badge.svg) |
-| Docs Deploy     | ![Docs](https://github.com/OWNER/REPO/actions/workflows/deploy-docs.yml/badge.svg) |
-| Release-Please  | ![Release](https://github.com/OWNER/REPO/actions/workflows/release-please.yml/badge.svg) |
+## Lizenz
+Dieses Projekt steht unter der MIT-Lizenz. Siehe [LICENSE](LICENSE).

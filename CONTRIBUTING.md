@@ -2,11 +2,19 @@
 
 Danke, dass du zu diesem Projekt beitragen möchtest!
 
-## Vorgehen
-
+## Einstieg (Onboarding)
 1. Forke das Repository
 2. Erstelle einen Feature-Branch: `git checkout -b feature/mein-feature`
-3. Stelle sicher, dass Tests und Linter laufen: `pytest`, `flake8`, `npm run lint`
-4. Reiche einen Pull Request ein
+3. Implementiere Änderungen
+4. Führe Tests aus (`pytest`, `npm test`)
+5. Erstelle einen Pull Request
 
-Bitte beachte den [Code of Conduct](CODE_OF_CONDUCT.md).
+## Commit-Richtlinien
+Wir verwenden [Conventional Commits](https://www.conventionalcommits.org/).  
+Beispiele:
+- `feat: neues Feature hinzugefügt`
+- `fix: Fehler in xyz behoben`
+- `docs: README aktualisiert`
+
+## Verhaltenskodex
+Dieses Projekt verwendet den [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md). Bitte halte dich daran.

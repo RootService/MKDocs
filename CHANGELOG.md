@@ -1,11 +1,6 @@
 # Changelog
 
-Alle Änderungen an diesem Projekt werden in dieser Datei dokumentiert.
+Diese Datei wird automatisch durch [release-please](https://github.com/googleapis/release-please) gepflegt.
 
-## [Unreleased]
-
-- Initial Setup
-
-## [1.0.0] - YYYY-MM-DD
-
-- Erste stabile Version
+Alle Versionen und Änderungen findest du unter:  
+👉 [Releases](https://github.com/RootService/MKDocs/releases)
