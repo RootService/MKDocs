@@ -98,10 +98,10 @@ jobs:
         with:
           name: lighthouse-results
           path: |
-            .lighthouse/reports/
+            .lighthouse/reports/**/*
             .lighthouse/reports/report.html
             .lighthouse/reports/report.json
-            .lighthouse/screenshots/
+            .lighthouse/screenshots/**/*
             .lighthouse/screenshots/lighthouse-report.html
           if-no-files-found: error
           retention-days: 7
