@@ -1,0 +1,15 @@
+{
+  "types": [
+    { "type": "feat", "section": "✨ Features", "hidden": false },
+    { "type": "fix", "section": "🐛 Bug Fixes", "hidden": false },
+    { "type": "chore", "section": "📦 Chores", "hidden": false },
+    { "type": "docs", "section": "📝 Documentation", "hidden": false },
+    { "type": "refactor", "section": "♻️ Refactoring", "hidden": false },
+    { "type": "test", "section": "✅ Tests", "hidden": false },
+    { "type": "ci", "section": "⚙️ CI/CD", "hidden": false }
+  ],
+  "commitUrlFormat": "https://github.com/OWNER/REPO/commit/{{hash}}",
+  "compareUrlFormat": "https://github.com/OWNER/REPO/compare/{{previousTag}}...{{currentTag}}",
+  "issueUrlFormat": "https://github.com/OWNER/REPO/issues/{{id}}",
+  "userUrlFormat": "https://github.com/{{user}}"
+}

@@ -1,0 +1,16 @@
+name: Projekt Board
+description: Automatisiertes Kanban Board für Issues & PRs
+columns:
+  - name: 📥 To Do
+    description: Neue Aufgaben, Features oder Bugs
+  - name: 🚧 In Progress
+    description: Aktuell in Bearbeitung
+  - name: ✅ Done
+    description: Abgeschlossen und gemerged
+automation:
+  - from: issues
+    to: '📥 To Do'
+  - from: pull_requests
+    to: '🚧 In Progress'
+  - when: closed
+    to: '✅ Done'

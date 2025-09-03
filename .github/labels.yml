@@ -1,0 +1,18 @@
+- name: bug
+  color: 'd73a4a'
+  description: Fehler im Projekt
+- name: enhancement
+  color: 'a2eeef'
+  description: Neue Features oder Verbesserungen
+- name: documentation
+  color: '0075ca'
+  description: Änderungen an der Dokumentation
+- name: question
+  color: 'd876e3'
+  description: Fragen oder Diskussionen
+- name: security
+  color: 'e99695'
+  description: Sicherheitsrelevantes Thema
+- name: chore
+  color: 'cfd3d7'
+  description: Wartungsarbeiten, Dependencies, CI/CD
