@@ -26,7 +26,7 @@ jobs:
           cache: "npm"
 
       - run: pip install -r requirements.txt
-      - run: npm install
+      - run: npm ci
       - run: mkdocs build
 
       - name: Upload site artifact
@@ -64,7 +64,7 @@ jobs:
       - name: Run Lighthouse CI
         run: |
           mkdir -p .lighthouse
-          npx lhci autorun --config=.lighthouserc.json --output-dir=.lighthouse
+          npx @lhci/cli@0.15.x autorun --config=.lighthouserc.json --output-dir=.lighthouse
 
       - name: Upload reports
         uses: actions/upload-artifact@v4
@@ -84,6 +84,3 @@ jobs:
         with:
           release-type: node
           token: ${{ secrets.GITHUB_TOKEN }}
-          # If you use config/manifest files, uncomment:
-          # config-file: release-please-config.json
-          # manifest-file: .release-please-manifest.json
