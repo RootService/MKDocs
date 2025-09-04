@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -26,7 +26,7 @@ jobs:
           cache: "npm"
 
       - run: pip install -r requirements.txt
-      - run: npm install
+      - run: npm ci
       - run: mkdocs build
 
       - name: Upload site artifact
@@ -36,6 +36,14 @@ jobs:
           path: site
           if-no-files-found: error
           retention-days: 1
+
+  security:
+    if: github.event_name == 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
 
   lighthouse:
     needs: build
@@ -67,9 +75,15 @@ jobs:
             .lighthouse/*.json
           retention-days: 1
 
-  security:
+  release:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/dependency-review-action@v4
+      - name: Release Please
+        uses: googleapis/release-please-action@v4
+        with:
+          release-type: node
+          token: ${{ secrets.GITHUB_TOKEN }}
+          # If you use config/manifest files, uncomment:
+          # config-file: release-please-config.json
+          # manifest-file: .release-please-manifest.json
