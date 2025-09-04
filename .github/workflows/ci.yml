@@ -37,16 +37,7 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  security:
-    if: github.event_name == 'pull_request'
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/dependency-review-action@v4
-
   lighthouse:
-    if: github.event_name == 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     steps:
@@ -75,3 +66,10 @@ jobs:
             .lighthouse/*.html
             .lighthouse/*.json
           retention-days: 1
+
+  security:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
