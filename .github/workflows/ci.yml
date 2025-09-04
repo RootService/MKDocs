@@ -37,14 +37,6 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-  security:
-    if: github.event_name == 'pull_request'
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/dependency-review-action@v4
-
   lighthouse:
     needs: build
     runs-on: ubuntu-latest
@@ -56,15 +48,16 @@ jobs:
           name: site
           path: site
 
-      - name: Serve site
-        run: |
-          python -m http.server 8080 --directory site &
-          sleep 5
-
       - name: Run Lighthouse CI
         run: |
           mkdir -p .lighthouse
-          npx @lhci/cli@0.15.x autorun --config=.lighthouserc.json --output-dir=.lighthouse
+          npx @lhci/cli@0.15.x autorun \
+            --config=.lighthouserc.json \
+            --output-dir=.lighthouse \
+            --collect.staticDistDir=site
+
+      - name: Debug list reports
+        run: ls -lh .lighthouse || echo "No reports generated"
 
       - name: Upload reports
         uses: actions/upload-artifact@v4
@@ -74,6 +67,14 @@ jobs:
             .lighthouse/*.html
             .lighthouse/*.json
           retention-days: 1
+
+  security:
+    if: github.event_name == 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
 
   release:
     needs: build
