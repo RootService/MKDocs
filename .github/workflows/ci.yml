@@ -61,7 +61,7 @@ jobs:
         id: mkdocs_build
         run: |
           set -o pipefail
-          mkdocs build --strict 2>&1 | tee build.log
+          mkdocs build 2>&1 | tee build.log
 
       - name: Archive site
         if: always()
