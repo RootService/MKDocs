@@ -59,7 +59,7 @@ jobs:
         id: mkdocs_build
         run: |
           set -o pipefail
-          mkdocs build 2>&1 | tee build.log
+          mkdocs build --strict 2>&1 | tee build.log
 
       - name: Archive site
         if: always()
@@ -110,16 +110,14 @@ jobs:
             const status = "${{ steps.mkdocs_summary.outputs.status }}";
             const pr = context.payload.pull_request;
             const runId = context.runId;
-            const artifactUrl = `https://github.com/${{ context.repo.owner }}/${{ context.repo.repo }}/actions/runs/${runId}`;
-            const log = `
-
-\`\`\`
-${{ steps.log_tail.outputs.log || '' }}
-\`\`\``;
+            const artifactUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${runId}`;
+            const log = "\n\n```\n${{ steps.log_tail.outputs.log || '' }}\n```";
             if (pr) {
-              let body = `📖 MkDocs Build completed with status: **${status}**\n\n📦 [Download Site Artifact](${artifactUrl})\n📜 [Download Full Build Log](${artifactUrl})`;
+              let body = "📖 MkDocs Build completed with status: **" + status + "**\n\n" +
+                         "📦 [Download Site Artifact](" + artifactUrl + ")\n" +
+                         "📜 [Download Full Build Log](" + artifactUrl + ")";
               if (status === "failure") {
-                body += `\n\n🚨 Build Log (last ${process.env.LOG_TAIL_LINES} lines):${log}`;
+                body += "\n\n🚨 Build Log (last " + process.env.LOG_TAIL_LINES + " lines):" + log;
               }
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
