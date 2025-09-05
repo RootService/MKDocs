@@ -85,7 +85,7 @@ theme:
 plugins:
   - search:
       lang: de
-      separator: "[\s\-\._]+"
+      separator: '[\s\-\._]+'
   - privacy: {}
   - social:
       cards: true
