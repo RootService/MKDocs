@@ -6,6 +6,9 @@ __pycache__/
 *.pdb
 *.egg-info/
 .eggs/
+*_pb2.*
+*_pb.*
+*_processed.json
 *.log
 
 # Virtual environments
@@ -18,17 +21,39 @@ ENV/
 node_modules/
 npm-debug.log
 yarn-error.log
+yarn.lock
+closure-error.log
 
 # MkDocs
 .cache/
-/site/
+site/
+dist/
 
 # IDEs & Editors
+.DS_Store
 .vscode/
 .idea/
 *.swp
+.bin/
 
 # Coverage
 .coverage
+coverage/
 coverage.xml
 htmlcov/
+lcov.info
+.nyc_output
+*.lcov
+
+# action
+.lighthouseci/
+
+*.trace.json
+*.devtoolslog.json
+*.report.html
+*.report.dom.html
+*.report.json
+*.report.csv
+*.report.pretty
+*.artifacts.log
+*.ctc.json

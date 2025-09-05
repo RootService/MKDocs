@@ -1,15 +1,80 @@
 {
   "name": "mkdocs-lighthouse-tools",
   "version": "1.0.1",
-  "private": true,
   "description": "Node tooling for Lighthouse CI and Puppeteer in GitHub Actions.",
+  "keywords": [
+    "ci",
+    "puppeteer",
+    "lighthouse"
+  ],
+  "homepage": "https://github.com/RootService/MKDocs#readme",
+  "bugs": {
+    "url": "https://github.com/RootService/MKDocs/issues"
+  },
+  "license": "MIT",
+  "author": "Markus Kohlmeyer",
+  "files": [
+    "site",
+    "README.md",
+    "LICENSE"
+  ],
+  "directories": {
+    "doc": "site"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RootService/MKDocs.git"
+  },
   "scripts": {
-    "lighthouse:ci": "lhci autorun --config=.lighthouserc.json"
+    "test": "prettier -c overrides/** package.json README.md && tsc -p .",
+    "changelog": "conventional-changelog --config ./build/changelog-generator/index.cjs --infile changelog.md --same-file",
+    "clean": "rm -r dist proto/scripts/*.json proto/scripts/*_pb2.* proto/scripts/*_pb.* proto/scripts/__pycache__ proto/scripts/*.pyc *.report.html *.report.dom.html *.report.json *.devtoolslog.json || true"
   },
   "dependencies": {
-    "puppeteer": "^22.0.0"
+    "@actions/artifact": "latest",
+    "@lhci/cli": "latest",
+    "puppeteer": "latest",
+    "autoprefixer": "latest",
+    "browserslist": "latest",
+    "browserslist-config-baseline": "latest"
   },
-  "devDependencies": {
-    "@lhci/cli": "^0.14.0"
+  "engines": {
+    "node": ">=20",
+    "npm": ">=11"
+  },
+  "os": [
+    "freebsd",
+    "linux",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "aarch64"
+  ],
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=20",
+      "onFail": "error"
+    },
+    "packageManager": {
+      "name": "npm",
+      "version": ">=11",
+      "onFail": "error"
+    }
+  },
+  "private": true,
+  "browserslist": [
+    "> 0.2% or last 0.5 years and not dead and fully supports es6-module",
+    "maintained node versions",
+    "extends browserslist-config-baseline"
+  ],
+  "browserslist-config-baseline": {
+    "includeDownstreamBrowsers": true
+  },
+  "type": "commonjs",
+  "resolutions": {
+    "puppeteer/**/devtools-protocol": "0.0.1507524",
+    "puppeteer-core/**/devtools-protocol": "0.0.1507524"
   }
 }

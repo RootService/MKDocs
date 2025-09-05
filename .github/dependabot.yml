@@ -9,6 +9,7 @@ updates:
     labels:
       - "dependencies"
       - "python"
+    open-pull-requests-limit: 10
 
   - package-ecosystem: "npm"
     directory: "/"
@@ -19,3 +20,4 @@ updates:
     labels:
       - "dependencies"
       - "javascript"
+    open-pull-requests-limit: 10

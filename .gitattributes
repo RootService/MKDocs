@@ -1,10 +1,15 @@
 # Auto detect text files and perform LF normalization
-* text=auto
+* text=auto eol=lf
 
 # Ensure consistent diff for docs
-*.md diff=markdown
-*.yml diff=yaml
-*.json diff=json
+*.md diff=markdown eol=lf
+*.yml diff=yaml eol=lf
+*.json diff=json eol=lf
+
+*.js diff=js eol=lf
+*.css diff=css eol=lf
+*.html diff=html eol=lf
+*.svg diff=svg eol=lf
 
 # Binary files
 *.png binary

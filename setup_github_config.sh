@@ -28,7 +28,7 @@ if gh project create --help 2>&1 | grep -q -- "--repo"; then
   echo "Erstelle klassisches Repository-Projektboard..."
   gh project create --repo $REPO --title "Projekt Board" --description "Automatisiertes Kanban Board für Issues & PRs" 2>/dev/null || echo "Project Board existiert möglicherweise bereits"
 else
-  OWNER=$(echo $REPO | cut -d'/' -f1)
+  OWNER=$(echo $REPO | cut -d"/" -f1)
   echo "Erstelle Projects v2 Board für Owner=$OWNER..."
   gh project create --owner $OWNER --title "Projekt Board" --description "Automatisiertes Kanban Board für Issues & PRs" 2>/dev/null || echo "Projects v2 Board existiert möglicherweise bereits"
 fi
