@@ -9,10 +9,10 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  actions: write
 
 env:
   TAG_PREFIX: RootService/MKDocs
+  LOG_TAIL_LINES: 50   # configurable number of log lines
 
 jobs:
   build:
@@ -24,10 +24,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Upgrade pip
         run: |
-          sudo apt-get update
-          sudo apt-get install -y python3 python3-pip
-          sudo pip install --upgrade pip setuptools wheel
+          python -m pip install --upgrade pip setuptools wheel
 
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
@@ -39,32 +43,23 @@ jobs:
         uses: actions/cache@v4
         with:
           path: "**/node_modules"
-          key: ${{ runner.os }}-modules-${{ hashFiles("**/packages-lock.json") }}
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-modules-
 
-      - name: Node/NPM Versions
-        run: |
-          echo "node: $(node -v)"
-          echo "npm: $(npm -v)"
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Install NPM Packages
+      - name: Install MkDocs
         run: |
-          npm install
-
-      - name: Install MkDocs and Plugins
-        run: |
-          pip install --upgrade -r requirements.txt
-
-      - name: MKDocs Versions
-        run: |
-          echo "MKDocs: $(mkdocs --version)"
-          echo "Plugins: $(mkdocs get-deps)"
+          pip install mkdocs
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Build MkDocs site
+        id: mkdocs_build
         run: |
-          mkdocs build
-          test -f site/index.html
+          set -o pipefail
+          mkdocs build 2>&1 | tee build.log
 
       - name: Archive site
         if: always()
@@ -72,6 +67,7 @@ jobs:
           tar -czf site.tar.gz site
 
       - name: Upload site artifact
+        id: upload_artifact
         uses: actions/upload-artifact@v4
         with:
           name: site
@@ -79,165 +75,56 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
+      - name: Upload build log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
+          retention-days: 5
+
       - name: MkDocs summary
         id: mkdocs_summary
         if: always()
         run: |
-          if [ ! -f site/index.html ]; then
-            echo "status=⚠️ softfail" >> $GITHUB_OUTPUT
+          if [ -f site/index.html ]; then
+            echo "status=success" >> $GITHUB_OUTPUT
           else
-            echo "status=✅ success" >> $GITHUB_OUTPUT
+            echo "status=failure" >> $GITHUB_OUTPUT
           fi
 
-  lighthouse:
-    needs: build
-    runs-on: ubuntu-latest
-    outputs:
-      lighthouse_status: ${{ steps.lighthouse_summary.outputs.status }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Extract site artifact
+      - name: Extract last log lines
+        if: failure()
+        id: log_tail
         run: |
-          mkdir -p site
-          tar -xzf site.tar.gz -C site
+          tail -n $LOG_TAIL_LINES build.log > log_tail.txt
+          echo 'log<<EOF' >> $GITHUB_OUTPUT
+          cat log_tail.txt >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
 
-      - name: Start local server
-        run: |
-          npx serve ./site/. -l 8000 > server.log 2>&1 &
-          sleep 3
-
-      - name: Run Lighthouse CI
-        run: |
-          LHCI_BUILD_CONTEXT__CURRENT_HASH=github-actions \
-          lhci autorun --config=.lighthouserc.js || true
-
-      - name: Run Lighthouse Collect
-        run: |
-          LHCI_BUILD_CONTEXT__CURRENT_HASH=github-actions \
-          lhci collect --config=.lighthouserc.js || true
-
-      - name: Run Lighthouse Upload
-        run: |
-          LHCI_BUILD_CONTEXT__CURRENT_HASH=github-actions \
-          lhci upload --config=.lighthouserc.js || true
-
-      - name: Show report files
-        run: ls -lh .lighthouseci
-
-      - name: Upload Lighthouse Report
-        uses: actions/upload-artifact@v4
+      - name: Comment MkDocs result on PR
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: actions/github-script@v7
         with:
-          name: lighthouse-report
-          path: |
-            .lighthouseci/*.html
-            .lighthouseci/*.json
+          script: |
+            const status = "${{ steps.mkdocs_summary.outputs.status }}";
+            const pr = context.payload.pull_request;
+            const runId = context.runId;
+            const artifactUrl = `https://github.com/${{ context.repo.owner }}/${{ context.repo.repo }}/actions/runs/${runId}`;
+            const log = `
 
-      - name: Lighthouse summary
-        id: lighthouse_summary
-        if: always()
-        run: |
-          if [ -z "$(ls -A .lighthouseci 2>/dev/null)" ]; then
-            echo "status=⚠️ softfail" >> $GITHUB_OUTPUT
-          else
-            echo "status=✅ success" >> $GITHUB_OUTPUT
-          fi
-
-  security:
-    if: github.event_name == "pull_request"
-    needs: build
-    runs-on: ubuntu-latest
-    outputs:
-      security_status: ${{ steps.security_summary.outputs.status }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Dependency review placeholder
-        run: echo "Dependency review step skipped (non-free action removed)"
-
-      - name: Security summary
-        id: security_summary
-        if: always()
-        run: |
-          echo "status=⚠️ softfail" >> $GITHUB_OUTPUT
-
-  summary:
-    needs: [build, lighthouse, security]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Fetch job URLs and durations
-        id: job_urls
-        run: |
-          sudo apt-get update && sudo apt-get install -y jq curl bc
-          response=$(curl -s -H "Authorization: token ${{ github.token }}" \
-            ${{ github.api_url }}/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs)
-          echo "$response" > jobs.json
-          build_url=$(jq -r ".jobs[] | select(.name=="build") | .html_url" jobs.json)
-          lighthouse_url=$(jq -r ".jobs[] | select(.name=="lighthouse") | .html_url" jobs.json)
-          security_url=$(jq -r ".jobs[] | select(.name=="security") | .html_url" jobs.json)
-          build_duration=$(jq -r ".jobs[] | select(.name=="build") | .run_duration_ms" jobs.json)
-          lighthouse_duration=$(jq -r ".jobs[] | select(.name=="lighthouse") | .run_duration_ms" jobs.json)
-          security_duration=$(jq -r ".jobs[] | select(.name=="security") | .run_duration_ms" jobs.json)
-          total_duration=$((build_duration + lighthouse_duration + security_duration))
-          echo "build_url=$build_url" >> $GITHUB_OUTPUT
-          echo "lighthouse_url=$lighthouse_url" >> $GITHUB_OUTPUT
-          echo "security_url=$security_url" >> $GITHUB_OUTPUT
-          echo "build_duration=$build_duration" >> $GITHUB_OUTPUT
-          echo "lighthouse_duration=$lighthouse_duration" >> $GITHUB_OUTPUT
-          echo "security_duration=$security_duration" >> $GITHUB_OUTPUT
-          echo "total_duration=$total_duration" >> $GITHUB_OUTPUT
-
-      - name: Combined summary
-        run: |
-          badge_success="![](https://img.shields.io/badge/status-success-brightgreen)"
-          badge_fail="![](https://img.shields.io/badge/status-softfail-yellow)"
-          badge_skip="![](https://img.shields.io/badge/status-skipped-lightgrey)"
-
-          echo "# 🚦 Combined CI Summary" > summary.md
-          echo "" >> summary.md
-          echo "| Job        | Status     | Duration |" >> summary.md
-          echo "|------------|------------|----------|" >> summary.md
-          bd=$(echo "scale=2; ${{ steps.job_urls.outputs.build_duration }}/1000" | bc)
-          lh=$(echo "scale=2; ${{ steps.job_urls.outputs.lighthouse_duration }}/1000" | bc)
-          sc=$(echo "scale=2; ${{ steps.job_urls.outputs.security_duration }}/1000" | bc)
-          total=$(echo "scale=2; ${{ steps.job_urls.outputs.total_duration }}/1000" | bc)
-          mins=$(echo "${{ steps.job_urls.outputs.total_duration }} / 60000" | bc)
-          secs=$(echo "(${ { steps.job_urls.outputs.total_duration }} % 60000) / 1000" | bc)
-          warn=""
-          if [ $mins -ge 10 ]; then
-            warn=" ⚠️"
-          fi
-
-          build_badge="$badge_success"
-          [ "${{ needs.build.outputs.mkdocs_status }}" != "✅ success" ] && build_badge="$badge_fail"
-
-          lighthouse_badge="$badge_success"
-          [ "${{ needs.lighthouse.outputs.lighthouse_status }}" != "✅ success" ] && lighthouse_badge="$badge_fail"
-
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            security_badge="$badge_success"
-            [ "${{ needs.security.outputs.security_status }}" != "✅ success" ] && security_badge="$badge_fail"
-          else
-            security_badge="$badge_skip"
-          fi
-
-          echo "| [MkDocs](${{ steps.job_urls.outputs.build_url }})     | ${build_badge} | ${bd}s |" >> summary.md
-          echo "| [Lighthouse](${{ steps.job_urls.outputs.lighthouse_url }}) | ${lighthouse_badge} | ${lh}s |" >> summary.md
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "| [Security](${{ steps.job_urls.outputs.security_url }})   | ${security_badge} | ${sc}s |" >> summary.md
-          else
-            echo "| Security   | ${security_badge} | - |" >> summary.md
-          fi
-          echo "| **⏱️ Total** |            | **${total}s (${mins}m ${secs}s)${warn}** |" >> summary.md
-          cat summary.md
-
-      - name: Post PR comment with summary
-        if: github.event_name == "pull_request"
-        run: |
-          body=$(cat summary.md)
-          curl -s -H "Authorization: token ${{ github.token }}" \
-            -X POST \
-            -d "{\"body\": \"${body//\n/\\n}\"}" \
-            ${{ github.api_url }}/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments
+\`\`\`
+${{ steps.log_tail.outputs.log || '' }}
+\`\`\``;
+            if (pr) {
+              let body = `📖 MkDocs Build completed with status: **${status}**\n\n📦 [Download Site Artifact](${artifactUrl})\n📜 [Download Full Build Log](${artifactUrl})`;
+              if (status === "failure") {
+                body += `\n\n🚨 Build Log (last ${process.env.LOG_TAIL_LINES} lines):${log}`;
+              }
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body
+              });
+            }

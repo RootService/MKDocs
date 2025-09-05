@@ -1,0 +1,85 @@
+name: Lighthouse CI
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+
+permissions:
+  contents: write  # Needed for PR comments
+  pull-requests: write
+
+env:
+  TAG_PREFIX: RootService/MKDocs
+
+jobs:
+  lighthouse:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
+    runs-on: ubuntu-latest
+    outputs:
+      lighthouse_status: ${{ steps.lighthouse_summary.outputs.status }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download site artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: site
+
+      - name: Start local server
+        run: |
+          npx serve ./site/. -l 8000 > server.log 2>&1 &
+          sleep 3
+
+      - name: Run Lighthouse CI
+        run: |
+          LHCI_BUILD_CONTEXT__CURRENT_HASH=github-actions \
+          lhci autorun --config=.lighthouserc.js || true
+
+      - name: Run Lighthouse Collect
+        run: |
+          LHCI_BUILD_CONTEXT__CURRENT_HASH=github-actions \
+          lhci collect --config=.lighthouserc.js || true
+
+      - name: Run Lighthouse Upload
+        run: |
+          LHCI_BUILD_CONTEXT__CURRENT_HASH=github-actions \
+          lhci upload --config=.lighthouserc.js || true
+
+      - name: Show report files
+        run: ls -lh .lighthouseci
+
+      - name: Upload Lighthouse report
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: .lighthouseci/
+          retention-days: 5
+
+      - name: Lighthouse summary
+        id: lighthouse_summary
+        if: always()
+        run: |
+          if [ -z "$(ls -A .lighthouseci 2>/dev/null)" ]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment Lighthouse result on PR
+        if: ${{ github.event.workflow_run.event == 'pull_request' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.workflow_run.pull_requests[0];
+            if (pr) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body: `🔎 Lighthouse CI completed with status: **${{ steps.lighthouse_summary.outputs.status }}**\n\n📊 Download full [Lighthouse Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`
+              });
+            }
