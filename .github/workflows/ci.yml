@@ -12,7 +12,7 @@ permissions:
 
 env:
   TAG_PREFIX: RootService/MKDocs
-  LOG_TAIL_LINES: 50   # configurable number of log lines
+  LOG_TAIL_LINES: 50
 
 jobs:
   build:
@@ -32,22 +32,13 @@ jobs:
           cache: "pip"
 
       - name: Upgrade pip
-        run: |
-          python -m pip install --upgrade pip setuptools wheel
+        run: python -m pip install --upgrade pip setuptools wheel
 
-      - name: Setup Node.js environment
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
-
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: "**/node_modules"
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-modules-
 
       - name: Install dependencies
         run: npm ci
@@ -63,22 +54,15 @@ jobs:
           set -o pipefail
           mkdocs build 2>&1 | tee build.log
 
-      - name: Archive site
-        if: always()
-        run: |
-          tar -czf site.tar.gz site
-
       - name: Upload site artifact
-        id: upload_artifact
         uses: actions/upload-artifact@v4
         with:
           name: site
           path: site
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 5
 
       - name: Upload build log
-        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-log
@@ -111,15 +95,15 @@ jobs:
           script: |
             const status = "${{ steps.mkdocs_summary.outputs.status }}";
             const pr = context.payload.pull_request;
-            const runId = context.runId;
+            const runId = "${{ github.run_id }}";
             const artifactUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${runId}`;
-            const log = "\n\n```\n${{ steps.log_tail.outputs.log || '' }}\n```";
+            const log = "\n\n```\n${{ steps.log_tail.outputs.log }}\n```";
             if (pr) {
               let body = "📖 MkDocs Build completed with status: **" + status + "**\n\n" +
                          "📦 [Download Site Artifact](" + artifactUrl + ")\n" +
                          "📜 [Download Full Build Log](" + artifactUrl + ")";
               if (status === "failure") {
-                body += "\n\n🚨 Build Log (last " + process.env.LOG_TAIL_LINES + " lines):" + log;
+                body += "\n\n🚨 Build Log (last ${{ env.LOG_TAIL_LINES }} lines):" + log;
               }
               await github.rest.issues.createComment({
                 owner: context.repo.owner,

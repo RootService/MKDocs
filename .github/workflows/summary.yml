@@ -3,110 +3,54 @@ name: Summary CI
 on:
   workflow_run:
     workflows: ["CI"]
-    types:
-      - completed
+    types: [completed]
 
 permissions:
-  contents: write   # Needed for PR comments
+  contents: write
   pull-requests: write
-
-env:
-  TAG_PREFIX: RootService/MKDocs
 
 jobs:
   summary:
     if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
     runs-on: ubuntu-latest
     steps:
+      - name: Install tools
+        run: sudo apt-get update && sudo apt-get install -y jq curl
+
       - name: Collect workflow statuses
         id: collect
         run: |
-          sudo apt-get update && sudo apt-get install -y jq curl coreutils
-
-          # Helper to compute duration in minutes
-          duration_minutes () {
-            start="$1"
-            end="$2"
-            if [ "$start" != "null" ] && [ "$end" != "null" ]; then
-              start_epoch=$(date -d "$start" +%s)
-              end_epoch=$(date -d "$end" +%s)
-              echo $(( (end_epoch - start_epoch) / 60 ))
-            else
-              echo "0"
-            fi
-          }
-
-          # CI info comes directly from triggering workflow
-          ci_status="${{ github.event.workflow_run.conclusion }}"
           ci_url="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          ci_start="${{ github.event.workflow_run.run_started_at }}"
-          ci_end="${{ github.event.workflow_run.updated_at }}"
-          ci_duration=$(duration_minutes "$ci_start" "$ci_end")
-
-          echo "ci_status=$ci_status" >> $GITHUB_OUTPUT
           echo "ci_url=$ci_url" >> $GITHUB_OUTPUT
-          echo "ci_duration=$ci_duration" >> $GITHUB_OUTPUT
+          echo "ci_status=${{ github.event.workflow_run.conclusion }}" >> $GITHUB_OUTPUT
 
-          # Get latest Lighthouse run
-          lighthouse_runs=$(curl -s -H "Authorization: token ${{ github.token }}"             "${{ github.api_url }}/repos/${{ github.repository }}/actions/workflows/lighthouse_workflow_run_pr_report.yml/runs?branch=main&per_page=1")
-          lighthouse_status=$(echo "$lighthouse_runs" | jq -r '.workflow_runs[0].conclusion')
-          lighthouse_url=$(echo "$lighthouse_runs" | jq -r '.workflow_runs[0].html_url')
-          lighthouse_start=$(echo "$lighthouse_runs" | jq -r '.workflow_runs[0].run_started_at')
-          lighthouse_end=$(echo "$lighthouse_runs" | jq -r '.workflow_runs[0].updated_at')
-          lighthouse_duration=$(duration_minutes "$lighthouse_start" "$lighthouse_end")
-
-          echo "lighthouse_status=$lighthouse_status" >> $GITHUB_OUTPUT
-          echo "lighthouse_url=$lighthouse_url" >> $GITHUB_OUTPUT
-          echo "lighthouse_duration=$lighthouse_duration" >> $GITHUB_OUTPUT
-
-          # Get latest Security run
-          security_runs=$(curl -s -H "Authorization: token ${{ github.token }}"             "${{ github.api_url }}/repos/${{ github.repository }}/actions/workflows/security_fixed.yml/runs?branch=main&per_page=1")
-          security_status=$(echo "$security_runs" | jq -r '.workflow_runs[0].conclusion')
-          security_url=$(echo "$security_runs" | jq -r '.workflow_runs[0].html_url')
-          security_start=$(echo "$security_runs" | jq -r '.workflow_runs[0].run_started_at')
-          security_end=$(echo "$security_runs" | jq -r '.workflow_runs[0].updated_at')
-          security_duration=$(duration_minutes "$security_start" "$security_end")
-
-          echo "security_status=$security_status" >> $GITHUB_OUTPUT
-          echo "security_url=$security_url" >> $GITHUB_OUTPUT
-          echo "security_duration=$security_duration" >> $GITHUB_OUTPUT
-
-          # Compute total duration
-          total_duration=$((ci_duration + lighthouse_duration + security_duration))
-          echo "total_duration=$total_duration" >> $GITHUB_OUTPUT
+          for wf in lighthouse.yml security.yml; do
+            runs=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              "${{ github.api_url }}/repos/${{ github.repository }}/actions/workflows/$wf/runs?branch=main&per_page=1")
+            status=$(echo "$runs" | jq -r '.workflow_runs[0].conclusion // "unknown"')
+            url=$(echo "$runs" | jq -r '.workflow_runs[0].html_url // "unknown"')
+            echo "${wf}_status=$status" >> $GITHUB_OUTPUT
+            echo "${wf}_url=$url" >> $GITHUB_OUTPUT
+          done
 
       - name: Comment summary on PR
         if: ${{ github.event.workflow_run.event == 'pull_request' }}
         uses: actions/github-script@v7
         with:
           script: |
-            function statusEmoji(status) {
-              if (status === "success") return "🟢";
-              if (status === "failure") return "🔴";
-              if (status === "cancelled") return "⚪";
-              return "🟡";
-            }
-
             const pr = context.payload.workflow_run.pull_requests[0];
             if (pr) {
               const ciStatus = "${{ steps.collect.outputs.ci_status }}";
               const ciUrl = "${{ steps.collect.outputs.ci_url }}";
-              const ciDuration = "${{ steps.collect.outputs.ci_duration }}";
-
-              const lighthouseStatus = "${{ steps.collect.outputs.lighthouse_status }}";
-              const lighthouseUrl = "${{ steps.collect.outputs.lighthouse_url }}";
-              const lighthouseDuration = "${{ steps.collect.outputs.lighthouse_duration }}";
-
-              const securityStatus = "${{ steps.collect.outputs.security_status }}";
-              const securityUrl = "${{ steps.collect.outputs.security_url }}";
-              const securityDuration = "${{ steps.collect.outputs.security_duration }}";
-
-              const totalDuration = "${{ steps.collect.outputs.total_duration }}";
+              const lighthouseStatus = "${{ steps.collect.outputs.lighthouse.yml_status }}";
+              const lighthouseUrl = "${{ steps.collect.outputs.lighthouse.yml_url }}";
+              const securityStatus = "${{ steps.collect.outputs.security.yml_status }}";
+              const securityUrl = "${{ steps.collect.outputs.security.yml_url }}";
 
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: pr.number,
-                body: `📊 **Workflow Summary**\n\n- ${statusEmoji(ciStatus)} CI: **${ciStatus}** (⏱️ ${ciDuration} min) → [View Run](${ciUrl})\n- ${statusEmoji(lighthouseStatus)} Lighthouse: **${lighthouseStatus}** (⏱️ ${lighthouseDuration} min) → [View Results](${lighthouseUrl})\n- ${statusEmoji(securityStatus)} Security: **${securityStatus}** (⏱️ ${securityDuration} min) → [View Results](${securityUrl})\n\n⏱️ **Total Duration:** ${totalDuration} min`
+                body: `📊 **Workflow Summary**\n\n- ✅ CI: **${ciStatus}** → [View Run](${ciUrl})\n- 🔎 Lighthouse: **${lighthouseStatus}** → [Results](${lighthouseUrl})\n- 🛡️ Security: **${securityStatus}** → [Results](${securityUrl})`
               });
             }

@@ -3,31 +3,27 @@ name: Lighthouse CI
 on:
   workflow_run:
     workflows: ["CI"]
-    types:
-      - completed
+    types: [completed]
 
 permissions:
-  contents: write  # Needed for PR comments
+  contents: write
   pull-requests: write
-
-env:
-  TAG_PREFIX: RootService/MKDocs
 
 jobs:
   lighthouse:
     if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
     runs-on: ubuntu-latest
-    outputs:
-      lighthouse_status: ${{ steps.lighthouse_summary.outputs.status }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Download site artifact
-        uses: actions/download-artifact@v4
+      - name: Download site artifact from CI
+        uses: dawidd6/action-download-artifact@v2
         with:
+          workflow: ci.yml
+          workflow_conclusion: success
           name: site
           path: site
 
@@ -36,20 +32,20 @@ jobs:
           npx serve ./site/. -l 8000 > server.log 2>&1 &
           sleep 3
 
-      - name: Run Lighthouse CI
+      - name: Run Lighthouse
         run: |
           LHCI_BUILD_CONTEXT__CURRENT_HASH=github-actions \
-          lhci autorun --config=.lighthouserc.js || true
+          npx lhci autorun --config=.lighthouserc.js || true
 
       - name: Run Lighthouse Collect
         run: |
           LHCI_BUILD_CONTEXT__CURRENT_HASH=github-actions \
-          lhci collect --config=.lighthouserc.js || true
+          npx lhci collect --config=.lighthouserc.js || true
 
       - name: Run Lighthouse Upload
         run: |
           LHCI_BUILD_CONTEXT__CURRENT_HASH=github-actions \
-          lhci upload --config=.lighthouserc.js || true
+          npx lhci upload --config=.lighthouserc.js || true
 
       - name: Show report files
         run: ls -lh .lighthouseci
