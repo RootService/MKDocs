@@ -2,15 +2,18 @@ name: Lighthouse CI
 
 on:
   workflow_run:
-    workflows: ["CI"]
+    workflows: ["mkdocs CI"]
     types: [completed]
 
 permissions:
-  contents: read
+  contents: write
   actions: read
   pull-requests: write
 
 env:
+  name: lighthouse
+  TAG_PREFIX: RootService/MKDocs
+  LOG_TAIL_LINES: 500
   CHROME_PATH: /usr/bin/google-chrome
 
 jobs:
@@ -19,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -77,7 +80,9 @@ jobs:
         with:
           name: lighthouse-report
           path: .lighthouseci/
+          if-no-files-found: error
           retention-days: 5
+          include-hidden-files: true
 
       - name: Upload Screenshot
         if: ${{ hashFiles('lighthouse-screenshot.png') != '' }}
@@ -85,7 +90,9 @@ jobs:
         with:
           name: lighthouse-screenshot
           path: lighthouse-screenshot.png
+          if-no-files-found: error
           retention-days: 5
+          include-hidden-files: true
 
       - name: Lighthouse summary
         id: lighthouse_summary
@@ -99,8 +106,12 @@ jobs:
 
       - name: Comment Lighthouse result on PR
         if: ${{ github.event.workflow_run.event == 'pull_request' }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
         with:
+          result-encoding: string
+          retries: 3
           script: |
             function emoji(score) {
               const s = parseInt(score, 10);
@@ -109,6 +120,7 @@ jobs:
               return "🔴";
             }
 
+            const title = process.env.TITLE;
             const pr = context.payload.workflow_run.pull_requests[0];
             const runId = context.runId;
             const artifactUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${runId}`;

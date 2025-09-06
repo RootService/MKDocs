@@ -2,15 +2,18 @@ name: Summary CI
 
 on:
   workflow_run:
-    workflows: ["CI"]
+    workflows: ["mkdocs CI"]
     types: [completed]
 
 permissions:
   contents: write
-  pull-requests: write
   actions: read
+  pull-requests: write
 
 env:
+  name: summary
+  TAG_PREFIX: RootService/MKDocs
+  LOG_TAIL_LINES: 500
   CHROME_PATH: /usr/bin/google-chrome
 
 jobs:
@@ -18,9 +21,6 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Install tools
-        run: sudo apt-get update && sudo apt-get install -y jq curl coreutils
-
       - name: Collect workflow statuses and durations
         id: collect
         run: |
@@ -75,8 +75,12 @@ jobs:
 
       - name: Comment summary on PR
         if: ${{ github.event.workflow_run.event == 'pull_request' }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
         with:
+          result-encoding: string
+          retries: 3
           script: |
             function statusEmoji(status) {
               if (status === "success") return "🟢";
@@ -85,6 +89,7 @@ jobs:
               return "🟡";
             }
 
+            const title = process.env.TITLE;
             const pr = context.payload.workflow_run.pull_requests[0];
             if (pr) {
               const ciStatus = "${{ steps.collect.outputs.ci_status }}";

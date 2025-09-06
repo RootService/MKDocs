@@ -39,7 +39,7 @@
     "browserslist-config-baseline": "latest"
   },
   "engines": {
-    "node": ">=20",
+    "node": ">=24",
     "npm": ">=11"
   },
   "os": [
@@ -54,7 +54,7 @@
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": ">=20",
+      "version": ">=24",
       "onFail": "error"
     },
     "packageManager": {
