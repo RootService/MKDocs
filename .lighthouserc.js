@@ -1,7 +1,7 @@
 module.exports = {
   ci: {
     collect: {
-      startServerCommand: "npx serve ./site -l 8000 --single",
+      startServerCommand: "npx serve ./site -p 8000 --single",
       url: ["http://localhost:8000"],
       isSinglePageApplication: false,
       puppeteerScript: ".puppeteerScript.js",
@@ -50,7 +50,6 @@ module.exports = {
         "target-size": ["warn", { "minScore": 0 }],
         "network-dependency-tree-insight": ["warn", { "minScore": 0 }]
       },
-      budgetsFile: ".budget.json",
       includePassedAssertions: true,
     },
     upload: {
