@@ -31,7 +31,7 @@ jobs:
 
       - name: Start local server
         run: |
-          npx serve ./site/. -l 8000 > server.log 2>&1 &
+          npx serve ./site -l 8000 > server.log 2>&1 &
           sleep 3
 
       - name: Run Lighthouse
@@ -48,9 +48,6 @@ jobs:
         run: |
           LHCI_BUILD_CONTEXT__CURRENT_HASH=github-actions \
           npx lhci upload --config=.lighthouserc.js || true
-
-      - name: Show report files
-        run: ls -lh .lighthouseci
 
       - name: Upload Lighthouse report
         uses: actions/upload-artifact@v4
