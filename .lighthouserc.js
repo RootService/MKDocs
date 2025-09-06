@@ -1,11 +1,8 @@
 module.exports = {
   ci: {
     collect: {
-      method: "node",
-      headful: false,
-      additive: true,
-      url: ["https://localhost:8000"],
-      staticDistDir: "./site",
+      startServerCommand: 'npx serve ./site -l 8000',
+      url: ['http://localhost:8000'],
       isSinglePageApplication: false,
       puppeteerScript: ".puppeteerScripts.js",
       puppeteerLaunchOptions: {
