@@ -6,7 +6,8 @@ on:
     types: [completed]
 
 permissions:
-  contents: write
+  contents: read
+  actions: read
   pull-requests: write
 
 jobs:
@@ -19,13 +20,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download site artifact from CI
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          workflow: ci.yml
-          workflow_conclusion: success
-          name: site
-          path: site
+      - name: Download site artifact via API
+        run: |
+          echo "Fetching artifacts from run ${{ github.event.workflow_run.id }}"
+          artifacts_url="${{ github.event.workflow_run.artifacts_url }}"
+          curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"                -H "Accept: application/vnd.github.v3+json"                "$artifacts_url" > artifacts.json
+          download_url=$(jq -r '.artifacts[0].archive_download_url' artifacts.json)
+          curl -L -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"                -o artifact.zip "$download_url"
+          unzip artifact.zip -d site
 
       - name: Start local server
         run: |
@@ -78,6 +80,6 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: pr.number,
-                body: `🔎 Lighthouse CI completed with status: **${{ steps.lighthouse_summary.outputs.status }}**\n\n📊 Download full [Lighthouse Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`
+                body: "🔎 Lighthouse CI completed and results are available in the run artifacts."
               });
             }

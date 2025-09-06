@@ -8,6 +8,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: read
 
 jobs:
   summary:
@@ -24,14 +25,24 @@ jobs:
           echo "ci_url=$ci_url" >> $GITHUB_OUTPUT
           echo "ci_status=${{ github.event.workflow_run.conclusion }}" >> $GITHUB_OUTPUT
 
-          for wf in lighthouse.yml security.yml; do
+          # Helper to fetch status and url from API
+          fetch_status () {
+            wf_file=$1
             runs=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              "${{ github.api_url }}/repos/${{ github.repository }}/actions/workflows/$wf/runs?branch=main&per_page=1")
+              -H "Accept: application/vnd.github.v3+json" \
+              "${{ github.api_url }}/repos/${{ github.repository }}/actions/workflows/$wf_file/runs?branch=main&per_page=1")
             status=$(echo "$runs" | jq -r '.workflow_runs[0].conclusion // "unknown"')
             url=$(echo "$runs" | jq -r '.workflow_runs[0].html_url // "unknown"')
-            echo "${wf}_status=$status" >> $GITHUB_OUTPUT
-            echo "${wf}_url=$url" >> $GITHUB_OUTPUT
-          done
+            echo "$status;$url"
+          }
+
+          IFS=';' read lh_status lh_url <<< "$(fetch_status lighthouse_api_fixed.yml)"
+          IFS=';' read sec_status sec_url <<< "$(fetch_status security.yml)"
+
+          echo "lighthouse_status=$lh_status" >> $GITHUB_OUTPUT
+          echo "lighthouse_url=$lh_url" >> $GITHUB_OUTPUT
+          echo "security_status=$sec_status" >> $GITHUB_OUTPUT
+          echo "security_url=$sec_url" >> $GITHUB_OUTPUT
 
       - name: Comment summary on PR
         if: ${{ github.event.workflow_run.event == 'pull_request' }}
@@ -42,15 +53,15 @@ jobs:
             if (pr) {
               const ciStatus = "${{ steps.collect.outputs.ci_status }}";
               const ciUrl = "${{ steps.collect.outputs.ci_url }}";
-              const lighthouseStatus = "${{ steps.collect.outputs.lighthouse.yml_status }}";
-              const lighthouseUrl = "${{ steps.collect.outputs.lighthouse.yml_url }}";
-              const securityStatus = "${{ steps.collect.outputs.security.yml_status }}";
-              const securityUrl = "${{ steps.collect.outputs.security.yml_url }}";
+              const lhStatus = "${{ steps.collect.outputs.lighthouse_status }}";
+              const lhUrl = "${{ steps.collect.outputs.lighthouse_url }}";
+              const secStatus = "${{ steps.collect.outputs.security_status }}";
+              const secUrl = "${{ steps.collect.outputs.security_url }}";
 
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: pr.number,
-                body: `📊 **Workflow Summary**\n\n- ✅ CI: **${ciStatus}** → [View Run](${ciUrl})\n- 🔎 Lighthouse: **${lighthouseStatus}** → [Results](${lighthouseUrl})\n- 🛡️ Security: **${securityStatus}** → [Results](${securityUrl})`
+                body: `📊 **Workflow Summary**\n\n- ✅ CI: **${ciStatus}** → [Run](${ciUrl})\n- 🔎 Lighthouse: **${lhStatus}** → [Results](${lhUrl})\n- 🛡️ Security: **${secStatus}** → [Results](${secUrl})`
               });
             }
