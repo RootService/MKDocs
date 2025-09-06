@@ -1,7 +1,7 @@
 module.exports = {
   ci: {
     collect: {
-      startServerCommand: "npx serve ./site -p 8000 -n -s -L",
+      startServerCommand: "npx serve ./site --listen tcp://0.0.0.0:8000 --single --no-clipboard",
       url: ["http://localhost:8000"],
       isSinglePageApplication: false,
       puppeteerScript: ".puppeteerScript.js",
