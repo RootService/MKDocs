@@ -38,7 +38,7 @@ jobs:
 
       - name: Start local server
         run: |
-          npx serve ./site --listen tcp://localhost:8000 --single -p 8000 > server.log 2>&1 &
+          npx serve ./site --listen tcp://localhost:8000 --single > server.log 2>&1 &
           sleep 5
 
       - name: Run Lighthouse

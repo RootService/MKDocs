@@ -1,7 +1,7 @@
 module.exports = {
   ci: {
     collect: {
-      startServerCommand: "npx serve ./site --listen tcp://localhost:8000 --single -p 8000",
+      startServerCommand: "npx serve ./site --listen tcp://localhost:8000 --single",
       url: ["http://localhost:8000"],
       isSinglePageApplication: false,
       puppeteerScript: ".puppeteerScript.js",
@@ -9,10 +9,6 @@ module.exports = {
         executablePath: process.env.CHROME_PATH || "/usr/bin/google-chrome",
         product: "chrome",
         args: ["--allow-no-sandbox-job", "--allow-sandbox-debugging", "--disable-crash-reporter", "--disable-default-browser-promo", "--disable-dev-shm-usage", "--disable-gpu", "--disable-gpu-sandbox", "--enable-automation", "--enable-viewport", "--force-dark-mode", "--headless", "--no-default-browser-check", "--no-sandbox", "--no-zygote", "--reduce-accept-language", "--reduce-user-agent-minor-version", "--reduce-user-agent-platform-oscpu", "--remote-debugging-port=9222", "--window-size=3840,2160"],
-        browser: 0,
-        ChromeReleaseChannel: 0,
-        FirefoxChannel: 0,
-        SlowMo: 500,
         defaultViewport: { width: 3840, height: 2160 }
       }, // https://www.puppeteersharp.com/api/PuppeteerSharp.LaunchOptions.html
       disableStorageReset: true,
