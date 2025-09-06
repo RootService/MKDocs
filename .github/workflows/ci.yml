@@ -13,6 +13,7 @@ permissions:
 env:
   TAG_PREFIX: RootService/MKDocs
   LOG_TAIL_LINES: 50
+  CHROME_PATH: /usr/bin/google-chrome
 
 jobs:
   build:
