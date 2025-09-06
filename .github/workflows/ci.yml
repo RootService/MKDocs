@@ -133,6 +133,7 @@ jobs:
         uses: actions/download-artifact@v5
         with:
           name: site
+          path: site
 
       - name: Install Lighthouse CI
         run: |
