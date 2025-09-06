@@ -1,11 +1,15 @@
 module.exports = async (page, context) => {
   console.log("Hello, this is AnupamAS01!");
   try {
-    await page.type('#input-email', 'test@example.com').catch(() => {});
-    await page.type('#input-password', 'secret').catch(() => {});
-    await page.click('#login-button').catch(() => {});
+    await page.evaluate(() => {
+      const email = document.querySelector('#input-email');
+      if (email) email.value = 'test@example.com';
+      const pwd = document.querySelector('#input-password');
+      if (pwd) pwd.value = 'secret';
+      const btn = document.querySelector('#login-button');
+      if (btn) btn.click();
+    });
   } catch (err) {
     console.error("⚠️ Puppeteer interaction failed:", err);
   }
-  await page.screenshot({ path: 'lighthouse-screenshot.png', fullPage: true });
 };
