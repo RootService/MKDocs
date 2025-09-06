@@ -1,4 +1,4 @@
-name: mkdocs CI
+name: MKDocs CI
 
 on:
   push:
@@ -52,20 +52,20 @@ jobs:
           set -o pipefail
           mkdocs build 2>&1 | tee build.log
 
-      - name: Upload build log
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-log
-          path: build.log
-          if-no-files-found: error
-          retention-days: 5
-          include-hidden-files: true
-
       - name: Upload site artifact
         uses: actions/upload-artifact@v4
         with:
           name: site
           path: site
+          if-no-files-found: error
+          retention-days: 5
+          include-hidden-files: true
+
+      - name: Upload build log
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
           if-no-files-found: error
           retention-days: 5
           include-hidden-files: true

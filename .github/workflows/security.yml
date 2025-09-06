@@ -1,8 +1,8 @@
-name: security CI
+name: Security CI
 
 on:
   workflow_run:
-    workflows: ["mkdocs CI"]
+    workflows: ["MKDocs CI", "Lighthouse CI"]
     types: [completed]
 
 permissions:

@@ -2,7 +2,7 @@ name: Summary CI
 
 on:
   workflow_run:
-    workflows: ["mkdocs CI"]
+    workflows: ["MKDocs CI", "Lighthouse CI", "Security CI"]
     types: [completed]
 
 permissions:
