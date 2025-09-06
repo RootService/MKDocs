@@ -16,7 +16,6 @@ module.exports = {
         "chromeFlags": "--allow-no-sandbox-job --allow-sandbox-debugging --disable-crash-reporter --disable-default-browser-promo --disable-dev-shm-usage --disable-gpu --disable-gpu-sandbox --enable-automation --enable-viewport --force-dark-mode --headless --no-default-browser-check --no-sandbox --no-zygote --reduce-accept-language --reduce-user-agent-minor-version --reduce-user-agent-platform-oscpu --remote-debugging-port=9222 --window-size=3840,2160",
         "preset": "desktop",
         "configPath": ".desktopConfig.js",
-        "plugins": ["lighthouse-plugin-field-performance"],
         "disableStorageReset": true,
         "maxWaitForLoad": 60000,
         "throttlingMethod": "devtools"
