@@ -10,6 +10,9 @@ permissions:
   actions: read
   pull-requests: write
 
+env:
+  CHROME_PATH: /usr/bin/google-chrome
+
 jobs:
   lighthouse:
     if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
@@ -29,11 +32,8 @@ jobs:
           curl -L -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"                -o artifact.zip "$download_url"
           unzip artifact.zip -d site
 
-      - name: Install Chrome & Lighthouse CI
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y chromium-browser
-          npm install -g @lhci/cli@latest serve
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.13.0 serve jq
 
       - name: Start local server
         run: |
@@ -54,6 +54,21 @@ jobs:
         run: |
           LHCI_BUILD_CONTEXT__CURRENT_HASH=github-actions \
           npx lhci upload --config=.lighthouserc.js --output-dir=.lighthouseci || true
+
+      - name: Extract Scores
+        id: scores
+        if: ${{ hashFiles('.lighthouseci/manifest.json') != '' }}
+        run: |
+          extract_score() {
+            key=$1
+            score=$(jq -r ".[0].summary.${key}" .lighthouseci/manifest.json)
+            percent=$(awk "BEGIN {printf \"%.0f\", $score * 100}")
+            echo "${key}=$percent" >> $GITHUB_OUTPUT
+          }
+          extract_score performance
+          extract_score accessibility
+          extract_score "best-practices"
+          extract_score seo
 
       - name: Upload Lighthouse report
         if: ${{ hashFiles('.lighthouseci/**') != '' }}
@@ -86,14 +101,31 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            function emoji(score) {
+              const s = parseInt(score, 10);
+              if (s >= 90) return "🟢";
+              if (s >= 50) return "🟡";
+              return "🔴";
+            }
+
             const pr = context.payload.workflow_run.pull_requests[0];
             const runId = context.runId;
             const artifactUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${runId}`;
+            const perf = "${{ steps.scores.outputs.performance }}";
+            const access = "${{ steps.scores.outputs.accessibility }}";
+            const bp = "${{ steps.scores.outputs.best-practices }}";
+            const seo = "${{ steps.scores.outputs.seo }}";
+            let body = "🔎 **Lighthouse CI completed**\n\n";
+            if (perf) body += `${emoji(perf)} Performance: **${perf}/100**\n`;
+            if (access) body += `${emoji(access)} Accessibility: **${access}/100**\n`;
+            if (bp) body += `${emoji(bp)} Best Practices: **${bp}/100**\n`;
+            if (seo) body += `${emoji(seo)} SEO: **${seo}/100**\n`;
+            body += `\n📦 [Download Lighthouse Report Artifact](${artifactUrl})\n📸 [View Screenshot](${artifactUrl})`;
             if (pr) {
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: pr.number,
-                body: `🔎 Lighthouse CI completed.\n\n📦 [Download Lighthouse Report Artifact](${artifactUrl})\n📸 [View Screenshot](${artifactUrl})`
+                body
               });
             }
