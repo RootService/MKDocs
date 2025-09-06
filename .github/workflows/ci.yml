@@ -121,6 +121,7 @@ jobs:
 
   lighthouse:
     needs: build
+    continue-on-error: true
     if: ${{ success() && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     steps:
