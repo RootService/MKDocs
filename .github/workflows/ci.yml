@@ -129,14 +129,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download site artifact via API
-        run: |
-          echo "Fetching artifacts from run ${{ github.event.workflow_run.id }}"
-          artifacts_url="${{ github.event.workflow_run.artifacts_url }}"
-          curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github.v3+json" "$artifacts_url" > artifacts.json
-          download_url=$(jq -r '.artifacts[0].archive_download_url' artifacts.json)
-          curl -L -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -o artifact.zip "$download_url"
-          unzip artifact.zip -d site
+      - name: Download site artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: site
 
       - name: Install Lighthouse CI
         run: |
