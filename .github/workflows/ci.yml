@@ -70,15 +70,15 @@ jobs:
           retention-days: 5
           include-hidden-files: true
 
-      - name: MkDocs summary
-        id: mkdocs_summary
-        if: always()
-        run: |
-          if [ -f site/index.html ]; then
-            echo "status=success" >> $GITHUB_OUTPUT
-          else
-            echo "status=failure" >> $GITHUB_OUTPUT
-          fi
+      # - name: MkDocs summary
+        # id: mkdocs_summary
+        # if: always()
+        # run: |
+          # if [ -f site/index.html ]; then
+            # echo "status=success" >> $GITHUB_OUTPUT
+          # else
+            # echo "status=failure" >> $GITHUB_OUTPUT
+          # fi
 
       - name: Extract last log lines
         if: failure()
@@ -185,25 +185,15 @@ jobs:
           retention-days: 5
           include-hidden-files: true
 
-      - name: Upload Screenshot
-        if: ${{ hashFiles('lighthouse-screenshot.png') != '' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: lighthouse-screenshot
-          path: lighthouse-screenshot.png
-          if-no-files-found: error
-          retention-days: 5
-          include-hidden-files: true
-
-      - name: Lighthouse summary
-        id: lighthouse_summary
-        if: always()
-        run: |
-          if [ -z "$(ls -A .lighthouseci 2>/dev/null)" ]; then
-            echo "status=success" >> $GITHUB_OUTPUT
-          else
-            echo "status=failure" >> $GITHUB_OUTPUT
-          fi
+      # - name: Lighthouse summary
+        # id: lighthouse_summary
+        # if: always()
+        # run: |
+          # if [ -z "$(ls -A .lighthouseci 2>/dev/null)" ]; then
+            # echo "status=success" >> $GITHUB_OUTPUT
+          # else
+            # echo "status=failure" >> $GITHUB_OUTPUT
+          # fi
 
       - name: Comment Lighthouse result on PR
         if: ${{ github.event.workflow_run.event == 'pull_request' }}
