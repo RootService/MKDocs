@@ -32,8 +32,11 @@ jobs:
           curl -L -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"                -o artifact.zip "$download_url"
           unzip artifact.zip -d site
 
-      - name: Install Lighthouse CI
-        run: npm install -g @lhci/cli@0.13.0 serve jq
+      - name: Install Lighthouse CI and jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+          npm install -g @lhci/cli@latest serve
 
       - name: Start local server
         run: |
