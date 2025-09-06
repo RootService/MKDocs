@@ -4,7 +4,7 @@ module.exports = {
       startServerCommand: 'npx serve ./site -l 8000',
       url: ['http://localhost:8000'],
       isSinglePageApplication: false,
-      puppeteerScript: ".puppeteerScripts.js",
+      puppeteerScript: ".puppeteerScript.js",
       puppeteerLaunchOptions: {
         args: ["--allow-no-sandbox-job", "--allow-sandbox-debugging", "--disable-crash-reporter", "--disable-default-browser-promo", "--disable-dev-shm-usage", "--disable-gpu", "--disable-gpu-sandbox", "--enable-automation", "--enable-viewport", "--force-dark-mode", "--headless", "--no-default-browser-check", "--no-sandbox", "--no-zygote", "--reduce-accept-language", "--reduce-user-agent-minor-version", "--reduce-user-agent-platform-oscpu", "--remote-debugging-port=9222", "--window-size=3840,2160"],
         browser: 0,
@@ -17,7 +17,7 @@ module.exports = {
       settings: {
         "chromeFlags": "--allow-no-sandbox-job --allow-sandbox-debugging --disable-crash-reporter --disable-default-browser-promo --disable-dev-shm-usage --disable-gpu --disable-gpu-sandbox --enable-automation --enable-viewport --force-dark-mode --headless --no-default-browser-check --no-sandbox --no-zygote --reduce-accept-language --reduce-user-agent-minor-version --reduce-user-agent-platform-oscpu --remote-debugging-port=9222 --window-size=3840,2160",
         "preset": "desktop",
-        "configPath": "desktopConfig.js",
+        "configPath": ".desktopConfig.js",
         "plugins": ["lighthouse-plugin-field-performance"],
         "disableStorageReset": true,
         "maxWaitForLoad": 60000,
@@ -53,7 +53,7 @@ module.exports = {
         "target-size": ["warn", { "minScore": 0 }],
         "network-dependency-tree-insight": ["warn", { "minScore": 0 }],
       },
-      budgetsFile: ".budgets.json",
+      budgetsFile: ".budget.json",
       includePassedAssertions: true,
     },
     upload: {
