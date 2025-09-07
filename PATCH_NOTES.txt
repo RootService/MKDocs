@@ -1,0 +1,6 @@
+This ZIP contains your repository with the following additions:
+- .lighthouserc.json  (Lighthouse CI config)
+- LICENSE.md          (Template placeholder, choose your license)
+- tools/fix-tabs.sh   (POSIX helper to replace tabs with spaces in config-like files)
+
+No existing files were modified.

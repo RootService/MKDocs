@@ -147,8 +147,8 @@ jobs:
       env:
         LHCI_BUILD_CONTEXT__CURRENT_HASH: github-actions
       run: |
-        npx lhci autorun --config=.lighthouserc.js --output-dir=.lighthouseci
-        npx lhci upload --config=.lighthouserc.js --output-dir=.lighthouseci
+        npx lhci autorun --config=.lighthouserc.json --output-dir=.lighthouseci
+        npx lhci upload --config=.lighthouserc.json --output-dir=.lighthouseci
 
     - name: Extract Scores
       id: scores
