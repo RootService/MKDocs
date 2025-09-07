@@ -148,16 +148,12 @@ jobs:
         sleep 5
 
     - name: Run Lighthouse
+      env:
+        LHCI_BUILD_CONTEXT__CURRENT_HASH: github-actions
       run: |
-        LHCI_BUILD_CONTEXT__CURRENT_HASH=github-actions npx lhci autorun --config=.lighthouserc.js --output-dir=.lighthouseci
-
-    - name: Run Lighthouse Collect
-      run: |
-        LHCI_BUILD_CONTEXT__CURRENT_HASH=github-actions npx lhci collect --config=.lighthouserc.js --output-dir=.lighthouseci
-
-    - name: Run Lighthouse Upload
-      run: |
-        LHCI_BUILD_CONTEXT__CURRENT_HASH=github-actions npx lhci upload --config=.lighthouserc.js --output-dir=.lighthouseci
+        npx lhci autorun --config=.lighthouserc.js --output-dir=.lighthouseci
+        npx lhci collect --config=.lighthouserc.js --output-dir=.lighthouseci
+        npx lhci upload --config=.lighthouserc.js --output-dir=.lighthouseci
 
     - name: Extract Scores
       id: scores
