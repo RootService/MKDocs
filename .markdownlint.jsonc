@@ -1,0 +1,67 @@
+{
+  // Alle Standardregeln aktivieren, dann selektiv anpassen
+  "default": true,
+
+  // Überschriften
+  "MD001": true,                      // Heading-Level nur schrittweise erhöhen
+  "MD002": false,                     // Erste Überschrift H1: aus (MkDocs setzt Titel)
+  "MD003": { "style": "atx" },        // #-Syntax statt Setext
+  "MD018": true,                      // Kein Leerzeichen nach '#'
+  "MD019": true,                      // Genau ein Leerzeichen nach '#'
+  "MD022": true,                      // Leerzeilen um Überschriften
+  "MD023": true,                      // Überschrift beginnt am Zeilenanfang
+  "MD024": { "siblings_only": true }, // Keine doppelten Überschriften auf gleicher Ebene
+  "MD025": true,                      // Genau eine H1 je Datei
+  "MD026": { "punctuation": ".,;:" }, // Verbot von Satzzeichen am Titelende (Ausnahmen)
+
+  // Listen
+  "MD004": { "style": "dash" },       // Unordered-List-Marker '-'
+  "MD007": { "indent": 2 },           // Listeneinzug 2 Leerzeichen
+  "MD029": { "style": "one" },        // Nummerierte Listen fortlaufend '1.'-Stil
+  "MD030": {                           // Abstand nach Listenzeichen
+    "ul_single": 1, "ol_single": 1,
+    "ul_multi": 1,  "ol_multi": 1
+  }
+  ,
+  "MD031": true,                      // Leerzeilen um Codeblöcke
+  "MD032": true,                      // Leerzeilen um Listen
+
+  // Zeilen, Whitespaces, Format
+  "MD009": true,                      // Keine nachgestellten Leerzeichen
+  "MD010": true,                      // Keine Tabs
+  "MD012": true,                      // Keine mehrfachen Leerzeilen
+  "MD013": {                          // Maximale Zeilenlänge
+    "line_length": 120,
+    "code_blocks": false,
+    "tables": false,
+    "headings": false
+  },
+  "MD014": false,                     // '$' in Befehlsbeispielen: aus
+
+  // Links, HTML, Trennlinien
+  "MD033": {                          // Erlaubte Inline-HTML-Elemente
+    "allowed_elements": ["br", "img", "details", "summary", "kbd", "sup", "sub", "mark"]
+  },
+  "MD034": true,                      // Keine nackten URLs
+  "MD035": { "style": "---" },        // Einheitliche Horizontal Rule
+
+  // Betonung, Code
+  "MD036": true,                      // Kein Emphasis als Überschrift-Ersatz
+  "MD037": true,                      // Keine Leerzeichen in Emphasis
+  "MD038": true,                      // Keine Leerzeichen in Inline-Code
+  "MD040": true,                      // Codeblöcke brauchen Sprache
+  "MD046": { "style": "fenced" },     // Fenced Code
+  "MD048": { "style": "backtick" },   // Backticks für Fences
+  "MD049": { "style": "asterisk" },   // * für Emphasis
+  "MD050": { "style": "asterisk" },   // ** für Strong
+
+  // Links-Qualität
+  "MD039": true,                      // Kein Leerraum in Link-Text
+  "MD042": true,                      // Keine leeren Links
+  "MD051": true,                      // Gültige Link-Fragmente
+  "MD053": true,                      // Referenz-Definitionen am Dokumentende
+
+  // Repo-/MkDocs-Kompatibilität
+  "MD041": false,                     // H1 muss nicht erste Zeile sein (MkDocs-Title)
+  "MD043": false                      // Keine Pflicht-Überschriften
+}
