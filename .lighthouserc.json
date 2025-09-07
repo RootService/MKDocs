@@ -87,10 +87,24 @@
         "aria-allowed-role": "error",
         "aria-dialog-name": "error",
         "aria-progressbar-name": "error",
+        "image-alt": "error",
+        "heading-order": "error",
         "first-contentful-paint": [
           "warn",
           {
             "minScore": 0.9
+          }
+        ],
+        "font-display": [
+          "warn",
+          {
+            "minScore": 0.9
+          }
+        ],
+        "font-display-insight": [
+          "warn",
+          {
+            "minScore": 0
           }
         ],
         "forced-reflow-insight": [
@@ -133,20 +147,6 @@
           "warn",
           {
             "maxLength": 0
-          }
-        ],
-        "image-alt": "error",
-        "heading-order": "error",
-        "font-display": [
-          "warn",
-          {
-            "minScore": 0.9
-          }
-        ],
-        "font-display-insight": [
-          "warn",
-          {
-            "minScore": 0
           }
         ]
       },
