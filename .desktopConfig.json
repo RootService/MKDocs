@@ -1,4 +1,11 @@
 {
+  "server": {
+    "port": 8000
+  },
+  "lighthouse": {
+    "preset": "desktop"
+  },
+  "notes": "Minimal placeholder. Used by CI presence-checks.",
   "extends": "lighthouse:default",
   "settings": {
     "emulatedFormFactor": "desktop",
