@@ -16,6 +16,8 @@ env:
   TAG_PREFIX: RootService/MKDocs
   LOG_TAIL_LINES: 500
   CHROME_PATH: /usr/bin/google-chrome
+  LIGHTHOUSE_THRESHOLD: '90'
+  SECURITY_THRESHOLD: '0'
 
 jobs:
   build:
@@ -23,342 +25,434 @@ jobs:
     outputs:
       mkdocs_status: ${{ steps.mkdocs_summary.outputs.status }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
+    - name: Checkout
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
 
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
-          check-latest: true
-          cache: "pip"
-      - run: |
-          pip install -r requirements.txt
+    - name: Setup Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.11'
+        check-latest: true
+        cache: pip
+    - run: |
+        pip install -r requirements.txt
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: "24"
-          check-latest: true
-          cache: "npm"
-      - run: |
-          npm ci
+    - name: Setup Node.js
+      uses: actions/setup-node@v5
+      with:
+        node-version: '24'
+        check-latest: true
+        cache: npm
+    - run: |
+        npm ci
 
-      - name: Build MkDocs site
-        id: mkdocs_build
-        run: |
-          set -o pipefail
-          mkdocs build 2>&1 | tee build.log
+    - name: Build MkDocs site
+      id: mkdocs_build
+      run: |
+        set -o pipefail
+        mkdocs build 2>&1 | tee build.log
 
-      - name: Upload site artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: site
-          path: site
-          if-no-files-found: error
-          retention-days: 5
-          include-hidden-files: true
+    - name: Upload site artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: site
+        path: site
+        if-no-files-found: error
+        retention-days: 5
+        include-hidden-files: true
 
-      - name: Upload build log
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-log
-          path: build.log
-          if-no-files-found: error
-          retention-days: 5
-          include-hidden-files: true
+    - name: Upload build log
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-log
+        path: build.log
+        if-no-files-found: error
+        retention-days: 5
+        include-hidden-files: true
 
-      # - name: MkDocs summary
-        # id: mkdocs_summary
-        # if: always()
-        # run: |
-          # if [ -f site/index.html ]; then
-            # echo "status=success" >> $GITHUB_OUTPUT
-          # else
-            # echo "status=failure" >> $GITHUB_OUTPUT
-          # fi
+    - name: MkDocs summary
+      id: mkdocs_summary
+      if: always()
+      run: |
+        if [ -f site/index.html ]; then
+          echo "status=success" >> $GITHUB_OUTPUT
+        else
+          echo "status=failure" >> $GITHUB_OUTPUT
+        fi
 
-      - name: Extract last log lines
-        if: failure()
-        id: log_tail
-        run: |
-          tail -n $LOG_TAIL_LINES build.log > log_tail.txt
-          echo 'log<<EOF' >> $GITHUB_OUTPUT
-          cat log_tail.txt >> $GITHUB_OUTPUT
-          echo 'EOF' >> $GITHUB_OUTPUT
+    - name: Extract last log lines
+      if: failure()
+      id: log_tail
+      run: |
+        tail -n $LOG_TAIL_LINES build.log > log_tail.txt
+        echo 'log<<EOF' >> $GITHUB_OUTPUT
+        cat log_tail.txt >> $GITHUB_OUTPUT
+        echo 'EOF' >> $GITHUB_OUTPUT
 
-      - name: Comment MkDocs result on PR
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/github-script@v8
-        env:
-          TITLE: ${{ github.event.pull_request.title }}
-        with:
-          result-encoding: string
-          retries: 3
-          script: |
-            const title = process.env.TITLE;
-            const status = "${{ steps.mkdocs_summary.outputs.status }}";
-            const pr = context.payload.pull_request;
-            const runId = "${{ github.run_id }}";
-            const artifactUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${runId}`;
-            const log = "\n\n```\n${{ steps.log_tail.outputs.log }}\n```";
-            if (pr) {
-              let body = "📖 MkDocs Build completed with status: **" + status + "**\n\n" +
-                         "📦 [Download Site Artifact](" + artifactUrl + ")\n" +
-                         "📜 [Download Full Build Log](" + artifactUrl + ")";
-              if (status === "failure") {
-                body += "\n\n🚨 Build Log (last ${{ env.LOG_TAIL_LINES }} lines):" + log;
-              }
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: pr.number,
-                body
-              });
+    - name: Comment MkDocs result on PR
+      if: ${{ github.event_name == 'pull_request' }}
+      uses: actions/github-script@v8
+      env:
+        TITLE: ${{ github.event.pull_request.title }}
+      with:
+        result-encoding: string
+        retries: 3
+        script: |
+          const title = process.env.TITLE;
+          const status = "${{ steps.mkdocs_summary.outputs.status }}";
+          const pr = context.payload.pull_request;
+          const runId = "${{ github.run_id }}";
+          const artifactUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${runId}`;
+          const log = "\n\n```\n${{ steps.log_tail.outputs.log }}\n```";
+          if (pr) {
+            let body = "📖 MkDocs Build completed with status: **" + status + "**\n\n" +
+                       "📦 [Download Site Artifact](" + artifactUrl + ")\n" +
+                       "📜 [Download Full Build Log](" + artifactUrl + ")";
+            if (status === "failure") {
+              body += "\n\n🚨 Build Log (last ${{ env.LOG_TAIL_LINES }} lines):" + log;
             }
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              body
+            });
+          }
 
   lighthouse:
     needs: build
     continue-on-error: true
-    if: ${{ success() && github.ref == 'refs/heads/main' }}
+    if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
+    - name: Checkout
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
 
-      - name: Download site artifact
-        uses: actions/download-artifact@v5
-        with:
-          name: site
-          path: site
+    - name: Download site artifact
+      uses: actions/download-artifact@v5
+      with:
+        name: site
+        path: site
 
-      - name: Install Lighthouse CI
-        run: |
-          npm install -g @lhci/cli@latest serve
+    - name: Install Lighthouse CI
+      run: |
+        npm install -g @lhci/cli@latest serve
 
-      - name: Start local server
-        run: |
-          npx serve ./site --listen tcp://0.0.0.0:8000 --single --no-clipboard > server.log 2>&1 &
-          sleep 5
+    - name: Start local server
+      run: |
+        npx serve ./site --listen tcp://0.0.0.0:8000 --single --no-clipboard > server.log 2>&1 &
+        sleep 5
 
-      - name: Run Lighthouse
-        run: |
-          LHCI_BUILD_CONTEXT__CURRENT_HASH=github-actions \
-          npx lhci autorun --config=.lighthouserc.js --output-dir=.lighthouseci || true
+    - name: Run Lighthouse
+      run: |
+        LHCI_BUILD_CONTEXT__CURRENT_HASH=github-actions npx lhci autorun --config=.lighthouserc.js --output-dir=.lighthouseci
 
-      - name: Run Lighthouse Collect
-        run: |
-          LHCI_BUILD_CONTEXT__CURRENT_HASH=github-actions \
-          npx lhci collect --config=.lighthouserc.js --output-dir=.lighthouseci || true
+    - name: Run Lighthouse Collect
+      run: |
+        LHCI_BUILD_CONTEXT__CURRENT_HASH=github-actions npx lhci collect --config=.lighthouserc.js --output-dir=.lighthouseci
 
-      - name: Run Lighthouse Upload
-        run: |
-          LHCI_BUILD_CONTEXT__CURRENT_HASH=github-actions \
-          npx lhci upload --config=.lighthouserc.js --output-dir=.lighthouseci || true
+    - name: Run Lighthouse Upload
+      run: |
+        LHCI_BUILD_CONTEXT__CURRENT_HASH=github-actions npx lhci upload --config=.lighthouserc.js --output-dir=.lighthouseci
 
-      - name: Extract Scores
-        id: scores
-        if: ${{ hashFiles('.lighthouseci/manifest.json') != '' }}
-        run: |
-          extract_score() {
-            key=$1
-            score=$(jq -r ".[0].summary.${key}" .lighthouseci/manifest.json)
-            percent=$(awk "BEGIN {printf \"%.0f\", $score * 100}")
-            echo "${key}=$percent" >> $GITHUB_OUTPUT
+    - name: Extract Scores
+      id: scores
+      if: ${{ hashFiles('.lighthouseci/manifest.json') != '' }}
+      run: |
+        extract_score() {
+          key=$1
+          score=$(jq -r ".[0].summary.${key}" .lighthouseci/manifest.json)
+          percent=$(awk "BEGIN {printf \"%.0f\", $score * 100}")
+          echo "${key}=$percent" >> $GITHUB_OUTPUT
+        }
+        extract_score performance
+        extract_score accessibility
+        extract_score bestPractices
+        extract_score seo
+
+    - name: Upload Lighthouse report
+      if: ${{ hashFiles('.lighthouseci/**') != '' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: lighthouse-report
+        path: .lighthouseci/
+        if-no-files-found: error
+        retention-days: 5
+        include-hidden-files: true
+
+    - name: Lighthouse summary
+      id: lighthouse_summary
+      if: always()
+      run: |
+        if [ -z "$(ls -A .lighthouseci 2>/dev/null)" ]; then
+          echo "status=success" >> $GITHUB_OUTPUT
+        else
+          echo "status=failure" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Comment Lighthouse result on PR
+      if: ${{ github.event_name == 'pull_request' }}
+      uses: actions/github-script@v8
+      env:
+        TITLE: ${{ github.event.pull_request.title }}
+      with:
+        result-encoding: string
+        retries: 3
+        script: |
+          function emoji(score) {
+            const s = parseInt(score, 10);
+            if (s >= 90) return "🟢";
+            if (s >= 50) return "🟡";
+            return "🔴";
           }
-          extract_score performance
-          extract_score accessibility
-          extract_score bestPractices
-          extract_score seo
-
-      - name: Upload Lighthouse report
-        if: ${{ hashFiles('.lighthouseci/**') != '' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: lighthouse-report
-          path: .lighthouseci/
-          if-no-files-found: error
-          retention-days: 5
-          include-hidden-files: true
-
-      # - name: Lighthouse summary
-        # id: lighthouse_summary
-        # if: always()
-        # run: |
-          # if [ -z "$(ls -A .lighthouseci 2>/dev/null)" ]; then
-            # echo "status=success" >> $GITHUB_OUTPUT
-          # else
-            # echo "status=failure" >> $GITHUB_OUTPUT
-          # fi
-
-      - name: Comment Lighthouse result on PR
-        if: ${{ github.event.workflow_run.event == 'pull_request' }}
-        uses: actions/github-script@v8
-        env:
-          TITLE: ${{ github.event.pull_request.title }}
-        with:
-          result-encoding: string
-          retries: 3
-          script: |
-            function emoji(score) {
-              const s = parseInt(score, 10);
-              if (s >= 90) return "🟢";
-              if (s >= 50) return "🟡";
-              return "🔴";
-            }
-
-            const title = process.env.TITLE;
-            const pr = context.payload.workflow_run.pull_requests[0];
-            const runId = context.runId;
-            const artifactUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${runId}`;
-            const perf = "${{ steps.scores.outputs.performance }}";
-            const access = "${{ steps.scores.outputs.accessibility }}";
-            const bp = "${{ steps.scores.outputs.best-practices }}";
-            const seo = "${{ steps.scores.outputs.seo }}";
-            let body = "🔎 **Lighthouse CI completed**\n\n";
-            if (perf) body += `${emoji(perf)} Performance: **${perf}/100**\n`;
-            if (access) body += `${emoji(access)} Accessibility: **${access}/100**\n`;
-            if (bp) body += `${emoji(bp)} Best Practices: **${bp}/100**\n`;
-            if (seo) body += `${emoji(seo)} SEO: **${seo}/100**\n`;
-            body += `\n📦 [Download Lighthouse Report Artifact](${artifactUrl})\n📸 [View Screenshot](${artifactUrl})`;
-            if (pr) {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: pr.number,
-                body
-              });
-            }
+          const title = process.env.TITLE;
+          const status = "${{ steps.lighthouse_summary.outputs.status }}";
+          const pr = context.payload.pull_requests[0];
+          const runId = context.runId;
+          const artifactUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${runId}`;
+          const perf = "${{ steps.scores.outputs.performance }}";
+          const access = "${{ steps.scores.outputs.accessibility }}";
+          const bp = "${{ steps.scores.outputs.bestPractices }}";
+          const seo = "${{ steps.scores.outputs.seo }}";
+          let body = "🔎 **Lighthouse CI completed**\n\n";
+          if (perf) body += `${emoji(perf)} Performance: **${perf}/100**\n`;
+          if (access) body += `${emoji(access)} Accessibility: **${access}/100**\n`;
+          if (bp) body += `${emoji(bp)} Best Practices: **${bp}/100**\n`;
+          if (seo) body += `${emoji(seo)} SEO: **${seo}/100**\n`;
+          body += `\n📦 [Download Lighthouse Report Artifact](${artifactUrl})\n📸 [View Screenshot](${artifactUrl})`;
+          if (pr) {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              body
+            });
+          }
 
   security:
     needs: lighthouse
-    if: ${{ success() && github.event_name == 'pull_request' }}
+    if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
+    - name: Checkout
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
 
-      - name: Dependency Review
-        uses: actions/dependency-review-action@v4
-        with:
-          fail-on-severity: moderate
+    - name: Dependency Review
+      uses: actions/dependency-review-action@v4
+      with:
+        fail-on-severity: moderate
 
-      - name: Comment result on PR
-        uses: actions/github-script@v8
-        env:
-          TITLE: ${{ github.event.pull_request.title }}
-        with:
-          result-encoding: string
-          retries: 3
-          script: |
-            const title = process.env.TITLE;
-            const pr = context.payload.workflow_run.pull_requests[0];
-            if (pr) {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: pr.number,
-                body: "🛡️ Security check completed: dependency review run."
-              });
-            }
+    - name: Comment result on PR
+      uses: actions/github-script@v8
+      env:
+        TITLE: ${{ github.event.pull_request.title }}
+      with:
+        result-encoding: string
+        retries: 3
+        script: |
+          const title = process.env.TITLE;
+          const pr = context.payload.pull_requests[0];
+          if (pr) {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              body: "🛡️ Security check completed: dependency review run."
+            });
+          }
 
   summary:
     needs: security
     if: ${{ always() }}
     runs-on: ubuntu-latest
     steps:
-      - name: Collect workflow statuses and durations
-        id: collect
-        run: |
-          ci_url="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          echo "ci_url=$ci_url" >> $GITHUB_OUTPUT
-          echo "ci_status=${{ github.event.workflow_run.conclusion }}" >> $GITHUB_OUTPUT
+    - name: Collect workflow statuses and durations
+      id: collect
+      run: |
+        ci_url="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        echo "ci_url=$ci_url" >> $GITHUB_OUTPUT
+        echo "ci_status=${{ github.event.conclusion }}" >> $GITHUB_OUTPUT
+        ci_start="${{ github.event.run_started_at }}"
+        ci_end="${{ github.event.updated_at }}"
+        duration_minutes () {
+          start="$1"
+          end="$2"
+          if [ "$start" != "null" ] && [ "$end" != "null" ]; then
+            start_epoch=$(date -d "$start" +%s)
+            end_epoch=$(date -d "$end" +%s)
+            echo $(( (end_epoch - start_epoch) / 60 ))
+          else
+            echo "0"
+          fi
+        }
+        ci_dur=$(duration_minutes "$ci_start" "$ci_end")
+        echo "ci_duration=$ci_dur" >> $GITHUB_OUTPUT
+        fetch_status_and_duration () {
+          wf_file=$1
+          runs=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github.v3+json" "${{ github.api_url }}/repos/${{ github.repository }}/actions/workflows/$wf_file/runs?branch=main&per_page=1")
+          status=$(echo "$runs" | jq -r '.workflow_runs[0].conclusion // "unknown"')
+          url=$(echo "$runs" | jq -r '.workflow_runs[0].html_url // "unknown"')
+          start=$(echo "$runs" | jq -r '.workflow_runs[0].run_started_at // "null"')
+          end=$(echo "$runs" | jq -r '.workflow_runs[0].updated_at // "null"')
+          dur=$(duration_minutes "$start" "$end")
+          echo "$status;$url;$dur"
+        }
+        IFS=';' read lh_status lh_url lh_dur <<< "$(fetch_status_and_duration lighthouse_api_fixed.yml)"
+        IFS=';' read sec_status sec_url sec_dur <<< "$(fetch_status_and_duration security.yml)"
+        echo "lighthouse_status=$lh_status" >> $GITHUB_OUTPUT
+        echo "lighthouse_url=$lh_url" >> $GITHUB_OUTPUT
+        echo "lighthouse_duration=$lh_dur" >> $GITHUB_OUTPUT
+        echo "security_status=$sec_status" >> $GITHUB_OUTPUT
+        echo "security_url=$sec_url" >> $GITHUB_OUTPUT
+        echo "security_duration=$sec_dur" >> $GITHUB_OUTPUT
+        total=$((ci_dur + lh_dur + sec_dur))
+        echo "total_duration=$total" >> $GITHUB_OUTPUT
 
-          # CI duration from triggering workflow_run
-          ci_start="${{ github.event.workflow_run.run_started_at }}"
-          ci_end="${{ github.event.workflow_run.updated_at }}"
+    - name: Comment summary on PR
+      if: ${{ github.event.workflow_run.event == 'pull_request' }}
+      uses: actions/github-script@v8
+      env:
+        TITLE: ${{ github.event.pull_request.title }}
+      with:
+        result-encoding: string
+        retries: 3
+        script: |
+          function statusEmoji(status) {
+            if (status === "success") return "🟢";
+            if (status === "failure") return "🔴";
+            if (status === "cancelled") return "⚪";
+            return "🟡";
+          }
 
-          duration_minutes () {
-            start="$1"
-            end="$2"
-            if [ "$start" != "null" ] && [ "$end" != "null" ]; then
-              start_epoch=$(date -d "$start" +%s)
-              end_epoch=$(date -d "$end" +%s)
-              echo $(( (end_epoch - start_epoch) / 60 ))
-            else
-              echo "0"
+          const title = process.env.TITLE;
+          const pr = context.payload.workflow_run.pull_requests[0];
+          if (pr) {
+            const ciStatus = "${{ steps.collect.outputs.ci_status }}";
+            const ciUrl = "${{ steps.collect.outputs.ci_url }}";
+            const ciDur = "${{ steps.collect.outputs.ci_duration }}";
+            const lhStatus = "${{ steps.collect.outputs.lighthouse_status }}";
+            const lhUrl = "${{ steps.collect.outputs.lighthouse_url }}";
+            const lhDur = "${{ steps.collect.outputs.lighthouse_duration }}";
+            const secStatus = "${{ steps.collect.outputs.security_status }}";
+            const secUrl = "${{ steps.collect.outputs.security_url }}";
+            const secDur = "${{ steps.collect.outputs.security_duration }}";
+            const total = "${{ steps.collect.outputs.total_duration }}";
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              body: `📊 **Workflow Summary**
+
+- ${statusEmoji(ciStatus)} CI: **${ciStatus}** (⏱️ ${ciDur} min) → [Run](${ciUrl})
+- ${statusEmoji(lhStatus)} Lighthouse: **${lhStatus}** (⏱️ ${lhDur} min) → [Results](${lhUrl})
+- ${statusEmoji(secStatus)} Security: **${secStatus}** (⏱️ ${secDur} min) → [Results](${secUrl})
+
+⏱️ **Total Duration:** ${total} min`
+            });
+          }
+
+    - name: Generate CI Summary
+      run: |
+        echo "## CI Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+
+        if [ -f .lighthouseci/manifest.json ]; then
+          echo "### Lighthouse Scores" >> $GITHUB_STEP_SUMMARY
+          jq -r '[.[0].summary] | .[] | to_entries[] | "\(.key): \(.value*100|floor)"' .lighthouseci/manifest.json >> $GITHUB_STEP_SUMMARY
+        else
+          echo "### Lighthouse Scores" >> $GITHUB_STEP_SUMMARY
+          echo "No Lighthouse results found." >> $GITHUB_STEP_SUMMARY
+        fi
+
+        if [ -f security_report.json ]; then
+          echo "### Security Results" >> $GITHUB_STEP_SUMMARY
+          cat security_report.json >> $GITHUB_STEP_SUMMARY
+        else
+          echo "### Security Results" >> $GITHUB_STEP_SUMMARY
+          echo "No security results found." >> $GITHUB_STEP_SUMMARY
+        fi
+
+        # Annotations
+        if [ -f .lighthouseci/manifest.json ]; then
+          for metric in performance accessibility best seo; do
+            score=$(jq -r ".[0].summary[\"$metric\"]" .lighthouseci/manifest.json)
+            pct=$(awk "BEGIN {print int($score*100)}")
+            if [ $pct -lt $LIGHTHOUSE_THRESHOLD ]; then
+              echo "::warning title=Lighthouse::$metric score $pct/100 is below threshold"
             fi
+          done
+        fi
+
+        if [ -f security_report.json ]; then
+          issues=$(jq '.issues | length' security_report.json || echo 0)
+          if [ "$issues" -gt $SECURITY_THRESHOLD ]; then
+            echo "::error title=Security::Found $issues security issues. See security_report.json for details."
+          fi
+        fi
+
+    - name: Comment CI Summary on PR
+      if: ${{ github.event_name == 'pull_request' }}
+      uses: actions/github-script@v8
+      with:
+        script: |
+          const fs = require('fs');
+          let body = fs.readFileSync(process.env.GITHUB_STEP_SUMMARY, 'utf8');
+
+          // Append artifact links
+          body += `
+
+          ### Artifacts
+          - [Lighthouse Report](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+          - [Security Report](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId})
+          `;
+
+          // Find existing comment by this bot
+          const { data: comments } = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+          });
+
+          const botComment = comments.find(c => c.user.type === "Bot" && c.body.includes("## CI Pipeline Summary"));
+
+          if (botComment) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+              body
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });
           }
 
-          ci_dur=$(duration_minutes "$ci_start" "$ci_end")
-          echo "ci_duration=$ci_dur" >> $GITHUB_OUTPUT
-
-          fetch_status_and_duration () {
-            wf_file=$1
-            runs=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              "${{ github.api_url }}/repos/${{ github.repository }}/actions/workflows/$wf_file/runs?branch=main&per_page=1")
-            status=$(echo "$runs" | jq -r '.workflow_runs[0].conclusion // "unknown"')
-            url=$(echo "$runs" | jq -r '.workflow_runs[0].html_url // "unknown"')
-            start=$(echo "$runs" | jq -r '.workflow_runs[0].run_started_at // "null"')
-            end=$(echo "$runs" | jq -r '.workflow_runs[0].updated_at // "null"')
-            dur=$(duration_minutes "$start" "$end")
-            echo "$status;$url;$dur"
+          /*
+          ====================
+          Custom Fallback Builder (Disabled)
+          ====================
+          function decorate(line) {
+            if (line.includes("100")) return "✅ " + line;
+            if (line.match(/(9[0-9]|8[0-9])/)) return "⚠️ " + line;
+            return "❌ " + line;
           }
-
-          IFS=';' read lh_status lh_url lh_dur <<< "$(fetch_status_and_duration lighthouse_api_fixed.yml)"
-          IFS=';' read sec_status sec_url sec_dur <<< "$(fetch_status_and_duration security.yml)"
-
-          echo "lighthouse_status=$lh_status" >> $GITHUB_OUTPUT
-          echo "lighthouse_url=$lh_url" >> $GITHUB_OUTPUT
-          echo "lighthouse_duration=$lh_dur" >> $GITHUB_OUTPUT
-          echo "security_status=$sec_status" >> $GITHUB_OUTPUT
-          echo "security_url=$sec_url" >> $GITHUB_OUTPUT
-          echo "security_duration=$sec_dur" >> $GITHUB_OUTPUT
-
-          total=$((ci_dur + lh_dur + sec_dur))
-          echo "total_duration=$total" >> $GITHUB_OUTPUT
-
-      - name: Comment summary on PR
-        if: ${{ github.event.workflow_run.event == 'pull_request' }}
-        uses: actions/github-script@v8
-        env:
-          TITLE: ${{ github.event.pull_request.title }}
-        with:
-          result-encoding: string
-          retries: 3
-          script: |
-            function statusEmoji(status) {
-              if (status === "success") return "🟢";
-              if (status === "failure") return "🔴";
-              if (status === "cancelled") return "⚪";
-              return "🟡";
+          body = body.split("\n").map(line => {
+            if (line.includes("Performance") || line.includes("Accessibility") || line.includes("Best Practices") || line.includes("SEO")) {
+              return decorate(line);
             }
-
-            const title = process.env.TITLE;
-            const pr = context.payload.workflow_run.pull_requests[0];
-            if (pr) {
-              const ciStatus = "${{ steps.collect.outputs.ci_status }}";
-              const ciUrl = "${{ steps.collect.outputs.ci_url }}";
-              const ciDur = "${{ steps.collect.outputs.ci_duration }}";
-              const lhStatus = "${{ steps.collect.outputs.lighthouse_status }}";
-              const lhUrl = "${{ steps.collect.outputs.lighthouse_url }}";
-              const lhDur = "${{ steps.collect.outputs.lighthouse_duration }}";
-              const secStatus = "${{ steps.collect.outputs.security_status }}";
-              const secUrl = "${{ steps.collect.outputs.security_url }}";
-              const secDur = "${{ steps.collect.outputs.security_duration }}";
-              const total = "${{ steps.collect.outputs.total_duration }}";
-
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: pr.number,
-                body: `📊 **Workflow Summary**\n\n- ${statusEmoji(ciStatus)} CI: **${ciStatus}** (⏱️ ${ciDur} min) → [Run](${ciUrl})\n- ${statusEmoji(lhStatus)} Lighthouse: **${lhStatus}** (⏱️ ${lhDur} min) → [Results](${lhUrl})\n- ${statusEmoji(secStatus)} Security: **${secStatus}** (⏱️ ${secDur} min) → [Results](${secUrl})\n\n⏱️ **Total Duration:** ${total} min`
-              });
+            if (line.includes("Security Results") && !line.includes("No security")) {
+              return "⚠️ " + line;
             }
+            return line;
+          }).join("\n");
+          */
