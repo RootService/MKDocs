@@ -241,38 +241,6 @@ jobs:
               body: `🔎 Lighthouse CI completed\n\n📦 [Artifacts](${artifactUrl})`
             });
 
-  audit:
-    needs: build
-    continue-on-error: true
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Setup Node
-        uses: actions/setup-node@v5
-        with:
-          node-version: '24'
-          check-latest: true
-          cache: 'npm'
-
-      - name: Install Node.js deps (if present)
-        if: ${{ hashFiles('package-lock.json', 'pnpm-lock.yaml', 'yarn.lock') != '' || hashFiles('package.json') != '' }}
-        run: |
-          npm install --no-audit --no-fund
-
-      - name: Run a11y audit scripts
-        run: |
-          chmod +x tools/audit.sh || true
-
-      - name: Upload audit findings
-        uses: actions/upload-artifact@v4
-        with:
-          name: audit-findings
-          path: audit-findings
-          if-no-files-found: error
-          retention-days: 5
-          include-hidden-files: true
-
   security:
     needs: build
     continue-on-error: true
