@@ -31,7 +31,7 @@ jobs:
         fetch-depth: 0
 
     - name: Setup Python
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
         check-latest: true
@@ -46,7 +46,7 @@ jobs:
         check-latest: true
         cache: npm
     - run: |
-        npm ci
+        npm install --no-audit --no-fund
 
     - name: Build MkDocs site
       id: mkdocs_build
@@ -72,6 +72,15 @@ jobs:
         retention-days: 5
         include-hidden-files: true
 
+    - name: Extract last log lines
+      if: failure()
+      id: log_tail
+      run: |
+        tail -n $LOG_TAIL_LINES build.log > log_tail.txt
+        echo 'log<<EOF' >> $GITHUB_OUTPUT
+        cat log_tail.txt >> $GITHUB_OUTPUT
+        echo 'EOF' >> $GITHUB_OUTPUT
+
     - name: MkDocs summary
       id: mkdocs_summary
       if: always()
@@ -81,15 +90,6 @@ jobs:
         else
           echo "status=failure" >> $GITHUB_OUTPUT
         fi
-
-    - name: Extract last log lines
-      if: failure()
-      id: log_tail
-      run: |
-        tail -n $LOG_TAIL_LINES build.log > log_tail.txt
-        echo 'log<<EOF' >> $GITHUB_OUTPUT
-        cat log_tail.txt >> $GITHUB_OUTPUT
-        echo 'EOF' >> $GITHUB_OUTPUT
 
     - name: Comment MkDocs result on PR
       uses: actions/github-script@v8
@@ -148,7 +148,6 @@ jobs:
         LHCI_BUILD_CONTEXT__CURRENT_HASH: github-actions
       run: |
         npx lhci autorun --config=.lighthouserc.js --output-dir=.lighthouseci
-        npx lhci collect --config=.lighthouserc.js --output-dir=.lighthouseci
         npx lhci upload --config=.lighthouserc.js --output-dir=.lighthouseci
 
     - name: Extract Scores

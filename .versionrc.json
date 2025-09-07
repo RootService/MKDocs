@@ -8,8 +8,8 @@
     { "type": "test", "section": "✅ Tests", "hidden": false },
     { "type": "ci", "section": "⚙️ CI/CD", "hidden": false }
   ],
-  "commitUrlFormat": "https://github.com/OWNER/REPO/commit/{{hash}}",
-  "compareUrlFormat": "https://github.com/OWNER/REPO/compare/{{previousTag}}...{{currentTag}}",
-  "issueUrlFormat": "https://github.com/OWNER/REPO/issues/{{id}}",
+  "commitUrlFormat": "https://github.com/RootServie/MKDocs/commit/{{hash}}",
+  "compareUrlFormat": "https://github.com/RootServie/MKDocs/compare/{{previousTag}}...{{currentTag}}",
+  "issueUrlFormat": "https://github.com/RootServie/MKDocs/issues/{{id}}",
   "userUrlFormat": "https://github.com/{{user}}"
 }
