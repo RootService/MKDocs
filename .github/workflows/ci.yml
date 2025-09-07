@@ -62,7 +62,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ -f mkdocs.yml ]; then
-            mkdocs build --clean --force 2>&1 | tee build.log
+            mkdocs build --clean 2>&1 | tee build.log
           else
             echo "mkdocs.yml missing"; exit 1
           fi
