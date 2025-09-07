@@ -33,6 +33,7 @@
   "dependencies": {
     "@actions/artifact": "latest",
     "@lhci/cli": "latest",
+    "serve": "latest",
     "puppeteer": "latest",
     "autoprefixer": "latest",
     "browserslist": "latest",

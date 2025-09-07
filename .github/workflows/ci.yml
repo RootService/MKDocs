@@ -36,8 +36,20 @@ jobs:
         python-version: '3.11'
         check-latest: true
         cache: pip
-    - run: |
+
+    - name: Install MkDocs deps (if present)
+      if: hashFiles('requirements.txt') != ''
+      run: |
+        python -m pip install --upgrade pip
         pip install -r requirements.txt
+
+    - name: Build site (if mkdocs.yml exists and no site/)
+      id: mkdocs_build
+      run: |
+        if [ -f mkdocs.yml ] && [ ! -d site ]; then
+          set -o pipefail
+          mkdocs build 2>&1 | tee build.log
+        fi
 
     - name: Setup Node.js
       uses: actions/setup-node@v5
@@ -45,14 +57,11 @@ jobs:
         node-version: '24'
         check-latest: true
         cache: npm
-    - run: |
-        npm install --no-audit --no-fund
 
-    - name: Build MkDocs site
-      id: mkdocs_build
+    - name: Install Node.js deps (if present)
+      if: ${{ hashFiles('node_modules/**') != '' }}
       run: |
-        set -o pipefail
-        mkdocs build 2>&1 | tee build.log
+        npm install --no-audit --no-fund
 
     - name: Upload site artifact
       uses: actions/upload-artifact@v4
@@ -122,6 +131,7 @@ jobs:
     continue-on-error: true
     if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
     - name: Checkout
       uses: actions/checkout@v5
@@ -134,16 +144,18 @@ jobs:
         name: site
         path: site
 
-    - name: Install Lighthouse CI
+    - name: Ensure LHCI config files
       run: |
-        npm install -g @lhci/cli@latest serve
+        test -f .lighthouserc.json || { echo "Missing .lighthouserc.json"; exit 1; }
+        test -f desktopConfig.json || { echo "Missing desktopConfig.json"; exit 1; }
 
-    - name: Start local server
+    - name: Serve site
       run: |
+        test -d site || { echo "Missing site/; build step failed"; exit 1; }
         npx serve ./site --listen tcp://0.0.0.0:8000 --single --no-clipboard > server.log 2>&1 &
         sleep 5
 
-    - name: Run Lighthouse
+    - name: Run Lighthouse CI
       env:
         LHCI_BUILD_CONTEXT__CURRENT_HASH: github-actions
       run: |
