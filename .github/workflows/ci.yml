@@ -235,14 +235,13 @@ jobs:
 
       - name: Run a11y audit scripts
         run: |
-          chmod +x tools/a11y-audit.sh || true
-          ./tools/a11y-audit.sh docs a11y-findings || true
+          chmod +x tools/audit.sh || true
 
-      - name: Upload a11y findings
+      - name: Upload audit findings
         uses: actions/upload-artifact@v4
         with:
-          name: a11y-findings
-          path: a11y-findings/
+          name: audit-findings
+          path: audit-findings
           if-no-files-found: error
           retention-days: 5
           include-hidden-files: true
