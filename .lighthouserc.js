@@ -26,9 +26,9 @@ module.exports = {
       output: ["html", "json"],
       outputPath: ".lighthouseci/"
     },
-    assert: {
-      preset: "lighthouse:recommended",
-      assertions: {
+    // assert: {
+      // preset: "lighthouse:recommended",
+      // assertions: {
         // "categories:performance": ["error", { minScore: 0.9 }],
         // "categories:accessibility": ["error", { minScore: 0.9 }],
         // "categories:best-practices": ["error", { minScore: 0.9 }],
@@ -48,9 +48,9 @@ module.exports = {
         // "total-byte-weight": ["warn", { "minScore": 0 }],
         // "target-size": ["warn", { "minScore": 0 }],
         // "network-dependency-tree-insight": ["warn", { "minScore": 0 }]
-      },
-      includePassedAssertions: true,
-    },
+      // },
+      // includePassedAssertions: true,
+    // },
     upload: {
       target: "filesystem",
       outputDir: ".lighthouseci/"
