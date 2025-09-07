@@ -33,6 +33,7 @@
   "dependencies": {
     "@actions/artifact": "latest",
     "@lhci/cli": "latest",
+    "http-server": "latest",
     "serve": "latest",
     "puppeteer": "latest",
     "markdownlint-cli": "latest",

@@ -50,7 +50,8 @@
         "html",
         "json"
       ],
-      "outputPath": ".lighthouseci/"
+      "outputPath": ".lighthouseci/",
+      "staticDistDir": "./site"
     },
     "assert": {
       "preset": "lighthouse:recommended",
