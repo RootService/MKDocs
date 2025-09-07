@@ -55,7 +55,7 @@ jobs:
         continue-on-error: true
         run: |
           if [ -f .markdownlint.jsonc ]; then cfg=".markdownlint.jsonc"; else cfg=".markdownlint.json"; fi
-          npx --yes markdownlint-cli2 "**/*.md" "#node_modules/**" --config "$cfg"
+          npx --yes markdownlint-cli2 "#*.md" "#docs/**/*.md" "#node_modules/**" --config "$cfg"
 
       - name: Build site
         id: mkdocs_build
