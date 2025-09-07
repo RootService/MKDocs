@@ -1,7 +1,9 @@
 {
   "ci": {
     "collect": {
-      "url": ["http://localhost:8000"],
+      "url": [
+        "http://localhost:8000"
+      ],
       "isSinglePageApplication": false,
       "puppeteerLaunchOptions": {
         "executablePath": "/usr/bin/google-chrome",
@@ -27,7 +29,10 @@
           "--remote-debugging-port=9222",
           "--window-size=3840,2160"
         ],
-        "defaultViewport": { "width": 3840, "height": 2160 }
+        "defaultViewport": {
+          "width": 3840,
+          "height": 2160
+        }
       },
       "disableStorageReset": true,
       "settings": {
@@ -41,29 +46,109 @@
       "maxAutodiscoverUrls": 5,
       "staticDirFileDiscoveryDepth": 2,
       "port": 9222,
-      "output": ["html", "json"],
+      "output": [
+        "html",
+        "json"
+      ],
       "outputPath": ".lighthouseci/"
     },
     "assert": {
       "preset": "lighthouse:recommended",
       "assertions": {
-        "categories:performance": ["error", { "minScore": 0.9 }],
-        "categories:accessibility": ["error", { "minScore": 0.9 }],
-        "categories:best-practices": ["error", { "minScore": 0.9 }],
-        "categories:seo": ["error", { "minScore": 0.9 }],
+        "categories:performance": [
+          "error",
+          {
+            "minScore": 0.9
+          }
+        ],
+        "categories:accessibility": [
+          "error",
+          {
+            "minScore": 0.9
+          }
+        ],
+        "categories:best-practices": [
+          "error",
+          {
+            "minScore": 0.9
+          }
+        ],
+        "categories:seo": [
+          "error",
+          {
+            "minScore": 0.9
+          }
+        ],
         "color-contrast": "error",
         "aria-valid-attr": "error",
         "aria-roles": "error",
         "aria-required-attr": "error",
         "aria-valid-attr-value": "error",
         "aria-allowed-role": "error",
-        "render-blocking-resources": ["warn", { "numericValue": 0 }],
-        "uses-rel-preconnect": ["warn", { "numericValue": 0 }],
-        "csp-xss": ["warn", { "minScore": 0 }],
-        "bf-cache": ["warn", { "minScore": 0 }],
-        "total-byte-weight": ["warn", { "minScore": 0 }],
-        "target-size": ["warn", { "minScore": 0 }],
-        "network-dependency-tree-insight": ["warn", { "minScore": 0 }]
+        "aria-dialog-name": "error",
+        "aria-progressbar-name": "error",
+        "first-contentful-paint": [
+          "warn",
+          {
+            "minScore": 0.9
+          }
+        ],
+        "forced-reflow-insight": [
+          "warn",
+          {
+            "minScore": 0
+          }
+        ],
+        "unused-css-rules": [
+          "warn",
+          {
+            "maxLength": 0
+          }
+        ],
+        "uses-responsive-images": [
+          "warn",
+          {
+            "maxLength": 0
+          }
+        ],
+        "image-delivery-insight": [
+          "warn",
+          {
+            "minScore": 0.5
+          }
+        ],
+        "modern-image-formats": [
+          "warn",
+          {
+            "maxLength": 0
+          }
+        ],
+        "uses-long-cache-ttl": [
+          "warn",
+          {
+            "maxLength": 0
+          }
+        ],
+        "legacy-javascript": [
+          "warn",
+          {
+            "maxLength": 0
+          }
+        ],
+        "image-alt": "error",
+        "heading-order": "error",
+        "font-display": [
+          "warn",
+          {
+            "minScore": 0.9
+          }
+        ],
+        "font-display-insight": [
+          "warn",
+          {
+            "minScore": 0
+          }
+        ]
       },
       "includePassedAssertions": true
     },

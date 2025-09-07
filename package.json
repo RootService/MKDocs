@@ -35,6 +35,7 @@
     "@lhci/cli": "latest",
     "serve": "latest",
     "puppeteer": "latest",
+    "markdownlint-cli": "latest",
     "autoprefixer": "latest",
     "browserslist": "latest",
     "browserslist-config-baseline": "latest"

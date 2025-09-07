@@ -105,7 +105,7 @@ jobs:
             const artifactUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${runId}`;
             let body = `📖 MkDocs Build status: **${status}**\n\n📦 [Artifacts](${artifactUrl})`;
             if (status === "failure" && `${{ steps.log_tail.outputs.log }}`) {
-              body += `\n\n🚨 Build Log (last ${{ env.LOG_TAIL_LINES }} lines):\n\n\`\`\`\n${{ steps.log_tail.outputs.log }}\n\`\`\``;
+              body += `\n\n🚨 Build Log (last ${{ env.LOG_TAIL_LINES }} lines):\n\n\\`\\`\\`\n${{ steps.log_tail.outputs.log }}\n\\`\\`\\``;
             }
             await github.rest.issues.createComment({
               owner: context.repo.owner,
@@ -139,7 +139,7 @@ jobs:
           check-latest: true
           cache: 'npm'
 
-      - name: Install MkDocs deps (if present)
+      - name: Install Node.js deps (if present)
         if: ${{ hashFiles('package-lock.json', 'pnpm-lock.yaml', 'yarn.lock') != '' || hashFiles('package.json') != '' }}
         run: |
           npm install --no-audit --no-fund
@@ -172,8 +172,8 @@ jobs:
         env:
           LHCI_BUILD_CONTEXT__CURRENT_HASH: github-actions
         run: |
-          npx --yes @lhci/cli@latest collect --config=.lighthouserc.json --output-dir=.lighthouseci
-          npx --yes @lhci/cli@latest assert  --config=.lighthouserc.json --output-dir=.lighthouseci
+          npx --yes @lhci/cli@latest autorun --config=.lighthouserc.json --output-dir=.lighthouseci
+          npx --yes @lhci/cli@latest upload  --config=.lighthouserc.json --output-dir=.lighthouseci
 
       - name: Validate LHCI output (must NOT be empty)
         run: |
@@ -222,6 +222,39 @@ jobs:
               body: `🔎 Lighthouse CI completed\n\n📦 [Artifacts](${artifactUrl})`
             });
 
+  audit:
+    needs: build
+    continue-on-error: true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          check-latest: true
+          cache: 'npm'
+
+      - name: Install Node.js deps (if present)
+        if: ${{ hashFiles('package-lock.json', 'pnpm-lock.yaml', 'yarn.lock') != '' || hashFiles('package.json') != '' }}
+        run: |
+          npm install --no-audit --no-fund
+
+      - name: Run a11y audit scripts
+        run: |
+          chmod +x tools/a11y-audit.sh || true
+          ./tools/a11y-audit.sh docs a11y-findings || true
+
+      - name: Upload a11y findings
+        uses: actions/upload-artifact@v4
+        with:
+          name: a11y-findings
+          path: a11y-findings/
+          if-no-files-found: error
+          retention-days: 5
+          include-hidden-files: true
+
   security:
     needs: build
     continue-on-error: true
@@ -239,6 +272,7 @@ jobs:
           fail-on-severity: moderate
 
       - name: Comment result on PR
+        if: github.event_name == 'pull_request'
         uses: actions/github-script@v8
         with:
           result-encoding: string
@@ -295,7 +329,7 @@ jobs:
               `- Best Practices: **${bp || 'n/a'}**`,
               `- SEO: **${seo || 'n/a'}**`,
               "",
-              `### Artifacts`,
+              "### Artifacts",
               `- ${runUrl}`
             ];
             await github.rest.issues.createComment({
