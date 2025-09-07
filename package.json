@@ -27,19 +27,21 @@
   },
   "scripts": {
     "test": "prettier -c overrides/** package.json README.md && tsc -p .",
-    "changelog": "conventional-changelog --config ./build/changelog-generator/index.cjs --infile changelog.md --same-file",
+    "changelog": "conventional-changelog -p conventionalcommits --config ./build/changelog-generator/index.cjs --infile changelog.md --same-file",
+    "changelog:version": "conventional-changelog [patch|minor|major] -p conventionalcommits --infile CHANGELOG.md --same-file && git add CHANGELOG.md",
     "clean": "rm -r dist proto/scripts/*.json proto/scripts/*_pb2.* proto/scripts/*_pb.* proto/scripts/__pycache__ proto/scripts/*.pyc *.report.html *.report.dom.html *.report.json *.devtoolslog.json || true"
   },
   "dependencies": {
     "@actions/artifact": "latest",
     "@lhci/cli": "latest",
-    "http-server": "latest",
-    "serve": "latest",
-    "puppeteer": "latest",
-    "markdownlint-cli": "latest",
     "autoprefixer": "latest",
     "browserslist": "latest",
-    "browserslist-config-baseline": "latest"
+    "browserslist-config-baseline": "latest",
+    "conventional-changelog": "latest",
+    "http-server": "latest",
+    "markdownlint-cli": "latest",
+    "puppeteer": "latest",
+    "serve": "latest"
   },
   "engines": {
     "node": ">=24",
