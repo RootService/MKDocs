@@ -231,7 +231,7 @@ jobs:
 
   security:
     needs: lighthouse
-    if: ${{ always() }}
+    if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
     steps:
     - name: Checkout

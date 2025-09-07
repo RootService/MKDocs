@@ -1,7 +1,6 @@
 module.exports = {
   ci: {
     collect: {
-//      startServerCommand: "npx serve ./site --listen tcp://0.0.0.0:8000 --single --no-clipboard",
       url: ["http://localhost:8000"],
       isSinglePageApplication: false,
       puppeteerScript: ".puppeteerScript.js",
@@ -26,31 +25,31 @@ module.exports = {
       output: ["html", "json"],
       outputPath: ".lighthouseci/"
     },
-    // assert: {
-      // preset: "lighthouse:recommended",
-      // assertions: {
-        // "categories:performance": ["error", { minScore: 0.9 }],
-        // "categories:accessibility": ["error", { minScore: 0.9 }],
-        // "categories:best-practices": ["error", { minScore: 0.9 }],
-        // "categories:seo": ["error", { minScore: 0.9 }],
-        // "color-contrast": "error",
-        // "aria-valid-attr": "error",
-        // "aria-roles": "error",
-        // "aria-required-attr": "error",
-        // "aria-valid-attr-value": "error",
-        // "aria-allowed-role": "error",
-        // "content-width": ["warn", { "minScore": 0 }],
-        // "render-blocking-resources": ["warn", { "numericValue": 0 }],
-        // "uses-rel-preconnect": ["warn", { "numericValue": 0 }],
-        // "maskable-icon": ["warn", { "minScore": 0.9 }],
-        // "csp-xss": ["warn", { "minScore": 0 }],
-        // "bf-cache": ["warn", { "minScore": 0 }],
-        // "total-byte-weight": ["warn", { "minScore": 0 }],
-        // "target-size": ["warn", { "minScore": 0 }],
-        // "network-dependency-tree-insight": ["warn", { "minScore": 0 }]
-      // },
-      // includePassedAssertions: true,
-    // },
+    assert: {
+      preset: "lighthouse:recommended",
+      assertions: {
+        "categories:performance": ["error", { minScore: 0.9 }],
+        "categories:accessibility": ["error", { minScore: 0.9 }],
+        "categories:best-practices": ["error", { minScore: 0.9 }],
+        "categories:seo": ["error", { minScore: 0.9 }],
+        "color-contrast": "error",
+        "aria-valid-attr": "error",
+        "aria-roles": "error",
+        "aria-required-attr": "error",
+        "aria-valid-attr-value": "error",
+        "aria-allowed-role": "error",
+        "content-width": ["warn", { "minScore": 0 }],
+        "render-blocking-resources": ["warn", { "numericValue": 0 }],
+        "uses-rel-preconnect": ["warn", { "numericValue": 0 }],
+        "maskable-icon": ["warn", { "minScore": 0.9 }],
+        "csp-xss": ["warn", { "minScore": 0 }],
+        "bf-cache": ["warn", { "minScore": 0 }],
+        "total-byte-weight": ["warn", { "minScore": 0 }],
+        "target-size": ["warn", { "minScore": 0 }],
+        "network-dependency-tree-insight": ["warn", { "minScore": 0 }]
+      },
+      includePassedAssertions: true,
+    },
     upload: {
       target: "filesystem",
       outputDir: ".lighthouseci/"
