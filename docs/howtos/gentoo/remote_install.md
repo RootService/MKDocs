@@ -892,6 +892,6 @@ dispatch-conf
 
 ## Wie geht es weiter?
 
-Natürlich mit der [Certificate Authority](/howtos/gentoo/certificate_authority/).
+Natürlich mit der [Hosting System](/howtos/gentoo/hosting_system.md).
 
 Viel Spass mit dem neuen Gentoo Basissystem.
