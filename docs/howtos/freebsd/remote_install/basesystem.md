@@ -25,7 +25,6 @@ hide: []
 search:
   exclude: false
 ---
-# BaseSystem
 
 ## Einleitung
 

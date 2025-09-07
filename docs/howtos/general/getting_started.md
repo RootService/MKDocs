@@ -25,7 +25,6 @@ hide: []
 search:
   exclude: false
 ---
-# Pro und Contra dedizierter Server
 
 ## Einleitung
 

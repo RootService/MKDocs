@@ -26,7 +26,6 @@ hide:
 search:
   exclude: true
 ---
-# Nutzungsbedingungen
 
 ## Einleitung
 

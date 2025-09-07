@@ -26,7 +26,6 @@ hide: []
 search:
   exclude: false
 ---
-# Certificate Authority
 
 ## Einleitung
 

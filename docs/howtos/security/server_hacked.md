@@ -25,7 +25,6 @@ hide: []
 search:
   exclude: false
 ---
-# Vorgehensweise bei gehacktem Server
 
 ## Einleitung
 

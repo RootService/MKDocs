@@ -26,6 +26,5 @@ hide:
 search:
   exclude: false
 ---
-# RootService
 
 Wir bieten Service, Support, HowTos und andere nützliche Informationen rund um die Administration von FreeBSD und Linux basierten Servern.

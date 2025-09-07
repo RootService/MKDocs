@@ -26,7 +26,6 @@ hide:
 search:
   exclude: true
 ---
-# Impressum
 
 ## Verantwortlich für dieses Angebot gemäss § 5 TMG / § 18 MStV
 

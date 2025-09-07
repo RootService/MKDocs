@@ -26,4 +26,3 @@ hide:
 search:
   exclude: true
 ---
-# Kontakt
