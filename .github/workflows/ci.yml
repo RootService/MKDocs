@@ -171,7 +171,7 @@ jobs:
 
       - name: Serve site
         run: |
-          npx http-server ./site -p 8080 &
+          npx http-server ./site -p 8000 &
           echo $! > httpserver.pid
           sleep 2
 #          npx --yes serve ./site --listen tcp://0.0.0.0:8000 --single --no-clipboard > server.log 2>&1 &
@@ -186,7 +186,7 @@ jobs:
           if [ -n "$cfg" ]; then
             npx --yes lhci autorun --rc-file "$cfg"
           else
-            npx --yes lhci autorun --collect.staticDistDir=./site --collect.url=http://localhost:8080/
+            npx --yes lhci autorun --collect.staticDistDir=./site --collect.url=http://localhost:8000/
           fi
 
       - name: Stop server
