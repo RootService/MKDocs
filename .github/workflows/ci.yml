@@ -154,10 +154,14 @@ jobs:
         run: |
           test -d site || { echo "Missing site/; build step failed"; exit 1; }
           npx --yes serve ./site --listen tcp://0.0.0.0:8000 --single --no-clipboard > server.log 2>&1 &
-          for i in {1..30}; do
-            if curl -fsS http://localhost:8000 >/dev/null; then break; fi
+          ok=0
+          +for i in {1..30}; do
+            if curl -fsS http://localhost:8000 >/dev/null; then ok=1; break; fi
             sleep 1
           done
+          if [ "$ok" -ne 1 ]; then
+            echo "server not ready after 30s"; tail -n 200 server.log || true; exit 1
+          fi
 
       - name: Run Lighthouse CI
         env:
