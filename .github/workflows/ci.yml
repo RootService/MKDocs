@@ -152,8 +152,8 @@ jobs:
         LHCI_BUILD_CONTEXT__CURRENT_HASH: github-actions
       run: |
         npx lhci autorun --config=.lighthouserc.js --output-dir=.lighthouseci
-        npx lhci collect --config=.lighthouserc.js --output-dir=.lighthouseci
-        npx lhci upload --config=.lighthouserc.js --output-dir=.lighthouseci
+        # npx lhci collect --config=.lighthouserc.js --output-dir=.lighthouseci
+        # npx lhci upload --config=.lighthouserc.js --output-dir=.lighthouseci
 
     - name: Extract Scores
       id: scores
@@ -191,7 +191,7 @@ jobs:
         fi
 
     - name: Comment Lighthouse result on PR
-      if: ${{ github.event_name == 'pull_request' }}
+      # if: ${{ github.event_name == 'pull_request' }}
       uses: actions/github-script@v8
       env:
         TITLE: ${{ github.event.pull_request.title }}
