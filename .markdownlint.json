@@ -15,7 +15,7 @@
   "MD010": true,
   "MD012": true,
   "MD013": {
-    "line_length": 120,
+    "line_length": false,
     "code_blocks": false,
     "tables": false,
     "headings": false
@@ -49,6 +49,7 @@
       "img",
       "details",
       "summary",
+      "address",
       "kbd",
       "sup",
       "sub",
@@ -68,7 +69,10 @@
   "MD042": true,
   "MD043": false,
   "MD046": {
-    "style": "fenced"
+    "style": [
+      "fenced",
+      "indented"
+    ]
   },
   "MD048": {
     "style": "backtick"
