@@ -184,18 +184,15 @@ jobs:
         run: |
           if [ -f .lighthouserc.json ]; then cfg=".lighthouserc.json"; else cfg=""; fi
           if [ -n "$cfg" ]; then
-            lhci autorun --rc-file "$cfg"
+            npx --yes lhci autorun --rc-file "$cfg"
           else
-            lhci autorun --collect.staticDistDir=./site --collect.url=http://localhost:8080/
+            npx --yes lhci autorun --collect.staticDistDir=./site --collect.url=http://localhost:8080/
           fi
 
       - name: Stop server
         if: always()
         run: |
           if [ -f httpserver.pid ]; then kill $(cat httpserver.pid) || true; fi
-
-
-
 
       - name: Validate LHCI output (must NOT be empty)
         run: |
