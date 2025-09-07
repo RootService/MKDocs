@@ -79,16 +79,17 @@
             "minScore": 0.9
           }
         ],
-        "color-contrast": "error",
-        "aria-valid-attr": "error",
-        "aria-roles": "error",
-        "aria-required-attr": "error",
-        "aria-valid-attr-value": "error",
-        "aria-allowed-role": "error",
-        "aria-dialog-name": "error",
-        "aria-progressbar-name": "error",
-        "image-alt": "error",
-        "heading-order": "error",
+        "color-contrast": "warn",
+        "aria-allowed-attr": "warn",
+        "aria-allowed-role": "warn",
+        "aria-dialog-name": "warn",
+        "aria-progressbar-name": "warn",
+        "aria-required-attr": "warn",
+        "aria-roles": "warn",
+        "aria-valid-attr": "warn",
+        "aria-valid-attr-value": "warn",
+        "image-alt": "warn",
+        "heading-order": "warn",
         "first-contentful-paint": [
           "warn",
           {

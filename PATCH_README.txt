@@ -1,3 +1,18 @@
+CI+A11Y Patch — 2025-09-07
+
+Enthält:
+- ci_steps/serve_site.yml, ci_steps/run_lhci.yml
+- .lighthouserc.relaxed.json (optional)
+- snippets/aria-dialog.html, snippets/aria-progressbar.html, snippets/alt-examples.md, snippets/heading-guidelines.md
+- tools/a11y-audit.sh
+
+Anwendung:
+1) In `.github/workflows/ci.yml` die beiden Steps ersetzen (Serve + Run Lighthouse CI).
+2) Optional `.lighthouserc.relaxed.json` vorübergehend als `.lighthouserc.json` nutzen.
+3) A11Y: Snippets übernehmen, ALT/Headings korrigieren, `tools/a11y-audit.sh` ausführen.
+
+
+
 Combined Patch — 2025-09-07
 
 Includes:
