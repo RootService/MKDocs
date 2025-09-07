@@ -139,6 +139,11 @@ jobs:
           check-latest: true
           cache: 'npm'
 
+      - name: Install MkDocs deps (if present)
+        if: ${{ hashFiles('package-lock.json', 'pnpm-lock.yaml', 'yarn.lock') != '' || hashFiles('package.json') != '' }}
+        run: |
+          npm install --no-audit --no-fund
+
       - name: Download site artifact
         uses: actions/download-artifact@v5
         with:
@@ -155,7 +160,7 @@ jobs:
           test -d site || { echo "Missing site/; build step failed"; exit 1; }
           npx --yes serve ./site --listen tcp://0.0.0.0:8000 --single --no-clipboard > server.log 2>&1 &
           ok=0
-          +for i in {1..30}; do
+          for i in $(seq 1 30); do
             if curl -fsS http://localhost:8000 >/dev/null; then ok=1; break; fi
             sleep 1
           done
