@@ -348,13 +348,13 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: pr.number,
-              body: `📊 **Workflow Summary**
+              body: "`📊 **Workflow Summary**
 
-- ${statusEmoji(ciStatus)} CI: **${ciStatus}** (⏱️ ${ciDur} min) → [Run](${ciUrl})
-- ${statusEmoji(lhStatus)} Lighthouse: **${lhStatus}** (⏱️ ${lhDur} min) → [Results](${lhUrl})
-- ${statusEmoji(secStatus)} Security: **${secStatus}** (⏱️ ${secDur} min) → [Results](${secUrl})
+              - ${statusEmoji(ciStatus)} CI: **${ciStatus}** (⏱️ ${ciDur} min) → [Run](${ciUrl})
+              - ${statusEmoji(lhStatus)} Lighthouse: **${lhStatus}** (⏱️ ${lhDur} min) → [Results](${lhUrl})
+              - ${statusEmoji(secStatus)} Security: **${secStatus}** (⏱️ ${secDur} min) → [Results](${secUrl})
 
-⏱️ **Total Duration:** ${total} min`
+              ⏱️ **Total Duration:** ${total} min`"
             });
           }
 
