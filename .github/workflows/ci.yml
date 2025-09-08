@@ -15,10 +15,9 @@ env:
   name: mkdocs
   CI: true
   LOG_TAIL_LINES: 500
-  PIP_REQUIRE_VIRTUALENV: true
+  # PIP_REQUIRE_VIRTUALENV: true
   TAG_PREFIX: RootService/MKDocs
   CHROME_PATH: /usr/bin/google-chrome
-
 
 jobs:
   build:
@@ -45,8 +44,8 @@ jobs:
           cache: 'pip'
 
       - run: |
-          python -m venv ".venv"
-          source ".venv/bin/activate"
+          # python -m venv ".venv"
+          # source ".venv/bin/activate"
           pip install --upgrade -e ".[recommended]"
           pip install --upgrade nodeenv
 
