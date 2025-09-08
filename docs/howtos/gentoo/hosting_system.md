@@ -38,7 +38,7 @@ search:
     Die Verwendung dieses HowTo geschieht somit auf eigene Gefahr!
 <!-- markdownlint-enable MD046 -->
 
-Dieses HowTo setzt ein wie in [Remote Installation](/howtos/gentoo/remote_install/) beschriebenes, installiertes und
+Dieses HowTo setzt ein wie in [Remote Installation](remote_install.md) beschriebenes, installiertes und
 konfiguriertes Gentoo Linux Basissystem voraus.
 
 Folgende Punkte sind in diesem HowTo zu beachten:
@@ -70,7 +70,7 @@ Desweiteren werden wir folgende Applikationen installieren:
 
 ### OpenSSL konfigurieren
 
-Sofern noch nicht während der [Remote Installation](/howtos/gentoo/remote_install/) erledigt, müssen folgende Optionen
+Sofern noch nicht während der [Remote Installation](remote_install.md) erledigt, müssen folgende Optionen
 in der `/etc/ssl/openssl.cnf` im Abschnitt `[ req_distinguished_name ]` angepasst werden:
 
 ```text
@@ -86,7 +86,7 @@ emailAddress_default            = admin@example.com
 
 ### OpenSSL CA
 
-Sofern noch nicht während der [Remote Installation](/howtos/gentoo/remote_install/) erledigt, wird als Nächstes ein
+Sofern noch nicht während der [Remote Installation](remote_install.md) erledigt, wird als Nächstes ein
 eigenes CA Zertifikat erstellt und selbst signiert. Hierzu werden jeweils die Default-Werte übernommen und sehr sichere
 Passworte gewählt. Die Option `A challenge password` sollte jedoch leer gelassen werden, andernfalls kann es zu
 Problemen mit einigen Diensten kommen:

@@ -46,7 +46,7 @@ Zu den Voraussetzungen für dieses HowTo siehe bitte: [Remote Installation](intr
 
 ## RescueSystem booten
 
-Um unser [mfsBSD Image](/howtos/freebsd/mfsbsd_image/) installieren zu können, müssen wir unsere virtuelle Maschine mit
+Um unser [mfsBSD Image](../mfsbsd_image.md) installieren zu können, müssen wir unsere virtuelle Maschine mit
 einem RescueSystem booten. Hierfür eignet sich die auf [Arch Linux](https://www.archlinux.org/){: target="_blank" rel="noopener"}
 basierende [SystemRescueCD](https://www.system-rescue.org/){: target="_blank" rel="noopener"} am Besten, welche wir
 mittels des mit Windows mitgelieferten cURL-Client herunterladen und unserer virtuellen Maschine als Bootmedium zuweisen.
@@ -98,7 +98,7 @@ putty -ssh -P 2222 root@127.0.0.1
 ## mfsBSD installieren
 
 Um unsere umfangreichen Vorbereitungen nun abzuschliessen, müssen wir nur noch unser [mfsBSD
-Image](/howtos/freebsd/mfsbsd_image/) installieren und booten.
+Image](../mfsbsd_image.md) installieren und booten.
 
 Als Erstes kopieren wir mittels PuTTYs SCP-Client (`pscp`) das mfsBSD Image in das RescueSystem.
 

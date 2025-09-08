@@ -80,7 +80,7 @@ Folgende Punkte sind in allen folgenden HowTos zu beachten.
 
 ## Voraussetzungen
 
-Die Installation des FreeBSD BaseSystem setzt ein wie in [mfsBSD Image](/howtos/freebsd/mfsbsd_image/) beschriebenes,
+Die Installation des FreeBSD BaseSystem setzt ein wie in [mfsBSD Image](../mfsbsd_image.md) beschriebenes,
 bereits fertig erstelltes mfsBSD Image voraus.
 
 ## DNS Records
