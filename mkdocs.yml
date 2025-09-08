@@ -227,12 +227,12 @@ markdown_extensions:
   - tables
   - toc:
       permalink: "⚓︎"
-#      permalink: "🔗"
       permalink_title: Anchor link to this section for reference
       slugify: !!python/object/apply:pymdownx.slugs.slugify {}
         kwds:
           case: lower
       toc_depth: 3
+#      permalink: "🔗"
   - pymdownx.betterem:
       smart_enable: all
   - pymdownx.blocks.caption
