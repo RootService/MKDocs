@@ -99,10 +99,10 @@
     },
     "MD051": true,
     "MD053": true
-  }
+  },
 
   // Optional: Front-Matter-Freistellung, falls nötig
-  "frontMatter": "(^---\\s*$[^]*?^---\\s*$)(\\r\\n|\\r|\\n|$)",
+  "frontMatter": "(^---\\s*$[^]*?^---\\s*$)(\\r\\n|\\r|\\n|$)"
 
   // Optional: JUnit-Report für CI
   // "outputFormatters": [
