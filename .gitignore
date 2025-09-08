@@ -1,45 +1,46 @@
-# OS cruft
-.DS_Store
-Thumbs.db
-
-# Editors
-*.swp
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-debug.log*
 
 # Python
+.venv*/
 __pycache__/
 *.py[cod]
 *.pyo
-*.pyd
-*.pdb
-*.egg-info/
-.eggs/
-*_pb2.*
-*_pb.*
-*_processed.json
 .pytest_cache/
-
-# Virtual environments
-.venv/
-env/
-venv/
-ENV/
-
-# Node
-node_modules/
-npm-debug.log
-yarn-error.log
-yarn.lock
-closure-error.log
+.mypy_cache/
+.tox/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+dist/
+build/
 
 # MkDocs
-.cache/
 site/
-dist/
-lighthouse-report/
 .lighthouseci/
+lighthouse-report/
+.cache/
+.mkdocs-cache/
 *.log
 
-# IDEs & Editors
-.vscode/
+# OS
+.DS_Store
+Thumbs.db
+Icon?
+ehthumbs.db
+
+# Editors
 .idea/
-.bin/
+.vscode/
+*.code-workspace
+*.swp
+*.swo
+
+# Env / secrets (keep local)
+.env
+.env.*
