@@ -45,8 +45,6 @@ jobs:
           cache: 'pip'
 
       - run: |
-          python -m venv venv
-          source venv/bin/activate
           pip install --upgrade -e ".[recommended]"
           pip install --upgrade nodeenv
 
