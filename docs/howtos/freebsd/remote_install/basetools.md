@@ -412,12 +412,14 @@ Beschreibung unter `/usr/ports/sysutils/smartmontools/pkg-descr` finden.
 
 ## Software updaten
 
+<!-- markdownlint-disable MD046 -->
 ???+ important
 
     Da wir die Pakete/Ports nicht als vorkompilierte Binary-Pakete installieren sondern selbst kompilieren, müssen wir
 natürlich auch die Updates der Ports selbst kompilieren. Um uns das dazu notwendige Auflösen der Abhängigkeiten und
 etwas Tipparbeit zu ersparen, überlassen wir dies künftig einfach einem kleinen Shell-Script. Dieses Script können wir
 einfach mittels `update-ports` ausführen und es erledigt dann folgende Arbeiten für uns:
+<!-- markdownlint-enable MD046 -->
 
 - Aktualisieren des Portstree mittels `git`
 - Anzeigen neuer Einträge in `/usr/ports/UPDATING`

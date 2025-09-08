@@ -771,9 +771,11 @@ EOF
 
 `mysql_*_maps.cf` einrichten:
 
+<!-- markdownlint-disable MD046 -->
 ???+ note
 
     Bitte jeweils das gleiche Passwort wie in der `dovecot-sql.conf` aus der Dovecot Konfiguration verwenden.
+<!-- markdownlint-enable MD046 -->
 
 ```shell
 mkdir -p /etc/postfix/sql

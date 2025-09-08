@@ -63,11 +63,13 @@ su - root
 
 ## Software installieren
 
+<!-- markdownlint-disable MD046 -->
 ???+ important
 
     An diesem Punkt müssen wir uns entscheiden, ob wir die Pakete/Ports in Zukunft bequem als vorkompiliertes
 Binary-Paket per `pkg install <category/portname>` mit den Default-Optionen installieren wollen oder ob wir die
 Optionen und somit auch den Funktionsumfang beziehungsweise die Features unserer Pakete/Ports selbst bestimmen wollen.
+<!-- markdownlint-enable MD046 -->
 
 In diesem HowTo werden wir uns für die zweite Variante entscheiden, da uns dies viele Probleme durch unnötige oder
 fehlende Features und Abhängigkeiten ersparen wird. Andererseits verlieren wir dadurch den Komfort von `pkg` bei der

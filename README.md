@@ -1,5 +1,6 @@
 # MkDocs Documentation Project
 
+<!-- markdownlint-disable MD034 -->
 ![CI](https://github.com/RootService/MKDocs/actions/workflows/ci.yml/badge.svg)
 ![Lighthouse](https://github.com/RootService/MKDocs/actions/workflows/ci.yml/badge.svg?event=push)
 ![Release](https://github.com/RootService/MKDocs/actions/workflows/release.yml/badge.svg)
@@ -8,6 +9,7 @@
 ![Release]
 
 (https://github.com/RootService/MKDocs/actions/workflows/release.yml/badge.svg)
+<!-- markdownlint-enable MD034 -->
 
 ## Überblick
 
