@@ -1,3 +1,7 @@
+.md-grid {
+  max-width: 1440px;
+}
+
 /* ==========================================================================
    Material for MkDocs — Magenta/Pink glossy theme
    Order: Reset → Accessibility → Motion → Tokens → Layout → Components → Code → Utilities → Media

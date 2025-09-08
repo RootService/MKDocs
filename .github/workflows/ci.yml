@@ -13,9 +13,12 @@ permissions:
 
 env:
   name: mkdocs
+  CI: true
   LOG_TAIL_LINES: 500
-  CHROME_PATH: /usr/bin/google-chrome
+  PIP_REQUIRE_VIRTUALENV: true
   TAG_PREFIX: RootService/MKDocs
+  CHROME_PATH: /usr/bin/google-chrome
+
 
 jobs:
   build:
@@ -29,12 +32,25 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Configure Git Credentials
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
           python-version: '3.11'
           check-latest: true
           cache: 'pip'
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install --upgrade --force-reinstall -e ".[recommended]"
+          pip install --upgrade --force-reinstall nodeenv
+
+      - run: |
+          echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
 
       - name: Cache pip
         uses: actions/cache@v4
@@ -45,9 +61,9 @@ jobs:
 
       - name: Install deps
         run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          pip install mkdocs mkdocs-material
+          python -m pip install --upgrade --force-reinstall pip
+          if [ -f requirements.txt ]; then pip install --upgrade --force-reinstall -r requirements.txt; fi
+          pip install --upgrade --force-reinstall mkdocs mkdocs-material
 
       - name: Lint Markdown (markdownlint-cli2)
         continue-on-error: true
@@ -65,6 +81,7 @@ jobs:
           set -euo pipefail
           if [ -f mkdocs.yml ]; then
             mkdocs build --clean 2>&1 | tee build.log
+            mkdocs gh-deploy --force 2>&1 | tee deploy.log
           else
             echo "mkdocs.yml missing"; exit 1
           fi
@@ -88,11 +105,28 @@ jobs:
           retention-days: 5
           include-hidden-files: true
 
-      - name: Extract last log lines
+      - name: Upload deploy log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-log
+          path: deploy.log
+          if-no-files-found: warn
+          retention-days: 5
+          include-hidden-files: true
+
+     - name: Extract last log lines
         if: failure() && hashFiles('build.log') != ''
         id: log_tail
         run: |
-          tail -n "$LOG_TAIL_LINES" build.log > log_tail.txt
+          echo "============================="  > log_tail.txt
+          echo "======== build.log ==========" >> log_tail.txt
+          echo "=============================" >> log_tail.txt
+          tail -n "$LOG_TAIL_LINES" build.log  >> log_tail.txt
+          echo "=============================" >> log_tail.txt
+          echo "======== deploy.log =========" >> log_tail.txt
+          echo "=============================" >> log_tail.txt
+          tail -n "$LOG_TAIL_LINES" deploy.log >> log_tail.txt
           {
             echo 'log<<EOF'
             cat log_tail.txt
@@ -158,6 +192,7 @@ jobs:
       - name: Install Node.js deps (if present)
         if: ${{ hashFiles('package-lock.json', 'pnpm-lock.yaml', 'yarn.lock') != '' || hashFiles('package.json') != '' }}
         run: |
+          nodeenv -p -n lts
           npm install --no-audit --no-fund
 
       - name: Download site artifact

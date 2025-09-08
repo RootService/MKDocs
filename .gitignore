@@ -34,13 +34,21 @@ Thumbs.db
 Icon?
 ehthumbs.db
 
-# Editors
+# IDEs & Editors
 .idea/
 .vscode/
 *.code-workspace
 *.swp
 *.swo
+*~
 
 # Env / secrets (keep local)
 .env
 .env.*
+
+# Never ignore .gitkeep files
+!**/.gitkeep
+
+# Temporary files
+TODO
+tmp
