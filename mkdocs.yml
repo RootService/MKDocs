@@ -259,7 +259,7 @@ markdown_extensions:
       pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.keys:
-      separator: "\uff0b"
+      separator: "＋"
       strict: true
   - pymdownx.magiclink:
       repo_url_shortener: true
