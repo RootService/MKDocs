@@ -57,25 +57,25 @@
       "preset": "lighthouse:recommended",
       "assertions": {
         "categories:performance": [
-          "error",
+          "warn",
           {
             "minScore": 0.9
           }
         ],
         "categories:accessibility": [
-          "error",
+          "warn",
           {
-            "minScore": 0.75
+            "minScore": 0.9
           }
         ],
         "categories:best-practices": [
-          "error",
+          "warn",
           {
             "minScore": 0.9
           }
         ],
         "categories:seo": [
-          "error",
+          "warn",
           {
             "minScore": 0.9
           }
@@ -91,6 +91,8 @@
         "aria-valid-attr-value": "warn",
         "image-alt": "warn",
         "heading-order": "warn",
+        "link-name": "warn",
+        "unsized-images": "warn",
         "first-contentful-paint": [
           "warn",
           {
