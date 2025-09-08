@@ -54,7 +54,7 @@ jobs:
       - name: Lint Markdown (markdownlint-cli2)
         continue-on-error: true
         run: |
-          if [ -f .markdownlint-cli2.jsonc ]; then cfg=".markdownlint-cli2.jsonc"; else cfg=".markdownlint.json"; fi
+          if [ -f .markdownlint-cli2.jsonc ]; then cfg=".markdownlint-cli2.jsonc"; else cfg=""; fi
           if [ -n "$cfg" ]; then
             npx --yes markdownlint-cli2 --config "$cfg"
           else

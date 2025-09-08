@@ -102,10 +102,10 @@
   },
 
   // Optional: Front-Matter-Freistellung, falls nötig
-  "frontMatter": "(^---\\s*$[^]*?^---\\s*$)(\\r\\n|\\r|\\n|$)",
+  "frontMatter": "(^---\\s*$[^]*?^---\\s*$)(\\r\\n|\\r|\\n|$)"
 
   // Optional: JUnit-Report für CI
-  "outputFormatters": [
-    ["markdownlint-cli2-formatter-junit", { "name": "markdownlint-junit.xml" }]
-  ]
+  // "outputFormatters": [
+    // ["markdownlint-cli2-formatter-junit", { "name": "markdownlint-junit.xml" }]
+  // ]
 }
