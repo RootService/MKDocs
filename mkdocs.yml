@@ -97,20 +97,20 @@ plugins:
       cards: true
       cards_layout_options:
         background_color: transparent
-  - group:
+  - git-revision-date-localized:
       enabled: !ENV [CI, false]
-      plugins:
-        - git-revision-date-localized:
-            enable_creation_date: true
-            type: datetime
-            timezone: Europe/Berlin
-            locale: de
-            fallback_to_build_date: true
-            enable_git_follow: false
-        - git-committers:
-            repository: RootService/MKDocs
-            branch: main
-#        - git-authors
+      enable_creation_date: true
+      type: datetime
+      timezone: Europe/Berlin
+      locale: de
+      fallback_to_build_date: true
+      enable_git_follow: false
+  - git-committers:
+      enabled: !ENV [CI, false]
+      repository: RootService/MKDocs
+      branch: main
+#  - git-authors
+#      enabled: !ENV [CI, false]
   - meta:
       meta_file: .meta.yml
   - tags:
