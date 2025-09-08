@@ -5,16 +5,16 @@
 ![Release](https://github.com/RootService/MKDocs/actions/workflows/release.yml/badge.svg)
 ![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 
-
-
 ![Release]
 
 (https://github.com/RootService/MKDocs/actions/workflows/release.yml/badge.svg)
 
 ## Überblick
+
 Dieses Projekt nutzt [MkDocs](https://www.mkdocs.org/), um Dokumentationen zu erstellen und automatisch über GitHub Pages bereitzustellen.
 
 ## Quickstart
+
 ```bash
 # Projekt klonen
 git clone https://github.com/RootService/MKDocs.git
@@ -25,13 +25,14 @@ pip install -r requirements.txt
 
 # Dokumentation lokal starten
 mkdocs serve
-
 ```
 
 ## Dokumentation
+
 Die vollständige Dokumentation findest du unter:  
 
 ## Lizenz
+
 Dieses Projekt steht unter der MIT-Lizenz. Siehe [LICENSE](LICENSE).
 
 ## Performance Report (Lighthouse)
@@ -43,12 +44,12 @@ Automatisierte Qualitätsprüfung der Dokumentation:
 - SEO Audit
 - Performance Audit
 
-
 ## Workflows
 
 Dieses Projekt nutzt GitHub Actions für Automatisierung.
 
 ### CI (`.github/workflows/ci.yml`)
+
 Wird bei Push und Pull Requests auf `main` ausgeführt sowie wöchentlich per Schedule.
 
 - **Build**  
@@ -69,6 +70,7 @@ Wird bei Push und Pull Requests auf `main` ausgeführt sowie wöchentlich per Sc
   - Lädt Report als Artefakt hoch
 
 ### Release (`.github/workflows/release.yml`)
+
 Automatisierte Releases mit `release-please`.
 
 ---
@@ -81,12 +83,10 @@ Dieses Projekt nutzt folgende Badges als Best-Practice:
 - **Release** → Status des Release-Prozesses (`release.yml`)
 - **License** → Hinweis auf die Projektlizenz
 
-
 ## Lighthouse Screenshots
 
 Bei jedem Run werden Screenshots im Verzeichnis `.lighthouse/screenshots` erzeugt und als Artefakt hochgeladen.  
 Diese beinhalten Dark-/Light-Mode-Ansichten und Performance-Reports im HTML-Format.
-
 
 ## Lighthouse Reports
 

@@ -137,4 +137,4 @@ Du hast es geschafft und kannst den Server wieder für den Normalbetrieb online 
 
 Wir hoffen, das wir Dir etwas weiterhelfen konnten.
 
-**Dein RootService Team**
+*Dein RootService Team*

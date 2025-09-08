@@ -116,7 +116,6 @@ sysrc spamd_flags="-c -u spamd -H /var/spool/spamd"
 
 Datenbanken installieren.
 
-
 ```shell
 cat <<'EOF' > /tmp/spamass_mail_bayes_shema.sql
 CREATE TABLE bayes_expire (

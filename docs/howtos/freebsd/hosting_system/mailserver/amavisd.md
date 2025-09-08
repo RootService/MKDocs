@@ -104,7 +104,6 @@ sysrc amavis_p0fanalyzer_p0f_filter="tcp dst port 25"
 
 Datenbanken installieren.
 
-
 ```shell
 mkdir -p /data/db/postgres
 
