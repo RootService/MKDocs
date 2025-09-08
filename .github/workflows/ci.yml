@@ -13,11 +13,9 @@ permissions:
 
 env:
   name: mkdocs
-  TAG_PREFIX: RootService/MKDocs
   LOG_TAIL_LINES: 500
   CHROME_PATH: /usr/bin/google-chrome
-  LIGHTHOUSE_THRESHOLD: '90'
-  SECURITY_THRESHOLD: '0'
+  TAG_PREFIX: RootService/MKDocs
 
 jobs:
   build:
