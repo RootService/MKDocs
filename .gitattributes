@@ -16,5 +16,19 @@
 *.jpg binary
 *.jpeg binary
 *.gif binary
+*.svg binary
+*.webp binary
+*.ico binary
+*.pdf binary
 *.zip binary
-*.gz binary
+*.gz  binary
+*.7z  binary
+*.mp4 binary
+*.mp3 binary
+*.ogg binary
+
+# Do not include dev directories in archive exports
+/.cache  export-ignore
+/.github export-ignore
+/.vscode export-ignore
+/.idea   export-ignore

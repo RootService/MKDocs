@@ -1,3 +1,10 @@
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# Editors
+*.swp
+
 # Python
 __pycache__/
 *.py[cod]
@@ -9,7 +16,7 @@ __pycache__/
 *_pb2.*
 *_pb.*
 *_processed.json
-*.log
+.pytest_cache/
 
 # Virtual environments
 .venv/
@@ -28,32 +35,11 @@ closure-error.log
 .cache/
 site/
 dist/
+lighthouse-report/
+.lighthouseci/
+*.log
 
 # IDEs & Editors
-.DS_Store
 .vscode/
 .idea/
-*.swp
 .bin/
-
-# Coverage
-.coverage
-coverage/
-coverage.xml
-htmlcov/
-lcov.info
-.nyc_output
-*.lcov
-
-# action
-.lighthouseci/
-
-*.trace.json
-*.devtoolslog.json
-*.report.html
-*.report.dom.html
-*.report.json
-*.report.csv
-*.report.pretty
-*.artifacts.log
-*.ctc.json
