@@ -15,7 +15,6 @@ env:
   name: mkdocs
   CI: true
   LOG_TAIL_LINES: 500
-  # PIP_REQUIRE_VIRTUALENV: true
   TAG_PREFIX: RootService/MKDocs
   CHROME_PATH: /usr/bin/google-chrome
 
@@ -42,12 +41,6 @@ jobs:
           python-version: '3.11'
           check-latest: true
           cache: 'pip'
-
-      - run: |
-          python -m venv ".venv"
-          source ".venv/bin/activate"
-          pip install --upgrade -e ".[recommended]"
-          pip install --upgrade nodeenv
 
       - run: |
           echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
@@ -192,7 +185,6 @@ jobs:
       - name: Install Node.js deps (if present)
         if: ${{ hashFiles('package-lock.json', 'pnpm-lock.yaml', 'yarn.lock') != '' || hashFiles('package.json') != '' }}
         run: |
-          nodeenv -p -n lts
           npm install --no-audit --no-fund
 
       - name: Download site artifact
