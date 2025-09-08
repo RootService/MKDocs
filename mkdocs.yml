@@ -96,8 +96,6 @@ plugins:
   - privacy: {}
   - social:
       cards: true
-      cards_layout_options:
-        background_color: transparent
   - meta:
       meta_file: .meta.yml
   - tags:
