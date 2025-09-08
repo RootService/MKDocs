@@ -226,8 +226,8 @@ markdown_extensions:
       smart_quotes: false
   - tables
   - toc:
-      permalink: ⚓︎
-#      permalink: 🔗
+      permalink: "⚓︎"
+#      permalink: "🔗"
       permalink_title: Anchor link to this section for reference
       slugify: !!python/object/apply:pymdownx.slugs.slugify {}
         kwds:
