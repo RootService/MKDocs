@@ -1,5 +1,26 @@
 {% if config.theme.logo %}
-  <img src="{{ config.theme.logo | url }}" loading="eager" fetchpriority="high" decoding="async" alt="RootService">
+<picture>
+  <source type="image/avif"
+          srcset="/assets/images/rootservice_64.avif 64w,
+                  /assets/images/rootservice_128.avif 128w,
+                  /assets/images/rootservice_256.avif 256w,
+                  /assets/images/rootservice_512.avif 512w,
+                  /assets/images/rootservice_1024.avif 1024w,
+                  /assets/images/rootservice_2048.avif 2048w"
+          sizes="(max-width: 768px) 100vw, 512px">
+  <source type="image/webp"
+          srcset="/assets/images/rootservice_64.webp 64w,
+                  /assets/images/rootservice_128.webp 128w,
+                  /assets/images/rootservice_256.webp 256w,
+                  /assets/images/rootservice_512.webp 512w,
+                  /assets/images/rootservice_1024.webp 1024w,
+                  /assets/images/rootservice_2048.webp 2048w"
+          sizes="(max-width: 768px) 100vw, 512px">
+  <img src="/assets/images/rootservice_64.png"
+       alt="RootService Logo"
+       width="64" height="64"
+       loading="eager" fetchpriority="high" decoding="async" alt="RootService">
+</picture>
 
 {% else %}
   {% set icon = config.theme.icon.logo or "material/library" %}
