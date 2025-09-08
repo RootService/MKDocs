@@ -112,6 +112,7 @@ plugins:
       enable_git_follow: false
   - git-committers:
       enabled: !ENV [CI, false]
+      token: !ENV [GITHUB_TOKEN, ""]
       repository: RootService/MKDocs
       branch: main
 #  - git-authors

@@ -17,6 +17,7 @@ env:
   LOG_TAIL_LINES: 500
   TAG_PREFIX: RootService/MKDocs
   CHROME_PATH: /usr/bin/google-chrome
+  MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   build:
