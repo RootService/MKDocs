@@ -1,7 +1,7 @@
 {
-  "name": "mkdocs-lighthouse-tools",
+  "name": "MKDocs",
   "version": "1.0.1",
-  "description": "Node tooling for Lighthouse CI and Puppeteer in GitHub Actions.",
+  "description": "Node tooling for use in GitHub Actions.",
   "keywords": [
     "ci",
     "puppeteer",
@@ -16,7 +16,7 @@
   "files": [
     "site",
     "README.md",
-    "LICENSE"
+    "LICENSE.md"
   ],
   "directories": {
     "doc": "site"
@@ -28,8 +28,7 @@
   "scripts": {
     "test": "prettier -c overrides/** package.json README.md && tsc -p .",
     "changelog": "conventional-changelog -p conventionalcommits --config ./build/changelog-generator/index.cjs --infile changelog.md --same-file",
-    "changelog:version": "conventional-changelog [patch|minor|major] -p conventionalcommits --infile CHANGELOG.md --same-file && git add CHANGELOG.md",
-    "clean": "rm -r dist proto/scripts/*.json proto/scripts/*_pb2.* proto/scripts/*_pb.* proto/scripts/__pycache__ proto/scripts/*.pyc *.report.html *.report.dom.html *.report.json *.devtoolslog.json || true"
+    "changelog:version": "conventional-changelog [patch|minor|major] -p conventionalcommits --infile CHANGELOG.md --same-file && git add CHANGELOG.md"
   },
   "dependencies": {
     "@actions/artifact": "latest",
@@ -41,7 +40,8 @@
     "http-server": "latest",
     "markdownlint-cli2": "latest",
     "puppeteer": "latest",
-    "serve": "latest"
+    "serve": "latest",
+    "tmp": "latest"
   },
   "engines": {
     "node": ">=24",
