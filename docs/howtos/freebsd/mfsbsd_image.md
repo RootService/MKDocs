@@ -112,6 +112,7 @@ verfügbar sind.
 Aus diesem Grund werden wir, wenn der Bootvorgang abgeschlossen ist und wir den ersten Auswahldialog präsentiert
 bekommmen, "Shell" auswählen und bestätigen.
 
+<!-- markdownlint-disable MD046 -->
 ???+ hint
 
     Diese Shell nutzt das amerikanische Tastaturlayout, welches einige Tasten anders belegt als das deutsche
@@ -122,6 +123,7 @@ Tastaturlayout.
     ```shell
     /usr/sbin/kbdmap -K
     ```
+<!-- markdownlint-enable MD046 -->
 
 ## Minimalsystem installieren
 

@@ -38,6 +38,7 @@ Zu den Voraussetzungen für dieses HowTo siehe bitte: [Hosting System](/howtos/f
 
 ## Installation
 
+<!-- markdownlint-disable MD046 -->
 ???+ important
 
     Der Rest des HowTo ist derzeit nicht auf das Zusammenspiel mit NGinx abgestimmt, daher ist die Verwendung von
@@ -45,6 +46,7 @@ Apache aktuell zu bevorzugen. NGinx bietet zudem auch keinen wirklichen Mehrwert
 generell bevorzugt werden sollte. Die hier gezeigte Konfiguration ist nicht ausreichend getestet, enthält
 möglicherweise sicherheitsrelevante Fehler und ist daher vollkommen unsupportet. Die Verwendung von NGinx erfolgt daher
 ausschliesslich auf eigenes Risiko und ohne weitere Unterstützung durch dieses HowTo.
+<!-- markdownlint-enable MD046 -->
 
 Wir installieren `www/nginx` und dessen Abhängigkeiten.
 

@@ -142,6 +142,7 @@ Installation von FreeBSD beginnen können.
 putty -ssh -P 2222 root@127.0.0.1
 ```
 
+<!-- markdownlint-disable MD046 -->
 ???+ hint
 
     Diese Shell nutzt das amerikanische Tastaturlayout, welches einige Tasten anders belegt als das deutsche
@@ -152,6 +153,7 @@ Tastaturlayout.
     ```shell
     /usr/sbin/kbdmap -K
     ```
+<!-- markdownlint-enable MD046 -->
 
 Zunächst setzen wir die Systemzeit (CMOS clock) mittels `tzsetup` auf "UTC" (Universal Time Code).
 
@@ -902,11 +904,13 @@ Hinweise in dieser Datei sind aktueller und zutreffender als das Handbuch und so
 
 ### Vorbereitende Arbeiten
 
+<!-- markdownlint-disable MD046 -->
 ???+ hint
 
     Für die spätere Installation des neu kompilierten Basissystems darf `/tmp` nicht mit der Option `noexec` gemounted
 sein. Da zwischendrin noch mal ein Reboot erfolgt, können wir bei Bedarf bereits jetzt die entsprechende Zeile in der
 `fstab` anpassen, sofern vorhanden.
+<!-- markdownlint-enable MD046 -->
 
 Zunächst müssen eventuell vorhandene Object-Dateien im Verzeichnis `/usr/obj` gelöscht werden, damit `make` später
 wirklich das gesamte System neu erstellt.

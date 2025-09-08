@@ -30,11 +30,13 @@ search:
 
 ## Einleitung
 
+<!-- markdownlint-disable MD046 -->
 ???+ warning
 
     Dieses HowTo wird seit **2014-09-01** nicht mehr aktiv gepflegt und entspricht daher nicht mehr dem aktuellen Stand.
 
     Die Verwendung dieses HowTo geschieht somit auf eigene Gefahr!
+<!-- markdownlint-enable MD046 -->
 
 Dieses HowTo setzt ein wie in [Remote Installation](/howtos/gentoo/remote_install/) beschriebenes, installiertes und
 konfiguriertes Gentoo Linux Basissystem voraus.
@@ -129,12 +131,14 @@ cd
 MySQL unterstützt mehrere Engines, dieses HowTo beschränkt sich allerdings auf die Beiden am Häufigsten verwendeten:
 MyISAM und InnoDB. Werden weitere Engines benötigt, müssen die entsprechenden USE-Flags manuell gesetzt werden.
 
+<!-- markdownlint-disable MD046 -->
 ???+ note
 
     Sollen bereits existierende Datenbanken importiert werden, müssen diese, sofern noch nicht geschehen, zuvor nach
 UTF-8 konvertiert werden. Ist dies nicht möglich, weil beispielsweise eine Client-Applikation noch kein UTF-8
 ünterstützt, so ist in der folgenden `/etc/mysql/my.cnf` jeweils `utf8` durch `latin1` zu ersetzen. Desweiteren muss in
 diesem Fall für `dev-db/mysql` in der `/etc/portage/package.use` zusätzlich das USE-Flag `latin1` gesetzt werden.
+<!-- markdownlint-enable MD046 -->
 
 ### MySQL installieren
 
@@ -1718,9 +1722,11 @@ find /var/www/vhosts/ssl.example.com/data/postfixadmin -type f -print0 | xargs -
 
 Anlegen der Datenbank und der Datenbank-User:
 
+<!-- markdownlint-disable MD046 -->
 ???+ note
 
     Bitte jeweils das gleiche Passwort wie in der `dovecot-sql.conf` aus der Dovecot Konfiguration verwenden.
+<!-- markdownlint-enable MD046 -->
 
 ```shell
 mysql -uroot -p

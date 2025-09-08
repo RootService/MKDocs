@@ -196,4 +196,4 @@ Dir Dich Pro oder Contra dedizierter Server zu entscheiden.
 
 Wir hoffen, das wir Dir bei Deiner Entscheidung etwas weiterhelfen konnten.
 
-*Dein RootService Team*
+Dein RootService Team

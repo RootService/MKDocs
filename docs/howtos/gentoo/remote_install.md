@@ -28,11 +28,13 @@ search:
 
 ## Einleitung
 
+<!-- markdownlint-disable MD046 -->
 ???+ warning
 
     Dieses HowTo wird seit **2014-09-01** nicht mehr aktiv gepflegt und entspricht daher nicht mehr dem aktuellen Stand.
 
     Die Verwendung dieses HowTo geschieht somit auf eigene Gefahr!
+<!-- markdownlint-enable MD046 -->
 
 In diesem HowTo beschreibe ich step-by-step die Remote Installation von [Gentoo Linux
 Hardened](https://wiki.gentoo.org/wiki/Project:Hardened){: target="_blank" rel="noopener"} 64Bit auf einem dedizierten
@@ -427,11 +429,13 @@ Installationsvariante zwingend notwendig. Auch die Reihenfolge ist sehr wichtig,
 beziehungsweise instabil wird. Während dieses Vorgangs werden nur wenige Konfigurationsdateien automatisch
 aktualisiert, alle anderen müssen manuell mittels `dispatch-conf` aktualisiert werden.
 
+<!-- markdownlint-disable MD046 -->
 ???+ note
 
     Die folgenden Schritte sind nötig, da dieses HowTo eine angepasste Portage-Konfiguration verwendet und zudem seit
 dem Release des Stage3-Tarballs eventuell ein paar für diese Installationvariante wichtige Basispakete im Portage-Tree
 aktualisiert wurden.
+<!-- markdownlint-enable MD046 -->
 
 ```shell
 emerge portage portage-utils
