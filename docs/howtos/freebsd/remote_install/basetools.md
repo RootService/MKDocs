@@ -48,7 +48,7 @@ Unsere BaseTools werden am Ende folgende Dienste umfassen.
 
 ## Voraussetzungen
 
-Zu den Voraussetzungen für dieses HowTo siehe bitte: [Remote Installation](/howtos/freebsd/remote_install/intro)
+Zu den Voraussetzungen für dieses HowTo siehe bitte: [Remote Installation](intro.md)
 
 ## Einloggen und zu root werden
 

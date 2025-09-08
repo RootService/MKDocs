@@ -39,7 +39,7 @@
     "browserslist-config-baseline": "latest",
     "conventional-changelog": "latest",
     "http-server": "latest",
-    "markdownlint-cli": "latest",
+    "markdownlint-cli2": "latest",
     "puppeteer": "latest",
     "serve": "latest"
   },

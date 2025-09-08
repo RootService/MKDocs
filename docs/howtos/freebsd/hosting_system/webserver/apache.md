@@ -34,7 +34,7 @@ Unser Hosting System wird um folgende Dienste erweitert.
 
 ## Voraussetzungen
 
-Zu den Voraussetzungen für dieses HowTo siehe bitte: [Hosting System](/howtos/freebsd/hosting_system/intro)
+Zu den Voraussetzungen für dieses HowTo siehe bitte: [Hosting System](../intro.md)
 
 ## Installation
 

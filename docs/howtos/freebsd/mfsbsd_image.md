@@ -29,7 +29,7 @@ search:
 ## Einleitung
 
 In diesem HowTo beschreibe ich step-by-step das Erstellen eines [mfsBSD](https://mfsbsd.vx.sk/){: target="_blank" rel="noopener"}
-Images mit dem die [Remote Installation](/howtos/freebsd/remote_install/intro) von [FreeBSD 64Bit](https://www.freebsd.org/){: target="_blank" rel="noopener"}
+Images mit dem die [Remote Installation](remote_install/intro.md) von [FreeBSD 64Bit](https://www.freebsd.org/){: target="_blank" rel="noopener"}
 auf einem dedizierten Server durchgeführt werden kann.
 
 ## Das Referenzsystem

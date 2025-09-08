@@ -896,6 +896,6 @@ dispatch-conf
 
 ## Wie geht es weiter?
 
-Natürlich mit der [Hosting System](/howtos/gentoo/hosting_system.md).
+Natürlich mit der [Hosting System](hosting_system.md).
 
 Viel Spass mit dem neuen Gentoo Basissystem.

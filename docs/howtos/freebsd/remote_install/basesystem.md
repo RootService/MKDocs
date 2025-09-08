@@ -42,7 +42,7 @@ Unser BaseSystem wird folgende Dienste umfassen.
 
 ## Voraussetzungen
 
-Zu den Voraussetzungen für dieses HowTo siehe bitte: [Remote Installation](/howtos/freebsd/remote_install/intro)
+Zu den Voraussetzungen für dieses HowTo siehe bitte: [Remote Installation](intro.md)
 
 ## RescueSystem booten
 
