@@ -43,7 +43,8 @@ jobs:
           python-version: '3.11'
           check-latest: true
           cache: 'pip'
-        run: |
+
+      - run: |
           python -m venv venv
           source venv/bin/activate
           pip install --upgrade --force-reinstall -e ".[recommended]"
