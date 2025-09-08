@@ -115,7 +115,7 @@ jobs:
           retention-days: 5
           include-hidden-files: true
 
-     - name: Extract last log lines
+      - name: Extract last log lines
         if: failure() && hashFiles('build.log') != ''
         id: log_tail
         run: |
