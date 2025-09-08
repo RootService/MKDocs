@@ -2,6 +2,7 @@ site_name: RootService
 site_url: https://www.rootservice.org/
 site_description: Wir bieten Service, Support, HowTos und andere nützliche Informationen rund um die Administration von FreeBSD und Linux basierten Servern
 site_author: RootService Team
+#strict: true
 
 repo_name: RootService/MKDocs
 repo_url: https://github.com/RootService/MKDocs
@@ -34,7 +35,6 @@ theme:
         name: Switch to light mode
       primary: deep_purple
       accent: amber
-  nav_style: dark
   pygments_style: material
   pygments_dark_style: material
   font:
@@ -97,6 +97,12 @@ plugins:
       cards: true
       cards_layout_options:
         background_color: transparent
+  - meta:
+      meta_file: .meta.yml
+  - tags:
+      tags_slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
   - git-revision-date-localized:
       enabled: !ENV [CI, false]
       enable_creation_date: true
@@ -111,12 +117,6 @@ plugins:
       branch: main
 #  - git-authors
 #      enabled: !ENV [CI, false]
-  - meta:
-      meta_file: .meta.yml
-  - tags:
-      tags_slugify: !!python/object/apply:pymdownx.slugs.slugify
-        kwds:
-          case: lower
   - document-dates
   - glightbox:
       touchNavigation: true
@@ -170,14 +170,14 @@ extra:
     name: Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
     shortname: CC BY-NC-SA 4.0
     url: https://creativecommons.org/licenses/by-nc-sa/4.0/
-  view_url: https://raw.githubusercontent.com/RootService/MKDocs
+  view_url: https://raw.githubusercontent.com/RootService/MKDocs/main/docs
   paypal_url: https://www.paypal.me/JoeUser
   generator: false
   social:
-    - icon: fontawesome/solid/github
+    - icon: fontawesome/brands/github
       link: https://github.com/JoeUser78
       name: GitHub
-    - icon: fontawesome/solid/linkedin
+    - icon: fontawesome/brands/linkedin
       link: https://linkedin.com/in/MarkusKohlmeyer78
       name: LinkedIn
     - icon: fontawesome/solid/paper-plane
@@ -207,7 +207,7 @@ extra:
     description: >-
       We use cookies to recognize your repeated visits and preferences, as well
       as to measure the effectiveness of our documentation and whether users
-      find what they"re searching for. With your consent, you"re helping us to
+      find what they're searching for. With your consent, you're helping us to
       make our documentation better.
     actions:
       - manage
@@ -266,8 +266,8 @@ markdown_extensions:
       repo_url_shorthand: true
       social_url_shorthand: true
       social_url_shortener: true
-      user: JoeUser78
-      repo: RootService
+      user: RootService
+      repo: MKDocs
       normalize_issue_symbols: true
   - pymdownx.mark
   - pymdownx.progressbar
