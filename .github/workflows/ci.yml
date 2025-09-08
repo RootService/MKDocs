@@ -74,7 +74,11 @@ jobs:
           set -euo pipefail
           if [ -f mkdocs.yml ]; then
             mkdocs build --clean 2>&1 | tee build.log
-            mkdocs gh-deploy --force 2>&1 | tee deploy.log
+            build_rc=${PIPESTATUS[0]}
+            if [ $build_rc -eq 0 ]; then
+              mkdocs gh-deploy --force 2>&1 | tee deploy.log
+            fi
+            exit $build_rc
           else
             echo "mkdocs.yml missing"; exit 1
           fi
@@ -115,11 +119,12 @@ jobs:
           echo "============================="  > log_tail.txt
           echo "======== build.log ==========" >> log_tail.txt
           echo "=============================" >> log_tail.txt
+          [ -f build.log ] && tail -n "$LOG_TAIL_LINES" build.log >> log_tail.txt || true
           tail -n "$LOG_TAIL_LINES" build.log  >> log_tail.txt
           echo "=============================" >> log_tail.txt
           echo "======== deploy.log =========" >> log_tail.txt
           echo "=============================" >> log_tail.txt
-          tail -n "$LOG_TAIL_LINES" deploy.log >> log_tail.txt
+          [ -f deploy.log ] && tail -n "$LOG_TAIL_LINES" deploy.log >> log_tail.txt || true
           {
             echo 'log<<EOF'
             cat log_tail.txt

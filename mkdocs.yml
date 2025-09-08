@@ -78,7 +78,8 @@ theme:
     view: material/file-document-outline
     repo: material/github
     # admonition: material/
-    tag: material/tag-outline
+    tag:
+      default: material/tag-outline
     previous: material/arrow-left-bold-outline
     next: material/arrow-right-bold-outline
     paypal: rootservice/paypal
