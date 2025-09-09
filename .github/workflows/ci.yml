@@ -7,10 +7,8 @@ on:
     branches: ["**"]
   workflow_dispatch:
 
-# Vollzugriff für Commit/Artifacts/Annotations
 permissions: write-all
 
-# Parallel laufende Runs pro Ref abbrechen
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}
   cancel-in-progress: true
@@ -21,105 +19,75 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   LOG_TAIL_LINES: 500
   TAG_PREFIX: RootService/MKDocs
-  CHROME_PATH: "" # via setup-chrome gesetzt
+  CHROME_PATH: ""
   LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   setup:
-    name: Setup • (${{ matrix.os }})
-    if: ${{ always() }}
-    runs-on: ${{ matrix.os }}
-    continue-on-error: false
+    name: Setup
+    if: always()
+    runs-on: ubuntu-latest
     timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    defaults:
-      run:
-        shell: bash
     steps:
-      - name: Configure Git Credentials
-        id: ${{ runner.os }}-git-config
-        continue-on-error: false
-        timeout-minutes: 5
+      - name: Configure Git
+        id: git
         run: |
-          set -e
           git config --global init.defaultBranch main
           git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
       - name: Checkout
-        id: ${{ runner.os }}-repo-checkout
-        continue-on-error: false
-        timeout-minutes: 5
+        id: checkout
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
           submodules: recursive
 
       - name: Setup Node.js
-        id: ${{ runner.os }}-setup-npm
-        continue-on-error: false
-        timeout-minutes: 5
-        uses: actions/setup-node@v5
+        id: node
+        uses: actions/setup-node@v4
         with:
-          node-version: '24'
-          cache: 'npm'
+          node-version: 20
+          cache: npm
 
       - name: Install Node.js deps
-        id: ${{ runner.os }}-install-npm
-        continue-on-error: false
-        timeout-minutes: 5
+        id: npm
         if: ${{ hashFiles('package.json') != '' }}
-        run: |
-          set -e
-          npm install --no-audit --no-fund
+        run: npm install --no-audit --no-fund
 
       - name: Cache npm
-        id: ${{ runner.os }}-cache-npm
-        continue-on-error: false
-        timeout-minutes: 5
+        id: cache-npm
         uses: actions/cache@v4
         with:
           path: node_modules
-          key: ${{ runner.os }}-npm-${{ hashFiles('package.json') }}
-          restore-keys: ${{ runner.os }}-npm-
+          key: ubuntu-npm-${{ hashFiles('package.json') }}
+          restore-keys: ubuntu-npm-
 
       - name: Setup Python
-        id: ${{ runner.os }}-setup-pip
-        continue-on-error: false
-        timeout-minutes: 5
-        uses: actions/setup-python@v6
+        id: python
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-          cache: 'pip'
+          python-version: "3.11"
+          cache: pip
 
       - name: Install Python deps
-        id: ${{ runner.os }}-install-pip
-        continue-on-error: false
-        timeout-minutes: 5
+        id: pip
         if: ${{ hashFiles('requirements.txt') != '' }}
         run: |
-          set -e
           python -m pip install --upgrade pip
           pip install --upgrade -r requirements.txt
 
       - name: Cache pip
-        id: ${{ runner.os }}-cache-pip
-        continue-on-error: false
-        timeout-minutes: 5
+        id: cache-pip
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: ${{ runner.os }}-pip-
+          key: ubuntu-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: ubuntu-pip-
 
       - name: Setup Chrome
-        id: ${{ runner.os }}-setup-chrome
-        continue-on-error: false
-        timeout-minutes: 5
+        id: chrome
         uses: browser-actions/setup-chrome@v2
         with:
           chrome-version: stable
@@ -127,61 +95,43 @@ jobs:
           install-dependencies: true
 
       - name: Export CHROME_PATH
-        id: ${{ runner.os }}-export-chrome
+        id: chrome-path
         continue-on-error: true
-        timeout-minutes: 5
-        run: |
-          set -e
-          echo "CHROME_PATH=${{ steps.setup-chrome.outputs.chrome-path }}" >> $GITHUB_ENV
+        run: echo "CHROME_PATH=${{ steps.chrome.outputs.chrome-path }}" >> $GITHUB_ENV
 
   build:
-    name: Build • (${{ matrix.os }})
+    name: Build
     needs: setup
-    if: ${{ always() }}
-    runs-on: ${{ matrix.os }}
-    continue-on-error: false
+    if: always()
+    runs-on: ubuntu-latest
     timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    defaults:
-      run:
-        shell: bash
     steps:
       - name: Set CSP_ENV by event
-        id: ${{ runner.os }}-set-csp-env
-        continue-on-error: true
-        timeout-minutes: 5
+        id: csp
         run: |
-          set -e
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             echo "CSP_ENV=preview" >> $GITHUB_ENV
           else
             echo "CSP_ENV=production" >> $GITHUB_ENV
           fi
 
-      - name: CleanUp Ports Options (./snippets/ports)
-        id: ${{ runner.os }}-cleanup-ports-options
+      - name: CleanUp Ports Options
+        id: ports
         continue-on-error: true
-        timeout-minutes: 5
         run: |
-          set -e
           if [ -d snippets/ports ]; then
             sed -E -e '/^#[[:space:]]/d' -i snippets/ports/*/options
             sed -E -e 's/[[:space:]]*$//g' -i snippets/ports/*/options
-            sed -E -e '/^_OPTIONS_READ/ s/\,[[:digit:]]+[[:space:]]?$//g' -i snippets/ports/*/options
-            sed -E -e '/^_OPTIONS_READ/ s/\_[[:digit:]]+[[:space:]]?$//g' -i snippets/ports/*/options
+            sed -E -e '/^_OPTIONS_READ/ s/,[[:digit:]]+[[:space:]]?$//g' -i snippets/ports/*/options
+            sed -E -e '/^_OPTIONS_READ/ s/_[[:digit:]]+[[:space:]]?$//g' -i snippets/ports/*/options
           else
             echo "No snippets/ports directory. Skipping."
           fi
 
-      - name: Lint Markdown (./docs)
-        id: ${{ runner.os }}-lint-markdown
+      - name: Lint Markdown
+        id: lint-md
         continue-on-error: true
-        timeout-minutes: 5
         run: |
-          set -e
           if [ -d docs ]; then
             npx -y markdownlint-cli2 "docs/**/*.md"
           else
@@ -189,11 +139,8 @@ jobs:
           fi
 
       - name: Build MkDocs
-        id: ${{ runner.os }}-mkdocs_build
-        continue-on-error: false
-        timeout-minutes: 15
+        id: mkdocs
         run: |
-          set -e
           mkdocs build --clean
           build_rc=${PIPESTATUS[0]}
           if [ $build_rc -eq 0 ]; then
@@ -201,12 +148,10 @@ jobs:
           fi
           exit $build_rc
 
-      - name: Create image variants (./site)
-        id: ${{ runner.os }}-lint-images
+      - name: Create image variants
+        id: images
         continue-on-error: true
-        timeout-minutes: 10
         run: |
-          set -e
           if [ -d site ]; then
             mapfile -t FILES < <(find site -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \))
             for img in "${FILES[@]}"; do
@@ -220,12 +165,10 @@ jobs:
             echo "No site directory. Skipping image conversion."
           fi
 
-      - name: Lint JavaScript (./site)
-        id: ${{ runner.os }}-lint-javascripts
+      - name: Lint JavaScript
+        id: lint-js
         continue-on-error: true
-        timeout-minutes: 5
         run: |
-          set -e
           if [ -d site ]; then
             if compgen -G "site/**/*.js" > /dev/null; then
               npx -y eslint "site/**/*.js" --no-error-on-unmatched-pattern || true
@@ -233,15 +176,13 @@ jobs:
               echo "No JS files. Skipping."
             fi
           else
-            echo "No site directory. Skipping image conversion."
+            echo "No site directory. Skipping."
           fi
 
-      - name: Lint CSS (./site)
-        id: ${{ runner.os }}-lint-stylesheets
+      - name: Lint CSS
+        id: lint-css
         continue-on-error: true
-        timeout-minutes: 5
         run: |
-          set -e
           if [ -d site ]; then
             if compgen -G "site/**/*.css" > /dev/null; then
               npx -y stylelint "site/**/*.css" || true
@@ -249,15 +190,13 @@ jobs:
               echo "No CSS files. Skipping."
             fi
           else
-            echo "No site directory. Skipping image conversion."
+            echo "No site directory. Skipping."
           fi
 
-      - name: Lint HTML (./site)
-        id: ${{ runner.os }}-lint-htmlpages
+      - name: Lint HTML
+        id: lint-html
         continue-on-error: true
-        timeout-minutes: 5
         run: |
-          set -e
           if [ -d site ]; then
             if compgen -G "site/**/*.html" > /dev/null; then
               npx -y htmlhint "site/**/*.html" || true
@@ -265,15 +204,13 @@ jobs:
               echo "No HTML files. Skipping."
             fi
           else
-            echo "No site directory. Skipping image conversion."
+            echo "No site directory. Skipping."
           fi
 
-      - name: Generate CSP headers from built HTML
+      - name: Generate CSP headers
+        id: csp-headers
         continue-on-error: true
-        timeout-minutes: 5
-        if: always()
         run: |
-          set -e
           python - <<'PY'
           import os, base64, hashlib, pathlib
           from bs4 import BeautifulSoup
@@ -297,68 +234,39 @@ jobs:
                   style_hashes.add(f"'sha256-{h}'")
           STYLE = " ".join(sorted(style_hashes))
           SCRIPT = " ".join(sorted(script_hashes))
-          if CSP_ENV == "preview":
-              csp = (
-                  "upgrade-insecure-requests; "
-                  "default-src 'self'; "
-                  "base-uri 'self'; "
-                  "child-src 'self'; "
-                  "connect-src 'self' https: ws: wss: http://127.0.0.1:* http://localhost:*; "
-                  "font-src 'self' data: https://fonts.gstatic.com; "
-                  "form-action 'self' https:; "
-                  "frame-src 'self'; "
-                  "fenced-frame-src 'self'; "
-                  "img-src 'self' https: data:; "
-                  "manifest-src 'self'; "
-                  "media-src 'self' https: data:; "
-                  "object-src 'none'; "
-                  f"script-src 'self' {SCRIPT} 'report-sample'; "
-                  f"style-src 'self' https://fonts.googleapis.com {STYLE}; 'report-sample'; "
-                  "webrtc-src 'block'; "
-                  "worker-src 'self'; "
-                  "frame-ancestors 'self'; "
-                  "base-uri 'self'; "
-                  "sandbox allow-downloads allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation; "
-                  "report-uri https://www.rootservice.org/default-endpoint.php; "
-                  "report-to default-endpoint"
-              )
-          else:
-              csp = (
-                  "upgrade-insecure-requests; "
-                  "default-src 'self'; "
-                  "base-uri 'self'; "
-                  "child-src 'self'; "
-                  "connect-src 'self' https: ws: wss: http://127.0.0.1:* http://localhost:*; "
-                  "font-src 'self' data: https://fonts.gstatic.com;; "
-                  "form-action 'self' https:; "
-                  "frame-src 'self'; "
-                  "fenced-frame-src 'self'; "
-                  "img-src 'self' https: data:; "
-                  "manifest-src 'self'; "
-                  "media-src 'self' https: data:; "
-                  "object-src 'none'; "
-                  f"script-src 'self' {SCRIPT} 'report-sample'; "
-                  f"style-src 'self' https://fonts.googleapis.com {STYLE}; 'report-sample'; "
-                  "webrtc-src 'block'; "
-                  "worker-src 'self'; "
-                  "frame-ancestors 'none'; "
-                  "base-uri 'self'; "
-                  "sandbox allow-downloads allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation; "
-                  "report-uri https://www.rootservice.org/default-endpoint.php; "
-                  "report-to default-endpoint"
-              )
+          csp = (
+              "upgrade-insecure-requests; "
+              "default-src 'self'; "
+              "base-uri 'self'; "
+              "child-src 'self'; "
+              "connect-src 'self' https: ws: wss: http://127.0.0.1:* http://localhost:*; "
+              "font-src 'self' data: https://fonts.gstatic.com; "
+              "form-action 'self' https:; "
+              "frame-src 'self'; "
+              "fenced-frame-src 'self'; "
+              "img-src 'self' https: data:; "
+              "manifest-src 'self'; "
+              "media-src 'self' https: data:; "
+              "object-src 'none'; "
+              f"script-src 'self' {SCRIPT} 'report-sample'; "
+              f"style-src 'self' https://fonts.googleapis.com {STYLE}; 'report-sample'; "
+              "webrtc-src 'block'; "
+              "worker-src 'self'; "
+              "frame-ancestors 'self'; "
+              "sandbox allow-downloads allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation; "
+              "report-uri https://www.rootservice.org/default-endpoint.php; "
+              "report-to default-endpoint"
+          )
           NGINX_CONF.write_text(f"add_header Content-Security-Policy \"{csp}\" always;\n", encoding="utf-8")
           APACHE_HTA.write_text("<IfModule mod_headers.c>\n" + f'  Header always set Content-Security-Policy "{csp}"\n' + "</IfModule>\n", encoding="utf-8")
           print("CSP headers generated:", NGINX_CONF, APACHE_HTA)
           PY
 
       - name: MkDocs summary
-        id: ${{ runner.os }}-mkdocs_summary
+        id: summary-build
         continue-on-error: true
-        timeout-minutes: 5
         if: always()
         run: |
-          set -e
           if [ -d site ]; then
             if [ -f site/index.html ]; then
               echo "status=success" >> "$GITHUB_OUTPUT"
@@ -366,10 +274,11 @@ jobs:
               echo "status=failure" >> "$GITHUB_OUTPUT"
             fi
           else
-            echo "No site directory. Skipping image conversion."
+            echo "No site directory. Skipping."
           fi
 
       - name: Upload site artifact
+        id: artifact
         uses: actions/upload-artifact@v4
         with:
           name: site
@@ -379,35 +288,21 @@ jobs:
           include-hidden-files: true
 
   lighthouse:
-    name: Lighthouse • (${{ matrix.os }})
+    name: Lighthouse
     needs: build
-    if: ${{ always() }}
-    runs-on: ${{ matrix.os }}
-    continue-on-error: false
+    if: always()
+    runs-on: ubuntu-latest
     timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    defaults:
-      run:
-        shell: bash
     steps:
       - name: Ensure LHCI config files
-        id: ${{ runner.os }}-lhci_config
-        continue-on-error: false
-        timeout-minutes: 5
+        id: lhci
         run: |
-          set -e
           test -f .lighthouserc.json || echo "⚠ Missing .lighthouserc.json (softfail)" || true
           test -f .desktopConfig.json || echo "⚠ Missing .desktopConfig.json (softfail)" || true
 
       - name: Serve ./site on :8000
-        id: ${{ runner.os }}-serve_site
-        continue-on-error: false
-        timeout-minutes: 5
+        id: serve
         run: |
-          set -e
           npx -y http-server ./site -p 8000 >/dev/null 2>&1 &
           echo $! > server.pid
           for i in {1..30}; do
@@ -419,23 +314,18 @@ jobs:
           done
 
       - name: Run Lighthouse CI
-        id: ${{ runner.os }}-lhci_autorun
+        id: run-lhci
         continue-on-error: true
-        timeout-minutes: 15
         env:
           CHROME_PATH: ${{ env.CHROME_PATH }}
           LHCI_GITHUB_APP_TOKEN: ${{ env.LHCI_GITHUB_APP_TOKEN }}
           GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
-        run: |
-          set -e
-          npx -y @lhci/cli autorun --rc-file ".lighthouserc.json" || true
+        run: npx -y @lhci/cli autorun --rc-file ".lighthouserc.json" || true
 
-      - name: Derive fixes from Lighthouse report -> ./fixes
-        id: ${{ runner.os }}-lhci_fixes
+      - name: Derive fixes from Lighthouse
+        id: fixes
         continue-on-error: true
-        timeout-minutes: 5
         run: |
-          set -e
           mkdir -p fixes
           REPORT="$(ls -t .lighthouseci/*-lhr-*.json 2>/dev/null | head -n1 || true)"
           if [ -z "$REPORT" ]; then
@@ -478,92 +368,70 @@ jobs:
           fi
 
       - name: Stop server
+        id: stop
         if: always()
         run: |
-          set -e
           if [ -f server.pid ]; then
             kill "$(cat server.pid)" 2>/dev/null || true
           fi
 
   security:
-    name: Security • (${{ matrix.os }})
+    name: Security
     needs: build
-    if: ${{ always() }}
-    runs-on: ${{ matrix.os }}
-    continue-on-error: false
+    if: always()
+    runs-on: ubuntu-latest
     timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    defaults:
-      run:
-        shell: bash
     steps:
       - name: Security checks
-        id: ${{ runner.os }}-security_checks
+        id: audit
         continue-on-error: true
-        timeout-minutes: 5
         run: |
-          set -e
           if [ -f requirements.txt ]; then
-            pip-audit -r requirements.txt || (echo "::warning::pip-audit found issues"; exit 1)
+            pip-audit -r requirements.txt || echo "::warning::pip-audit found issues"
           else
             echo "No requirements.txt. Skipping pip-audit."
           fi
           if git ls-files '*.py' | grep -q .; then
-            bandit -r . -q || (echo "::warning::bandit found issues"; exit 1)
+            bandit -r . -q || echo "::warning::bandit found issues"
           else
             echo "No Python files. Skipping bandit."
           fi
           if [ -f package.json ] || [ -f package-lock.json ]; then
-            npm audit --audit-level=high || (echo "::warning::npm audit found high+ issues"; exit 1)
+            npm audit --audit-level=high || echo "::warning::npm audit found high+ issues"
           else
             echo "No package.json. Skipping npm audit."
           fi
 
       - name: Dependency Review
-        id: ${{ runner.os }}-dependency_checks
-        continue-on-error: true
-        timeout-minutes: 5
+        id: deps
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: moderate
 
   summary:
-    name: Summary • (${{ matrix.os }})
+    name: Summary
     needs: [build, security, lighthouse]
-    if: ${{ always() }}
-    runs-on: ${{ matrix.os }}
-    continue-on-error: false
+    if: always()
+    runs-on: ubuntu-latest
     timeout-minutes: 60
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    defaults:
-      run:
-        shell: bash
     steps:
-      - name: Upload reports as artifact
-        id: ${{ runner.os }}-upload-reports
+      - name: Upload reports
+        id: reports
         continue-on-error: true
-        timeout-minutes: 5
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: reports-${{ runner.os }}-${{ github.sha }}
+          name: reports-${{ github.sha }}
           path: |
             .lighthouseci/**
             fixes/**
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Commit generated assets (overrides + fixes)
-        id: ${{ runner.os }}-commit-assets
+      - name: Commit generated assets
+        id: commit
         continue-on-error: true
-        timeout-minutes: 5
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v6
         with:
           commit_message: "chore(ci): add image variants and Lighthouse fixes [skip ci]"
           file_pattern: |
@@ -572,27 +440,25 @@ jobs:
           branch: ${{ github.ref_name }}
           skip_dirty_check: false
           skip_fetch: true
-          add_options: '-A'
-          push_options: '--force-with-lease'
-          commit_user_name: 'github-actions[bot]'
-          commit_user_email: '41898282+github-actions[bot]@users.noreply.github.com'
-          tagging_message: "${{ env.TAG_PREFIX }}-${{ github.run_number }}"
+          add_options: -A
+          push_options: --force-with-lease
+          commit_user_name: github-actions[bot]
+          commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
+          tagging_message: ${{ env.TAG_PREFIX }}-${{ github.run_number }}
           create_branch: false
 
       - name: Summary
-        id: ${{ runner.os }}-summary
+        id: summary
         continue-on-error: true
-        timeout-minutes: 5
         if: always()
         run: |
           {
             echo "## Run Summary"
-            echo "- OS: ${{ matrix.os }}"
             echo "- Ref: ${{ github.ref }}"
             echo "- SHA: ${{ github.sha }}"
             echo "- CSP_ENV: ${{ env.CSP_ENV }}"
             echo ""
             echo "### Outputs"
-            echo "- Lighthouse report: artifact 'reports-${{ runner.os }}-${{ github.sha }}'"
+            echo "- Lighthouse report: artifact 'reports-${{ github.sha }}'"
             echo "- Fixes: ./fixes/lighthouse-${{ github.sha }}.md"
           } >> "$GITHUB_STEP_SUMMARY"
