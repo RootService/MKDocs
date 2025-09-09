@@ -92,20 +92,6 @@ jobs:
               avifenc --yuv 444 --depth 8 --speed 6 --min 0 --max 0 "${f%.svg}_${w}.png" "${f%.svg}_${w}.avif"
             done
           done
-          ts=$(date -u +%Y%m%dT%H%M%SZ)
-          ZIP="rootservice_renditions_${ts}.zip"
-          zip -qr "$ZIP" ./
-          echo "ZIP=$ZIP" >> "$GITHUB_ENV"
-
-      - name: Upload ZIP artifact
-        continue-on-error: true
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.ZIP }}
-          path: ${{ env.ZIP }}
-          if-no-files-found: error
-          retention-days: 5
-          include-hidden-files: true
 
       - name: Commit assets to repo (main only)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
