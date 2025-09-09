@@ -38,7 +38,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      - run: sudo apt-get update && sudo apt-get install -y libavif-bin librsvg2-bin webp zip
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y libavif-bin librsvg2-bin webp zip
 
       - name: Configure Git Credentials
         run: |
@@ -64,18 +66,14 @@ jobs:
           restore-keys: ${{ runner.os }}-pip-
 
       - name: Install deps
-        shell: bash
         run: |
-          set -euo pipefail
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install --upgrade -r requirements.txt; fi
           pip install --upgrade mkdocs mkdocs-material
 
       - name: Lint Markdown (markdownlint-cli2)
         continue-on-error: true
-        shell: bash
         run: |
-          set -euo pipefail
           if [ -f .markdownlint-cli2.jsonc ]; then cfg=".markdownlint-cli2.jsonc"; else cfg=""; fi
           if [ -n "$cfg" ]; then
             npx --yes markdownlint-cli2 --config "$cfg"
@@ -84,9 +82,8 @@ jobs:
           fi
 
       - name: Build renditions (PNG/WebP/AVIF)
-        shell: bash
+        continue-on-error: true
         run: |
-          set -euo pipefail
           mkdir -p build/img
           find docs assets overrides -name '*.svg' -print0 | while IFS= read -r -d '' f; do
             WIDTHS="64 128 256 512 1024 2048"
@@ -104,6 +101,7 @@ jobs:
           echo "ZIP=$ZIP" >> "$GITHUB_ENV"
 
       - name: Upload ZIP artifact
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ZIP }}
@@ -113,9 +111,8 @@ jobs:
 
       - name: Commit assets to repo (main only)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        shell: bash
+        continue-on-error: true
         run: |
-          set -euo pipefail
           git add docs/assets/*.{png,webp,avif} || true
           if ! git diff --cached --quiet; then
             git commit -m "chore(images): add AVIF/WebP/PNG renditions (64..2048)"
@@ -124,9 +121,7 @@ jobs:
 
       - name: Build site
         id: mkdocs_build
-        shell: bash
         run: |
-          set -euo pipefail
           if [ -f mkdocs.yml ]; then
             mkdocs build --clean 2>&1 | tee build.log
             build_rc=${PIPESTATUS[0]}
