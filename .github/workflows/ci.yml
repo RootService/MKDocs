@@ -88,16 +88,15 @@ jobs:
           find docs assets overrides -name '*.svg' -print0 | while IFS= read -r -d '' f; do
             WIDTHS="64 128 256 512 1024 2048"
             for w in $WIDTHS; do
-              rsvg-convert -w "$w" "$f" -o "build/img/$(basename "${f%.svg}")_${w}.png"
-              cwebp -quiet -lossless "build/img/$(basename "${f%.svg}")_${w}.png" -o "build/img/$(basename "${f%.svg}")_${w}.webp"
-              avifenc --yuv 444 --depth 8 --speed 6 --min 0 --max 0 "build/img/$(basename "${f%.svg}")_${w}.png" "build/img/$(basename "${f%.svg}")_${w}.avif"
+              rsvg-convert -w "$w" "$f" -o "build/img/${f%.svg}_${w}.png"
+              cwebp -quiet -lossless "build/img/${f%.svg}_${w}.png" -o "build/img/${f%.svg}_${w}.webp"
+              avifenc --yuv 444 --depth 8 --speed 6 --min 0 --max 0 "build/img/${f%.svg}_${w}.png" "build/img/${f%.svg}_${w}.avif"
             done
           done
-          mkdir -p docs/assets
-          cp -r build/img/* docs/assets/
+          cp -r build/img/* ./
           ts=$(date -u +%Y%m%dT%H%M%SZ)
           ZIP="rootservice_renditions_${ts}.zip"
-          zip -qr "$ZIP" docs/assets
+          zip -qr "$ZIP" ./
           echo "ZIP=$ZIP" >> "$GITHUB_ENV"
 
       - name: Upload ZIP artifact
@@ -107,13 +106,14 @@ jobs:
           name: ${{ env.ZIP }}
           path: ${{ env.ZIP }}
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 5
+          include-hidden-files: true
 
       - name: Commit assets to repo (main only)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         continue-on-error: true
         run: |
-          git add docs/assets/*.{png,webp,avif} || true
+          git add -A || true
           if ! git diff --cached --quiet; then
             git commit -m "chore(images): add AVIF/WebP/PNG renditions (64..2048)"
             git push || true
