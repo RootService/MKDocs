@@ -118,23 +118,6 @@ plugins:
 #  - git-authors
 #      enabled: !ENV [CI, false]
   - document-dates
-  - glightbox:
-      touchNavigation: true
-      loop: false
-      effect: zoom
-      slide_effect: slide
-      width: 100%
-      height: auto
-      zoomable: true
-      draggable: true
-      skip_classes:
-        - custom-skip-class-name
-      auto_themed: false
-      auto_caption: false
-      caption_position: bottom
-      background: white
-      shadow: true
-      manual: false
   - htmlproofer:
       validate_external_urls: false
       raise_error: true

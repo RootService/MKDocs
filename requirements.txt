@@ -6,7 +6,6 @@ mkdocs-document-dates
 mkdocs-git-revision-date-localized-plugin
 mkdocs-git-committers-plugin-2
 mkdocs-git-authors-plugin
-mkdocs-glightbox
 mkdocs-redirects
 mkdocs-htmlproofer-plugin
 mkdocs-static-i18n
