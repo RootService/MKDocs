@@ -103,7 +103,7 @@ plugins:
         kwds:
           case: lower
   - git-revision-date-localized:
-      enabled: !ENV [CI, false]
+      enabled: !ENV [CI, true]
       enable_creation_date: true
       type: datetime
       timezone: Europe/Berlin
@@ -111,12 +111,10 @@ plugins:
       fallback_to_build_date: true
       enable_git_follow: false
   - git-committers:
-      enabled: !ENV [CI, false]
+      enabled: !ENV [CI, true]
       token: !ENV [GITHUB_TOKEN, ""]
       repository: RootService/MKDocs
       branch: main
-#  - git-authors
-#      enabled: !ENV [CI, false]
   - document-dates
   - htmlproofer:
       validate_external_urls: false
