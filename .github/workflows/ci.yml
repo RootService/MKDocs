@@ -96,9 +96,11 @@ jobs:
               avifenc --yuv 444 --depth 8 --speed 6 --min 0 --max 0 "build/img/$(basename "${f%.svg}")_${w}.png" "build/img/$(basename "${f%.svg}")_${w}.avif"
             done
           done
+          mkdir -p docs/assets
+          cp -r build/img/* docs/assets/
           ts=$(date -u +%Y%m%dT%H%M%SZ)
           ZIP="rootservice_renditions_${ts}.zip"
-          zip -qr "$ZIP" docs/assets/rootservice_*.{png,webp,avif}
+          zip -qr "$ZIP" docs/assets
           echo "ZIP=$ZIP" >> "$GITHUB_ENV"
 
       - name: Upload ZIP artifact
@@ -114,8 +116,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p docs/assets
-          cp -r build/img/* docs/assets/
           git add docs/assets/*.{png,webp,avif} || true
           if ! git diff --cached --quiet; then
             git commit -m "chore(images): add AVIF/WebP/PNG renditions (64..2048)"
