@@ -87,9 +87,9 @@ jobs:
           find overrides/assets/images/ -name '*.svg' -print0 | while IFS= read -r -d '' f; do
             WIDTHS="32 64 128 256 512"
             for w in $WIDTHS; do
-              rsvg-convert -w "$w" "$f" -o "overrides/assets/images/${f%.svg}_${w}.png"
-              cwebp -quiet -lossless "overrides/assets/images/${f%.svg}_${w}.png" -o "overrides/assets/images/${f%.svg}_${w}.webp"
-              avifenc --yuv 444 --depth 8 --speed 6 --min 0 --max 0 "overrides/assets/images/${f%.svg}_${w}.png" "overrides/assets/images/${f%.svg}_${w}.avif"
+              rsvg-convert -w "$w" "$f" -o "${f%.svg}_${w}.png"
+              cwebp -quiet -lossless "${f%.svg}_${w}.png" -o "${f%.svg}_${w}.webp"
+              avifenc --yuv 444 --depth 8 --speed 6 --min 0 --max 0 "${f%.svg}_${w}.png" "${f%.svg}_${w}.avif"
             done
           done
           ts=$(date -u +%Y%m%dT%H%M%SZ)
