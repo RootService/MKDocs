@@ -1,8 +1,42 @@
-name: "Custom Code Scanning Config"
+name: "CodeQL Config for MkDocs + Node"
 disable-default-queries: true
 
-packs: []
-queries: []
+# Restrict scanning to real source files
+paths:
+  - docs
+  - overrides
+  - snippets
+  - fixes
+  - src
+  - scripts
+
+# Exclude non-source or generated dirs
+paths-ignore:
+  - site
+  - node_modules
+  - dist
+  - build
+  - .venv
+  - venv
+  - __pycache__
+  - tests
+  - coverage
+
+# Enable additional security query packs
+queries:
+  - uses: security-extended
+  - uses: security-and-quality
+
+# Optional: customize CodeQL DB creation
+database:
+  include:
+    - "**/*.py"
+    - "**/*.js"
+    - "**/*.ts"
+  exclude:
+    - "**/*.min.js"
+    - "**/*.min.css"
+    - "**/*.json"
 
 tools:
   - name: "Docs, Accessibility & Security Linting"
@@ -10,3 +44,4 @@ tools:
       - "lint"
       - "lighthouse"
       - "security"
+

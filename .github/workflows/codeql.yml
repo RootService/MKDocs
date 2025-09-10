@@ -1,0 +1,62 @@
+name: "CodeQL Analysis"
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+  workflow_dispatch:
+  schedule:
+    - cron: "0 2 * * 1"
+
+permissions: write-all
+
+concurrency:
+  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: ${{ !(github.ref_name == 'main' || github.event_name == 'pull_request') }}
+
+env:
+  CI: true
+  NODE_ENV: production
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+#  PIP_NO_CACHE_DIR: "off"
+  PYTHONUNBUFFERED: "1"
+  FORCE_COLOR: "1"
+  TAG_PREFIX: RootService/MKDocs
+  LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
+  LOG_TAIL_LINES: 500
+  CHROME_PATH: ""
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - id: configure_git
+        name: Configure Git identity
+        run: |
+          git config --global init.defaultBranch main
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+      - id: checkout_repo
+        name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - id: init_codeql
+        name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          config-file: ./.github/codeql/codeql-config.yml
+          languages: javascript, python
+      - id: autobuild_codeql
+        name: Autobuild CodeQL
+        uses: github/codeql-action/autobuild@v3
+      - id: analyze_codeql
+        name: Analyze with CodeQL
+        uses: github/codeql-action/analyze@v3
