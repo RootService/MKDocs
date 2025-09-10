@@ -3,16 +3,8 @@ name: MKDocs CI
 on:
   push:
     branches: ["**"]
-    paths:
-      - "docs/**"
-      - "mkdocs.yml"
-      - ".github/workflows/ci.yml"
   pull_request:
     branches: ["**"]
-    paths:
-      - "docs/**"
-      - "mkdocs.yml"
-      - ".github/workflows/ci.yml"
   schedule:
     - cron: "0 3 1 * *"
 
@@ -92,7 +84,6 @@ jobs:
           npm cache clean --force
           npm install --ignore-scripts --no-audit --no-fund --package-lock-only
           npm shrinkwrap
-          # npm audit --audit-level=critical || true
       - id: install_python
         name: Install Python dependencies
         if: ${{ hashFiles('requirements.txt') != '' }}
@@ -119,34 +110,17 @@ jobs:
         name: Deploy MkDocs to GitHub Pages
         if: github.ref_name == 'main'
         run: mkdocs gh-deploy --force
-      # - id: create_images
-        # name: Create responsive image variants
-        # run: |
-          # if [ -d site ]; then
-            # mapfile -t FILES < <(find site -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.svg' -o -iname '*.webp' -o -iname '*.avif' \))
-            # for img in "${FILES[@]}"; do
-              # dir="$(dirname "$img")"
-              # file="$(basename "$img" | sed 's/\.[^.]*$//')"  # strip extension safely
-              # [ -f "$dir/$file.avif" ] || npx -y sharp-cli "$img" --format=avif --output "$dir/$file.avif"
-              # [ -f "$dir/$file.webp" ] || npx -y sharp-cli "$img" --format=webp --output "$dir/$file.webp"
-              # [ -f "$dir/$file.png" ]  || npx -y sharp-cli "$img" --format=png  --output "$dir/$file.png"
-              # [ -f "$dir/$file.gif" ]  || npx -y sharp-cli "$img" --format=gif  --output "$dir/$file.gif"
-            # done
-          # fi
       - id: generate_csp
         name: Generate CSP headers
         run: |
           python - <<'PY'
           import os, base64, hashlib, pathlib
           from bs4 import BeautifulSoup  # pip install beautifulsoup4
-
           SITE = pathlib.Path("site")
           NGINX_CONF = SITE / ".nginx-csp.conf"
           APACHE_HTA = SITE / ".htaccess"
           CSP_ENV = os.getenv("CSP_ENV", "production").lower()
-
           script_hashes, style_hashes = set(), set()
-
           for htmlp in SITE.rglob("*.html"):
               soup = BeautifulSoup(htmlp.read_text(encoding="utf-8", errors="ignore"), "html.parser")
               for tag in soup.find_all("script"):
@@ -160,10 +134,8 @@ jobs:
                   if not content.strip(): continue
                   h = base64.b64encode(hashlib.sha256(content).digest()).decode()
                   style_hashes.add(f"'sha256-{h}'")
-
           STYLE = " ".join(sorted(style_hashes))
           SCRIPT = " ".join(sorted(script_hashes))
-
           if CSP_ENV == "preview":
               csp = (
                   "upgrade-insecure-requests; "
@@ -172,7 +144,7 @@ jobs:
                   "child-src 'self'; "
                   "connect-src 'self' https: ws: wss: http://127.0.0.1:* http://localhost:*; "
                   "font-src 'self' data: https://fonts.gstatic.com; "
-                  "form-action 'self' "
+                  "form-action 'self' https:; "
                   "frame-src 'self'; "
                   "fenced-frame-src 'self'; "
                   "img-src 'self' https: data:; "
@@ -183,7 +155,6 @@ jobs:
                   f"style-src 'self' https://fonts.googleapis.com {STYLE}; 'report-sample'; "
                   "webrtc-src 'block'; "
                   "worker-src 'self'; "
-                  "form-action 'self' https:; "
                   "frame-ancestors 'self'; "
                   "base-uri 'self'; "
                   "sandbox allow-downloads allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation; "
@@ -198,7 +169,7 @@ jobs:
                   "child-src 'self'; "
                   "connect-src 'self' https: ws: wss: http://127.0.0.1:* http://localhost:*; "
                   "font-src 'self' data: https://fonts.gstatic.com;; "
-                  "form-action 'self' "
+                  "form-action 'self' https:; "
                   "frame-src 'self'; "
                   "fenced-frame-src 'self'; "
                   "img-src 'self' https: data:; "
@@ -209,14 +180,12 @@ jobs:
                   f"style-src 'self' https://fonts.googleapis.com {STYLE}; 'report-sample'; "
                   "webrtc-src 'block'; "
                   "worker-src 'self'; "
-                  "form-action 'self' https:; "
                   "frame-ancestors 'none'; "
                   "base-uri 'self'; "
                   "sandbox allow-downloads allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation; "
                   "report-uri https://www.rootservice.org/default-endpoint.php; "
                   "report-to default-endpoint"
               )
-
           NGINX_CONF.write_text(
               f"add_header Content-Security-Policy \"{csp}\" always;\n",
               encoding="utf-8",
@@ -252,25 +221,14 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - id: run_linters
-        name: Run linters
-        run: |
-          mkdir -p sarif
-          npx markdownlint-cli2 --json docs/**/*.md > sarif/markdown.sarif || true
-          npx eslint "docs/**/*.js" -f sarif -o sarif/eslint.sarif || true
-          npx stylelint "docs/**/*.css" --custom-formatter=node_modules/stylelint-formatter-sarif/sarif.js > sarif/stylelint.sarif || true
-          npx htmlhint "docs/**/*.html" || true
-      - id: aggregate_sarif
-        name: Aggregate SARIF results
-        run: |
-          jq -s '{ "version":"2.1.0","runs": map(.runs) | add }' sarif/*.sarif > results.sarif || echo '{"version":"2.1.0","runs":[]}' > results.sarif
-      - id: upload_sarif
-        name: Upload SARIF to GitHub
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: results.sarif
-          category: "lint"
-          config_file: .github/codeql/codeql-config.yml
+      - name: Run Markdown Lint
+        run: npm run lint:md
+      - name: Run JS Lint
+        run: npm run lint:js
+      - name: Run CSS Lint
+        run: npm run lint:css
+      - name: Run HTML Lint
+        run: npm run lint:html
 
   lighthouse:
     needs: build
@@ -322,30 +280,6 @@ jobs:
         with:
           name: lh-scores
           path: lh-scores.json
-      - id: convert_lighthouse_sarif
-        name: Convert Lighthouse results to SARIF
-        run: |
-          mkdir -p sarif
-          REPORT="$(ls -t .lighthouseci/*-lhr-*.json | head -n1 || true)"
-          if [ -n "$REPORT" ]; then
-            node - <<'NODE' "$REPORT" > sarif/lighthouse.sarif
-            const fs = require('fs');
-            const report = JSON.parse(fs.readFileSync(process.argv[1],'utf8'));
-            const results = [];
-            for (const [id,audit] of Object.entries(report.audits)) {
-              if (audit.details && audit.details.type === 'table' && audit.score !== 1) {
-                results.push({ruleId:id,message:{text:audit.title||id}});
-              }
-            }
-            console.log(JSON.stringify({version:"2.1.0",runs:[{tool:{driver:{name:"Lighthouse"}},results}]}));
-            NODE
-          else echo '{"version":"2.1.0","runs":[]}' > sarif/lighthouse.sarif; fi
-      - id: upload_lighthouse_sarif
-        name: Upload Lighthouse SARIF artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: sarif-${{ github.sha }}
-          path: sarif/
       - id: stop_server
         name: Stop local server
         if: always()
@@ -392,23 +326,6 @@ jobs:
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: high
-      - id: convert_security_sarif
-        name: Convert security findings to SARIF
-        run: |
-          mkdir -p sarif
-          node - <<'NODE' > sarif/security.sarif
-          const results = [];
-          results.push({ruleId:"pip-audit",message:{text:"pip-audit completed"}});
-          results.push({ruleId:"bandit",message:{text:"bandit scan completed"}});
-          results.push({ruleId:"npm-audit",message:{text:"npm audit completed"}});
-          console.log(JSON.stringify({version:"2.1.0",runs:[{tool:{driver:{name:"Security"}},results}]}));
-          NODE
-      - id: upload_security_sarif
-        name: Upload security SARIF artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: sarif-${{ github.sha }}
-          path: sarif/
 
   summary:
     needs: [lint, lighthouse, security]

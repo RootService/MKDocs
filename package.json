@@ -18,7 +18,10 @@
   "scripts": {
     "changelog": "conventional-changelog -p conventionalcommits --config ./build/changelog-generator/index.cjs --infile changelog.md --same-file",
     "changelog:version": "conventional-changelog [patch|minor|major] -p conventionalcommits --infile CHANGELOG.md --same-file && git add CHANGELOG.md",
-    "lint": "eslint docs/**/*.js && stylelint docs/**/*.css && markdownlint docs/**/*.md",
+    "lint:md": "markdownlint-cli2 docs/**/*.md",
+    "lint:js": "eslint docs/**/*.js -f sarif -o sarif/eslint.sarif || true",
+    "lint:css": "stylelint docs/**/*.css --custom-formatter=node_modules/stylelint-formatter-sarif/sarif.js > sarif/stylelint.sarif || true",
+    "lint:html": "htmlhint docs/**/*.html || true",
     "serve": "http-server ./site -p 8000"
   },
   "dependencies": {
@@ -28,11 +31,13 @@
     "browserslist": "^4.25.4",
     "browserslist-config-baseline": "^0.5.0",
     "conventional-changelog": "^7.1.1",
+    "http-server": "^14.1.1",
+    "puppeteer": "^24.20.0"
+  },
+  "devDependencies": {
     "eslint": "^9.35.0",
     "htmlhint": "^1.6.3",
-    "http-server": "^14.1.1",
     "markdownlint-cli2": "^0.18.1",
-    "puppeteer": "^24.20.0",
     "sharp-cli": "^5.2.0",
     "stylelint": "^16.24.0"
   },
