@@ -13,7 +13,6 @@ on:
       - "docs/**"
       - "mkdocs.yml"
       - ".github/workflows/ci.yml"
-  workflow_dispatch:
   schedule:
     - cron: "0 3 1 * *"
 
