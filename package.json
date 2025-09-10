@@ -48,7 +48,7 @@
   },
   "engines": {
     "node": ">=20",
-    "npm": ">=11"
+    "npm": ">=10"
   },
   "os": [
     "freebsd",
@@ -67,7 +67,7 @@
     },
     "packageManager": {
       "name": "npm",
-      "version": ">=11",
+      "version": ">=10",
       "onFail": "error"
     }
   },
