@@ -126,10 +126,10 @@ jobs:
             mapfile -t FILES < <(find site -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \))
             for img in "${FILES[@]}"; do
               base="${img%.*}"
-              [ -f "${base}.avif" ] || npx -y sharp-cli "$img" --format=avif -o "${base}.avif"
-              [ -f "${base}.webp" ] || npx -y sharp-cli "$img" --format=webp -o "${base}.webp"
-              [ -f "${base}.png" ]  || npx -y sharp-cli "$img" --format=png  -o "${base}.png"
-              [ -f "${base}.gif" ]  || npx -y sharp-cli "$img" --format=gif  -o "${base}.gif"
+              [ -f "${base}.avif" ] || npx -y sharp-cli "$img" --format=avif -o "${base}.avif" || true
+              [ -f "${base}.webp" ] || npx -y sharp-cli "$img" --format=webp -o "${base}.webp" || true
+              [ -f "${base}.png" ]  || npx -y sharp-cli "$img" --format=png  -o "${base}.png" || true
+              [ -f "${base}.gif" ]  || npx -y sharp-cli "$img" --format=gif  -o "${base}.gif" || true
             done
           fi
       - id: generate_csp
