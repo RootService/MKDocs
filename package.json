@@ -1,29 +1,21 @@
 {
   "name": "MKDocs",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Node tooling for use in GitHub Actions.",
   "keywords": [
     "ci",
     "puppeteer",
     "lighthouse"
   ],
-  "homepage": "https://github.com/RootService/MKDocs#readme",
-  "bugs": {
-    "url": "https://github.com/RootService/MKDocs/issues"
-  },
   "license": "MIT",
   "author": "Markus Kohlmeyer",
-  "files": [
-    "site",
-    "README.md",
-    "LICENSE.md"
-  ],
-  "directories": {
-    "doc": "site"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/RootService/MKDocs.git"
+  },
+  "homepage": "https://github.com/RootService/MKDocs#readme",
+  "bugs": {
+    "url": "https://github.com/RootService/MKDocs/issues"
   },
   "scripts": {
     "changelog": "conventional-changelog -p conventionalcommits --config ./build/changelog-generator/index.cjs --infile changelog.md --same-file",
@@ -32,19 +24,19 @@
     "serve": "http-server ./site -p 8000"
   },
   "dependencies": {
-    "@actions/artifact": "latest",
-    "@lhci/cli": "latest",
-    "autoprefixer": "latest",
-    "browserslist": "latest",
-    "browserslist-config-baseline": "latest",
-    "conventional-changelog": "latest",
-    "http-server": "latest",
-    "markdownlint-cli2": "latest",
-    "puppeteer": "latest",
-    "eslint": "latest",
-    "stylelint": "latest",
-    "htmlhint": "latest",
-    "sharp-cli": "latest"
+    "@actions/artifact": "^2.3.2",
+    "@lhci/cli": "^0.15.1",
+    "autoprefixer": "^10.4.21",
+    "browserslist": "^4.25.4",
+    "browserslist-config-baseline": "^0.5.0",
+    "conventional-changelog": "^7.1.1",
+    "eslint": "^9.35.0",
+    "htmlhint": "^1.6.3",
+    "http-server": "^14.1.1",
+    "markdownlint-cli2": "^0.18.1",
+    "puppeteer": "^24.19.0",
+    "sharp-cli": "^5.2.0",
+    "stylelint": "^16.24.0"
   },
   "engines": {
     "node": ">=20",
