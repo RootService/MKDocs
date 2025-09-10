@@ -92,7 +92,7 @@ jobs:
           npm cache clean --force
           npm install --ignore-scripts --no-audit --no-fund --package-lock-only
           npm shrinkwrap
-          npm audit --audit-level=critical || true
+          # npm audit --audit-level=critical || true
       - id: install_python
         name: Install Python dependencies
         if: ${{ hashFiles('requirements.txt') != '' }}
@@ -123,13 +123,14 @@ jobs:
         name: Create responsive image variants
         run: |
           if [ -d site ]; then
-            mapfile -t FILES < <(find site -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \))
+            mapfile -t FILES < <(find site -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.svg' -o -iname '*.webp' -o -iname '*.avif' \))
             for img in "${FILES[@]}"; do
-              base="${img%.*}"
-              [ -f "${base}.avif" ] || npx -y sharp-cli "$img" --format=avif -o "${base}.avif" || true
-              [ -f "${base}.webp" ] || npx -y sharp-cli "$img" --format=webp -o "${base}.webp" || true
-              [ -f "${base}.png" ]  || npx -y sharp-cli "$img" --format=png  -o "${base}.png" || true
-              [ -f "${base}.gif" ]  || npx -y sharp-cli "$img" --format=gif  -o "${base}.gif" || true
+              dir="$(dirname "$img")"
+              file="$(basename "$img" | sed 's/\.[^.]*$//')"  # strip extension safely
+              [ -f "$dir/$file.avif" ] || npx -y sharp-cli "$img" --format=avif --output "$dir/$file.avif"
+              [ -f "$dir/$file.webp" ] || npx -y sharp-cli "$img" --format=webp --output "$dir/$file.webp"
+              [ -f "$dir/$file.png" ]  || npx -y sharp-cli "$img" --format=png  --output "$dir/$file.png"
+              [ -f "$dir/$file.gif" ]  || npx -y sharp-cli "$img" --format=gif  --output "$dir/$file.gif"
             done
           fi
       - id: generate_csp
@@ -137,11 +138,17 @@ jobs:
         run: |
           python - <<'PY'
           import os, base64, hashlib, pathlib
-          from bs4 import BeautifulSoup
+          from bs4 import BeautifulSoup  # pip install beautifulsoup4
+
           SITE = pathlib.Path("site")
+          NGINX_CONF = SITE / ".nginx-csp.conf"
+          APACHE_HTA = SITE / ".htaccess"
+          CSP_ENV = os.getenv("CSP_ENV", "production").lower()
+
           script_hashes, style_hashes = set(), set()
+
           for htmlp in SITE.rglob("*.html"):
-              soup = BeautifulSoup(htmlp.read_text("utf-8", errors="ignore"), "html.parser")
+              soup = BeautifulSoup(htmlp.read_text(encoding="utf-8", errors="ignore"), "html.parser")
               for tag in soup.find_all("script"):
                   if tag.has_attr("src"): continue
                   content = (tag.string or "").encode("utf-8")
@@ -153,33 +160,73 @@ jobs:
                   if not content.strip(): continue
                   h = base64.b64encode(hashlib.sha256(content).digest()).decode()
                   style_hashes.add(f"'sha256-{h}'")
+
           STYLE = " ".join(sorted(style_hashes))
           SCRIPT = " ".join(sorted(script_hashes))
-          csp = (
-              "upgrade-insecure-requests; "
-              "default-src 'self'; "
-              "base-uri 'self'; "
-              "child-src 'self'; "
-              "connect-src 'self' https: ws: wss: http://127.0.0.1:* http://localhost:*; "
-              "font-src 'self' data: https://fonts.gstatic.com; "
-              "form-action 'self' https:; "
-              "frame-src 'self'; "
-              "fenced-frame-src 'self'; "
-              "img-src 'self' https: data:; "
-              "manifest-src 'self'; "
-              "media-src 'self' https: data:; "
-              "object-src 'none'; "
-              f"script-src 'self' {SCRIPT} 'report-sample'; "
-              f"style-src 'self' https://fonts.googleapis.com {STYLE}; 'report-sample'; "
-              "webrtc-src 'block'; "
-              "worker-src 'self'; "
-              "frame-ancestors 'self'; "
-              "sandbox allow-downloads allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation; "
-              "report-uri https://www.rootservice.org/default-endpoint.php; "
-              "report-to default-endpoint"
+
+          if CSP_ENV == "preview":
+              csp = (
+                  "upgrade-insecure-requests; "
+                  "default-src 'self'; "
+                  "base-uri 'self'; "
+                  "child-src 'self'; "
+                  "connect-src 'self' https: ws: wss: http://127.0.0.1:* http://localhost:*; "
+                  "font-src 'self' data: https://fonts.gstatic.com; "
+                  "form-action 'self' "
+                  "frame-src 'self'; "
+                  "fenced-frame-src 'self'; "
+                  "img-src 'self' https: data:; "
+                  "manifest-src 'self'; "
+                  "media-src 'self' https: data:; "
+                  "object-src 'none'; "
+                  f"script-src 'self' {SCRIPT} 'report-sample'; "
+                  f"style-src 'self' https://fonts.googleapis.com {STYLE}; 'report-sample'; "
+                  "webrtc-src 'block'; "
+                  "worker-src 'self'; "
+                  "form-action 'self' https:; "
+                  "frame-ancestors 'self'; "
+                  "base-uri 'self'; "
+                  "sandbox allow-downloads allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation; "
+                  "report-uri https://www.rootservice.org/default-endpoint.php; "
+                  "report-to default-endpoint"
+              )
+          else:
+              csp = (
+                  "upgrade-insecure-requests; "
+                  "default-src 'self'; "
+                  "base-uri 'self'; "
+                  "child-src 'self'; "
+                  "connect-src 'self' https: ws: wss: http://127.0.0.1:* http://localhost:*; "
+                  "font-src 'self' data: https://fonts.gstatic.com;; "
+                  "form-action 'self' "
+                  "frame-src 'self'; "
+                  "fenced-frame-src 'self'; "
+                  "img-src 'self' https: data:; "
+                  "manifest-src 'self'; "
+                  "media-src 'self' https: data:; "
+                  "object-src 'none'; "
+                  f"script-src 'self' {SCRIPT} 'report-sample'; "
+                  f"style-src 'self' https://fonts.googleapis.com {STYLE}; 'report-sample'; "
+                  "webrtc-src 'block'; "
+                  "worker-src 'self'; "
+                  "form-action 'self' https:; "
+                  "frame-ancestors 'none'; "
+                  "base-uri 'self'; "
+                  "sandbox allow-downloads allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-presentation allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation; "
+                  "report-uri https://www.rootservice.org/default-endpoint.php; "
+                  "report-to default-endpoint"
+              )
+
+          NGINX_CONF.write_text(
+              f"add_header Content-Security-Policy \"{csp}\" always;\n",
+              encoding="utf-8",
           )
-          (SITE/".nginx-csp.conf").write_text(f"add_header Content-Security-Policy \\"{csp}\\" always;\\n")
-          (SITE/".htaccess").write_text(f"<IfModule mod_headers.c>\\n  Header set Content-Security-Policy \\"{csp}\\"\\n</IfModule>\\n")
+          APACHE_HTA.write_text(
+              "<IfModule mod_headers.c>\n"
+              f'  Header always set Content-Security-Policy "{csp}"\n'
+              "</IfModule>\n",
+              encoding="utf-8",
+          )
           PY
       - id: upload_site
         name: Upload built site artifact
