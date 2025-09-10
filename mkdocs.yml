@@ -102,7 +102,7 @@ plugins:
       tags_slugify: !!python/object/apply:pymdownx.slugs.slugify
         kwds:
           case: lower
-  - git-revision-date-plugin:
+  - git-revision-date:
       modify_md: true
       as_datetime: true
   - git-revision-date-localized:
