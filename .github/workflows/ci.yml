@@ -28,7 +28,8 @@ env:
   MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  setup:
+  build:
+    needs: setup
     runs-on: ubuntu-latest
     steps:
       - id: configure_git
@@ -61,22 +62,6 @@ jobs:
           chrome-version: stable
           install-chromedriver: true
           install-dependencies: true
-
-  build:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - id: configure_git
-        name: Configure Git identity
-        run: |
-          git config --global init.defaultBranch main
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-      - id: checkout_repo
-        name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
       - id: install_node
         name: Install Node.js dependencies
         if: ${{ hashFiles('package.json') != '' }}
@@ -221,6 +206,12 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+      - id: download_site
+        name: Download built site artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: site
       - name: Run Markdown Lint
         run: npm run lint:md
       - name: Run JS Lint
