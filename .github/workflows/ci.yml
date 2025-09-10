@@ -25,9 +25,8 @@ concurrency:
 
 env:
   CI: true
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   NODE_ENV: production
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
   PIP_NO_CACHE_DIR: "off"
   PYTHONUNBUFFERED: "1"
