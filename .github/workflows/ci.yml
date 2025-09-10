@@ -28,7 +28,7 @@ env:
   NODE_ENV: production
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
-  PIP_NO_CACHE_DIR: "off"
+#  PIP_NO_CACHE_DIR: "off"
   PYTHONUNBUFFERED: "1"
   FORCE_COLOR: "1"
   TAG_PREFIX: RootService/MKDocs
@@ -44,6 +44,7 @@ jobs:
       - id: configure_git
         name: Configure Git identity
         run: |
+          git config --global init.defaultBranch main
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
       - id: checkout_repo
@@ -76,6 +77,7 @@ jobs:
       - id: configure_git
         name: Configure Git identity
         run: |
+          git config --global init.defaultBranch main
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
       - id: checkout_repo
@@ -188,6 +190,7 @@ jobs:
       - id: configure_git
         name: Configure Git identity
         run: |
+          git config --global init.defaultBranch main
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
       - id: checkout_repo
@@ -220,6 +223,7 @@ jobs:
       - id: configure_git
         name: Configure Git identity
         run: |
+          git config --global init.defaultBranch main
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
       - id: download_site
@@ -296,6 +300,7 @@ jobs:
       - id: configure_git
         name: Configure Git identity
         run: |
+          git config --global init.defaultBranch main
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
       - id: checkout_repo
@@ -349,6 +354,7 @@ jobs:
       - id: configure_git
         name: Configure Git identity
         run: |
+          git config --global init.defaultBranch main
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
       - id: checkout_repo
@@ -373,6 +379,7 @@ jobs:
       - id: configure_git
         name: Configure Git identity
         run: |
+          git config --global init.defaultBranch main
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
       - id: download_scores
