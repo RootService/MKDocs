@@ -102,6 +102,9 @@ plugins:
       tags_slugify: !!python/object/apply:pymdownx.slugs.slugify
         kwds:
           case: lower
+  - git-revision-date-plugin:
+      modify_md: true
+      as_datetime: true
   - git-revision-date-localized:
       enabled: !ENV [CI, true]
       enable_creation_date: true
@@ -115,7 +118,6 @@ plugins:
       token: !ENV [GITHUB_TOKEN, ""]
       repository: RootService/MKDocs
       branch: main
-  - document-dates
   - htmlproofer:
       validate_external_urls: false
       raise_error: true
