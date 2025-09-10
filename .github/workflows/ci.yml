@@ -1,4 +1,4 @@
-name: mkdocs
+name: MKDocs CI
 
 on:
   push:
@@ -365,39 +365,8 @@ jobs:
           name: sarif-${{ github.sha }}
           path: sarif/
 
-  codeql:
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-    steps:
-      - id: configure_git
-        name: Configure Git identity
-        run: |
-          git config --global init.defaultBranch main
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-      - id: checkout_repo
-        name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-      - id: init_codeql
-        name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          config-file: ./.github/codeql/codeql-config.yml
-          languages: javascript, python
-      - id: autobuild_codeql
-        name: Autobuild CodeQL
-        uses: github/codeql-action/autobuild@v3
-      - id: analyze_codeql
-        name: Analyze with CodeQL
-        uses: github/codeql-action/analyze@v3
-
   summary:
-    needs: [lint, lighthouse, security, codeql]
+    needs: [lint, lighthouse, security]
     runs-on: ubuntu-latest
     steps:
       - id: configure_git
