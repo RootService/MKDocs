@@ -17,16 +17,11 @@ concurrency:
 env:
   CI: true
   NODE_ENV: production
+  TAG_PREFIX: RootService/MKDocs
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
-#  PIP_NO_CACHE_DIR: "off"
   PYTHONUNBUFFERED: "1"
   FORCE_COLOR: "1"
-  TAG_PREFIX: RootService/MKDocs
-  LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
-  LOG_TAIL_LINES: 500
-  CHROME_PATH: ""
 
 jobs:
   analyze:
