@@ -1,0 +1,40 @@
+name: Require PR Labels
+
+on:
+  pull_request:
+    types: [opened, labeled, unlabeled, synchronize]
+
+permissions:
+  pull-requests: read
+  statuses: write
+
+env:
+  CI: true
+  NODE_ENV: production
+  TAG_PREFIX: RootService/MKDocs
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PYTHONUNBUFFERED: "1"
+  FORCE_COLOR: "1"
+
+jobs:
+  require-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ensure PR has at least one required label
+        uses: mheap/github-action-required-labels@v5
+        with:
+          mode: minimum
+          count: 1
+          labels: |
+            feat
+            fix
+            docs
+            chore
+            refactor
+            test
+            ci
+            lint
+            release
+            security
+            dependencies

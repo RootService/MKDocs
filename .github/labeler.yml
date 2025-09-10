@@ -1,0 +1,65 @@
+# Auto-label PRs based on changed file paths, branch names, or commit messages
+
+ci:
+  - ".github/workflows/ci.yml"
+  - any: ["**"]
+    branches: ["ci/*"]
+
+lint:
+  - ".github/workflows/lint.yml"
+  - any: ["**"]
+    branches: ["lint/*"]
+
+release:
+  - ".github/workflows/release.yml"
+  - any: ["**"]
+    branches: ["release/*"]
+
+security:
+  - ".github/workflows/security.yml"
+  - any: ["**"]
+    branches: ["security/*"]
+
+dependencies:
+  - "requirements.txt"
+  - "requirements-dev.txt"
+  - "package.json"
+  - "package-lock.json"
+  - "pyproject.toml"
+  - any: ["**"]
+    branches: ["dependabot/*"]
+
+pip:
+  - "requirements*.txt"
+  - "pyproject.toml"
+
+npm:
+  - "package.json"
+  - "package-lock.json"
+
+actions:
+  - ".github/workflows/*.yml"
+
+feat:
+  - any: ["**"]
+    commit: "^feat"
+
+fix:
+  - any: ["**"]
+    commit: "^fix"
+
+docs:
+  - any: ["**"]
+    commit: "^docs"
+
+chore:
+  - any: ["**"]
+    commit: "^chore"
+
+refactor:
+  - any: ["**"]
+    commit: "^refactor"
+
+test:
+  - any: ["**"]
+    commit: "^test"

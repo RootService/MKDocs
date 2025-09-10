@@ -1,0 +1,61 @@
+name: Sync Repository Labels
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/labels.yml"
+
+permissions:
+  contents: read
+  issues: write
+
+env:
+  CI: true
+  NODE_ENV: production
+  TAG_PREFIX: RootService/MKDocs
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PYTHONUNBUFFERED: "1"
+  FORCE_COLOR: "1"
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure Git identity
+        run: |
+          git config --global init.defaultBranch main
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Import GPG key
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
+          KEYGRIP=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}')
+          git config --global user.signingkey "$KEYGRIP"
+          git config --global commit.gpgsign true
+          git config --global gpg.program gpg
+
+      - name: Verify GPG signing setup
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          if ! git commit -m 'GPG check' --allow-empty; then
+            echo '❌ GPG signing failed, aborting.'
+            exit 1
+          fi
+          echo '✅ GPG signing is working.'
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
+      - name: Sync labels with config
+        uses: EndBug/label-sync@v2
+        with:
+          config-file: .github/labels.yml
+          token: ${{ secrets.GITHUB_TOKEN }}

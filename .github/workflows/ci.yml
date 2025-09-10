@@ -1,4 +1,4 @@
-name: MKDocs CI
+name: Continuous Integration (CI)
 
 on:
   push:
@@ -6,9 +6,11 @@ on:
   pull_request:
     branches: ["**"]
   schedule:
-    - cron: "0 3 1 * *"
+    - cron: "0 3 1 * *" # Run monthly
 
-permissions: write-all
+permissions:
+  contents: write
+  pages: write
 
 concurrency:
   group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref_name }}
@@ -22,62 +24,80 @@ env:
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
   PYTHONUNBUFFERED: "1"
   FORCE_COLOR: "1"
-  CHROME_PATH: ""
-  LOG_TAIL_LINES: 500
-  LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   build:
-    needs: setup
     runs-on: ubuntu-latest
     steps:
-      - id: configure_git
-        name: Configure Git identity
+      - name: Configure Git identity
         run: |
           git config --global init.defaultBranch main
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-      - id: checkout_repo
-        name: Checkout repository
+
+      - name: Import GPG key
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
+          KEYGRIP=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}')
+          git config --global user.signingkey "$KEYGRIP"
+          git config --global commit.gpgsign true
+          git config --global gpg.program gpg
+
+      - name: Verify GPG signing setup
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          if ! git commit -m 'GPG check' --allow-empty; then
+            echo '❌ GPG signing failed, aborting.'
+            exit 1
+          fi
+          echo '✅ GPG signing is working.'
+
+      - name: Checkout repository
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - id: setup_node
-        name: Setup Node.js
+          submodules: recursive
+
+      - name: Setup Node.js (LTS)
         uses: actions/setup-node@v5
         with:
           node-version: "lts/*"
           cache: npm
-      - id: setup_python
-        name: Setup Python
-        uses: actions/setup-python@v4
+          check-latest: true
+          cache-dependency-path: package-lock.json
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
           cache: pip
-      - id: setup_chrome
-        name: Setup Chrome
+          check-latest: true
+          cache-dependency-path: requirements.txt
+
+      - name: Setup Chrome
         uses: browser-actions/setup-chrome@v2
         with:
           chrome-version: stable
           install-chromedriver: true
           install-dependencies: true
-      - id: install_node
-        name: Install Node.js dependencies
-        if: ${{ hashFiles('package.json') != '' }}
+
+      - name: Install Node.js dependencies
+        if: hashFiles('package.json') != ''
         run: |
           npm cache clean --force
           npm install --ignore-scripts --no-audit --no-fund --package-lock-only
           npm shrinkwrap
-      - id: install_python
-        name: Install Python dependencies
-        if: ${{ hashFiles('requirements.txt') != '' }}
+
+      - name: Install Python dependencies
+        if: hashFiles('requirements.txt') != ''
         run: |
           python -m pip install --upgrade pip pip-tools
           pip-compile requirements.in --quiet --no-header --no-annotate
           pip install --use-pep517 --upgrade -r requirements.txt
-      - id: cleanup-ports
-        name: CleanUp Ports Options
+
+      - name: CleanUp Ports Options
         continue-on-error: true
         run: |
           if [ -d snippets/ports ]; then
@@ -88,15 +108,15 @@ jobs:
           else
             echo "No snippets/ports directory. Skipping."
           fi
-      - id: build_mkdocs
-        name: Build MkDocs
+
+      - name: Build MkDocs site
         run: mkdocs build --clean
-      - id: deploy_mkdocs
-        name: Deploy MkDocs to GitHub Pages
+
+      - name: Deploy MkDocs to GitHub Pages
         if: github.ref_name == 'main'
         run: mkdocs gh-deploy --force
-      - id: generate_csp
-        name: Generate CSP headers
+
+      - name: Generate CSP headers
         run: |
           python - <<'PY'
           import os, base64, hashlib, pathlib
@@ -182,68 +202,58 @@ jobs:
               encoding="utf-8",
           )
           PY
-      - id: upload_site
-        name: Upload built site artifact
+
+      - name: Upload built site artifact
         uses: actions/upload-artifact@v4
         with:
           name: site
           path: site
-
-  lint:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-    steps:
-      - id: configure_git
-        name: Configure Git identity
-        run: |
-          git config --global init.defaultBranch main
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-      - id: checkout_repo
-        name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-      - id: download_site
-        name: Download built site artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: site
-          path: site
-      - name: Run Markdown Lint
-        run: npm run lint:md
-      - name: Run JS Lint
-        run: npm run lint:js
-      - name: Run CSS Lint
-        run: npm run lint:css
-      - name: Run HTML Lint
-        run: npm run lint:html
+          if-no-files-found: error
+          retention-days: 7
+          include-hidden-files: true
 
   lighthouse:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - id: configure_git
-        name: Configure Git identity
+      - name: Configure Git identity
         run: |
           git config --global init.defaultBranch main
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-      - id: checkout_repo
-        name: Checkout repository
+
+      - name: Import GPG key
+        run: |
+          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
+          KEYGRIP=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}')
+          git config --global user.signingkey "$KEYGRIP"
+          git config --global commit.gpgsign true
+          git config --global gpg.program gpg
+
+      - name: Verify GPG signing setup
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          if ! git commit -m 'GPG check' --allow-empty; then
+            echo '❌ GPG signing failed, aborting.'
+            exit 1
+          fi
+          echo '✅ GPG signing is working.'
+
+      - name: Checkout repository
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - id: download_site
-        name: Download built site artifact
+          submodules: recursive
+
+      - name: Download built site artifact
         uses: actions/download-artifact@v4
         with:
           name: site
           path: site
-      - id: start_server
-        name: Start local HTTP server
+
+      - name: Start local HTTP server
         run: |
           npx http-server ./site -p 8000 >/dev/null 2>&1 &
           echo $! > server.pid
@@ -251,11 +261,11 @@ jobs:
             if curl -sSf http://localhost:8000 >/dev/null; then break; fi
             sleep 2
           done
-      - id: run_lighthouse
-        name: Run Lighthouse CI
+
+      - name: Run Lighthouse CI
         run: npx @lhci/cli autorun --rc-file ".lighthouserc.json" || true
-      - id: extract_scores
-        name: Extract Lighthouse scores
+
+      - name: Extract Lighthouse scores
         run: |
           REPORT="$(ls -t .lighthouseci/*-lhr-*.json | head -n1 || true)"
           if [ -n "$REPORT" ]; then
@@ -265,98 +275,15 @@ jobs:
             console.log(JSON.stringify(out,null,2)); fs.writeFileSync("lh-scores.json",JSON.stringify(out,null,2));
             NODE
           else echo '{"performance":0,"accessibility":0,"best-practices":0,"seo":0}' > lh-scores.json; fi
-      - id: upload_scores
-        name: Upload Lighthouse scores artifact
+
+      - name: Upload Lighthouse scores artifact
         uses: actions/upload-artifact@v4
         with:
           name: lh-scores
           path: lh-scores.json
-      - id: stop_server
-        name: Stop local server
+
+      - name: Stop local server
         if: always()
         run: |
           if [ -f server.pid ]; then kill "$(cat server.pid)" || true; fi
 
-  security:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-    steps:
-      - id: configure_git
-        name: Configure Git identity
-        run: |
-          git config --global init.defaultBranch main
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-      - id: checkout_repo
-        name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-      - id: setup_python
-        name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-          cache: pip
-      - id: scan_python
-        name: Run Python security scans
-        run: |
-          if [ -f requirements.txt ]; then pip-audit -r requirements.txt || true; fi
-          if git ls-files '*.py' | grep -q .; then bandit -r . -q || true; fi
-      - id: scan_npm
-        name: Run NPM audit
-        run: |
-          if [ -f package.json ]; then npm audit --audit-level=high || true; fi
-      - id: run_dependabot
-        name: Dependabot scan
-        uses: github/dependabot-action@v2
-      - id: dependency_review
-        name: Dependency review
-        uses: actions/dependency-review-action@v4
-        with:
-          fail-on-severity: high
-
-  summary:
-    needs: [lint, lighthouse, security]
-    runs-on: ubuntu-latest
-    steps:
-      - id: configure_git
-        name: Configure Git identity
-        run: |
-          git config --global init.defaultBranch main
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-      - id: download_scores
-        name: Download Lighthouse scores artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: lh-scores
-          path: .
-      - id: publish_lighthouse_scores
-        name: Publish Lighthouse scores to gh-pages
-        if: github.ref_name == 'main'
-        run: |
-          git fetch origin gh-pages || true
-          git checkout gh-pages || git checkout --orphan gh-pages
-          cp ../lh-scores.json ./lh-scores.json || true
-          git add lh-scores.json
-          git commit -m "ci: update Lighthouse scores [skip ci]" || true
-          git push origin gh-pages
-      - id: auto_commit
-        name: Auto-commit overrides/fixes
-        uses: stefanzweifel/git-auto-commit-action@v6
-        with:
-          commit_message: "chore(ci): update generated assets [skip ci]"
-          file_pattern: |
-            overrides/**
-            snippets/**
-            fixes/**
-          branch: ${{ github.ref_name }}
-          skip_dirty_check: false
-          skip_fetch: true
-          add_options: -A
-          push_options: --force-with-lease
-          tagging_message: ${{ env.TAG_PREFIX }}-${{ github.run_number }}
-          create_branch: false

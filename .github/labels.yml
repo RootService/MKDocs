@@ -1,18 +1,44 @@
-- name: bug
-  color: 'd73a4a'
-  description: Fehler im Projekt
-- name: enhancement
-  color: 'a2eeef'
-  description: Neue Features oder Verbesserungen
-- name: documentation
-  color: '0075ca'
-  description: Änderungen an der Dokumentation
-- name: question
-  color: 'd876e3'
-  description: Fragen oder Diskussionen
-- name: security
-  color: 'e99695'
-  description: Sicherheitsrelevantes Thema
-- name: chore
-  color: 'cfd3d7'
-  description: Wartungsarbeiten, Dependencies, CI/CD
+labels:
+  - name: dependencies
+    color: "0366d6"
+    description: "Dependency updates"
+
+  - name: pip
+    color: "4B8BBE"
+    description: "Python dependencies"
+
+  - name: npm
+    color: "cb3837"
+    description: "Node.js dependencies"
+
+  - name: actions
+    color: "000000"
+    description: "GitHub Actions dependencies"
+
+  - name: major
+    color: "d73a4a"
+    description: "Major version update"
+
+  - name: minor
+    color: "fbca04"
+    description: "Minor version update"
+
+  - name: patch
+    color: "0e8a16"
+    description: "Patch version update"
+
+  - name: ci
+    color: "1d76db"
+    description: "Continuous Integration workflow"
+
+  - name: lint
+    color: "5319e7"
+    description: "Linting and style checks"
+
+  - name: release
+    color: "ff8c00"
+    description: "Release workflow"
+
+  - name: security
+    color: "b60205"
+    description: "Security updates and checks"

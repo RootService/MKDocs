@@ -1,0 +1,52 @@
+name: Dependabot Labeling
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  CI: true
+  NODE_ENV: production
+  TAG_PREFIX: RootService/MKDocs
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PYTHONUNBUFFERED: "1"
+  FORCE_COLOR: "1"
+
+jobs:
+  label:
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Add ecosystem labels
+        run: |
+          case "${{ steps.metadata.outputs.package-ecosystem }}" in
+            pip) gh pr edit ${{ github.event.pull_request.number }} --add-label "dependencies,pip" ;;
+            npm) gh pr edit ${{ github.event.pull_request.number }} --add-label "dependencies,npm" ;;
+            github-actions) gh pr edit ${{ github.event.pull_request.number }} --add-label "dependencies,actions" ;;
+            *) gh pr edit ${{ github.event.pull_request.number }} --add-label "dependencies" ;;
+          esac
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add update type labels
+        run: |
+          if [[ "${{ steps.metadata.outputs.update-type }}" == "version-update:semver-major" ]]; then
+            gh pr edit ${{ github.event.pull_request.number }} --add-label "major"
+          elif [[ "${{ steps.metadata.outputs.update-type }}" == "version-update:semver-minor" ]]; then
+            gh pr edit ${{ github.event.pull_request.number }} --add-label "minor"
+          elif [[ "${{ steps.metadata.outputs.update-type }}" == "version-update:semver-patch" ]]; then
+            gh pr edit ${{ github.event.pull_request.number }} --add-label "patch"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
