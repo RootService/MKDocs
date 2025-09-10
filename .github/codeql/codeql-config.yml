@@ -6,9 +6,7 @@ paths:
   - docs
   - overrides
   - snippets
-  - fixes
-  - src
-  - scripts
+  - tools
 
 # Exclude non-source or generated dirs
 paths-ignore:
