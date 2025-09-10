@@ -26,6 +26,7 @@ concurrency:
 env:
   CI: true
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   NODE_ENV: production
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
   PIP_NO_CACHE_DIR: "off"
@@ -43,10 +44,9 @@ jobs:
     steps:
       - id: configure_git
         name: Configure Git identity
-        uses: actions/configure-git@v2
-        with:
-          author-name: ${{ github.actor }}
-          author-email: ${{ github.actor }}@users.noreply.github.com
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
       - id: checkout_repo
         name: Checkout repository
         uses: actions/checkout@v5
@@ -69,7 +69,6 @@ jobs:
           chrome-version: stable
           install-chromedriver: true
           install-dependencies: true
-      - run: echo "CHROME_PATH=${{ steps.chrome.outputs.chrome-path }}" >> $GITHUB_ENV
 
   build:
     needs: setup
@@ -77,10 +76,9 @@ jobs:
     steps:
       - id: configure_git
         name: Configure Git identity
-        uses: actions/configure-git@v2
-        with:
-          author-name: ${{ github.actor }}
-          author-email: ${{ github.actor }}@users.noreply.github.com
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
       - id: checkout_repo
         name: Checkout repository
         uses: actions/checkout@v5
@@ -190,10 +188,9 @@ jobs:
     steps:
       - id: configure_git
         name: Configure Git identity
-        uses: actions/configure-git@v2
-        with:
-          author-name: ${{ github.actor }}
-          author-email: ${{ github.actor }}@users.noreply.github.com
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
       - id: checkout_repo
         name: Checkout repository
         uses: actions/checkout@v5
@@ -223,10 +220,9 @@ jobs:
     steps:
       - id: configure_git
         name: Configure Git identity
-        uses: actions/configure-git@v2
-        with:
-          author-name: ${{ github.actor }}
-          author-email: ${{ github.actor }}@users.noreply.github.com
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
       - id: download_site
         name: Download built site artifact
         uses: actions/download-artifact@v4
@@ -300,10 +296,9 @@ jobs:
     steps:
       - id: configure_git
         name: Configure Git identity
-        uses: actions/configure-git@v2
-        with:
-          author-name: ${{ github.actor }}
-          author-email: ${{ github.actor }}@users.noreply.github.com
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
       - id: checkout_repo
         name: Checkout repository
         uses: actions/checkout@v5
@@ -354,10 +349,9 @@ jobs:
     steps:
       - id: configure_git
         name: Configure Git identity
-        uses: actions/configure-git@v2
-        with:
-          author-name: ${{ github.actor }}
-          author-email: ${{ github.actor }}@users.noreply.github.com
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
       - id: checkout_repo
         name: Checkout repository
         uses: actions/checkout@v5
@@ -379,10 +373,9 @@ jobs:
     steps:
       - id: configure_git
         name: Configure Git identity
-        uses: actions/configure-git@v2
-        with:
-          author-name: ${{ github.actor }}
-          author-email: ${{ github.actor }}@users.noreply.github.com
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
       - id: download_scores
         name: Download Lighthouse scores artifact
         uses: actions/download-artifact@v4
