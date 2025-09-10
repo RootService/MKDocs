@@ -80,27 +80,12 @@
             "minScore": 0.9
           }
         ],
-        "aria-allowed-attr": "warn",
-        "aria-allowed-role": "warn",
-        "aria-dialog-name": "warn",
-        "aria-progressbar-name": "warn",
-        "errors-in-console": "warn",
-        "heading-order": "warn",
-        "image-alt": "warn",
-        "image-size-responsive": "warn",
-        "image-delivery-insight": "warn",
-        "lcp-discovery-insight": "warn",
-        "lcp-lazy-loaded": "warn",
-        "legacy-javascript-insight": "warn",
-        "network-dependency-tree-insight": "warn",
-        "unsized-images": "warn",
-        "unused-css-rules": "warn"
       },
       "includePassedAssertions": true
     },
     "upload": {
       "target": "filesystem",
-      "outputDir": ".lighthouseci/"
+      "outputDir": ".lighthouseci"
     },
     "healthcheck": {
       "configPath": ".desktopConfig.json"

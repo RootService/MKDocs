@@ -16,3 +16,6 @@ cffi
 tinycss2
 cssselect2
 pillow
+pip-audit
+bandit
+

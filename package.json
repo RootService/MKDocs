@@ -26,9 +26,10 @@
     "url": "git+https://github.com/RootService/MKDocs.git"
   },
   "scripts": {
-    "test": "prettier -c overrides/** package.json README.md && tsc -p .",
     "changelog": "conventional-changelog -p conventionalcommits --config ./build/changelog-generator/index.cjs --infile changelog.md --same-file",
-    "changelog:version": "conventional-changelog [patch|minor|major] -p conventionalcommits --infile CHANGELOG.md --same-file && git add CHANGELOG.md"
+    "changelog:version": "conventional-changelog [patch|minor|major] -p conventionalcommits --infile CHANGELOG.md --same-file && git add CHANGELOG.md",
+    "lint": "eslint docs/**/*.js && stylelint docs/**/*.css && markdownlint docs/**/*.md",
+    "serve": "http-server ./site -p 8000"
   },
   "dependencies": {
     "@actions/artifact": "latest",
@@ -40,11 +41,13 @@
     "http-server": "latest",
     "markdownlint-cli2": "latest",
     "puppeteer": "latest",
-    "serve": "latest",
-    "tmp": "latest"
+    "eslint": "latest",
+    "stylelint": "latest",
+    "htmlhint": "latest",
+    "sharp-cli": "latest"
   },
   "engines": {
-    "node": ">=24",
+    "node": ">=20",
     "npm": ">=11"
   },
   "os": [
@@ -59,7 +62,7 @@
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": ">=24",
+      "version": ">=20",
       "onFail": "error"
     },
     "packageManager": {

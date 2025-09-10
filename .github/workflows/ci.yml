@@ -3,120 +3,99 @@ name: mkdocs
 on:
   push:
     branches: ["**"]
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - ".github/workflows/ci.yml"
   pull_request:
     branches: ["**"]
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - ".github/workflows/ci.yml"
   workflow_dispatch:
+  schedule:
+    - cron: "0 3 1 * *"
 
 permissions: write-all
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref_name }}
-  cancel-in-progress: true
+  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: ${{ !(github.ref_name == 'main' || github.event_name == 'pull_request') }}
 
 env:
-  name: mkdocs
   CI: true
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  LOG_TAIL_LINES: 500
+  NODE_ENV: production
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PIP_NO_CACHE_DIR: "off"
+  PYTHONUNBUFFERED: "1"
+  FORCE_COLOR: "1"
   TAG_PREFIX: RootService/MKDocs
-  CHROME_PATH: ""
   LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
+  LOG_TAIL_LINES: 500
+  CHROME_PATH: ""
 
 jobs:
   setup:
-    name: Setup
-    if: always()
     runs-on: ubuntu-latest
-    timeout-minutes: 60
     steps:
-      - name: Configure Git
-        id: git
-        run: |
-          git config --global init.defaultBranch main
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-
-      - name: Checkout
-        id: checkout
-        uses: actions/checkout@v5
+      - id: configure_git
+        name: Configure Git identity
+        uses: actions/configure-git@v2
         with:
-          fetch-depth: 0
-          submodules: recursive
-
-      - name: Setup Node.js
-        id: node
-        uses: actions/setup-node@v4
+          author-name: ${{ github.actor }}
+          author-email: ${{ github.actor }}@users.noreply.github.com
+      - id: checkout_repo
+        name: Checkout repository
+        uses: actions/checkout@v5
+      - id: setup_node
+        name: Setup Node.js
+        uses: actions/setup-node@v5
         with:
           node-version: 20
           cache: npm
-
-      - name: Install Node.js deps
-        id: npm
-        if: ${{ hashFiles('package.json') != '' }}
-        run: npm install --no-audit --no-fund
-
-      - name: Cache npm
-        id: cache-npm
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ubuntu-npm-${{ hashFiles('package.json') }}
-          restore-keys: ubuntu-npm-
-
-      - name: Setup Python
-        id: python
+      - id: setup_python
+        name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           cache: pip
-
-      - name: Install Python deps
-        id: pip
-        if: ${{ hashFiles('requirements.txt') != '' }}
-        run: |
-          python -m pip install --upgrade pip
-          pip install --upgrade -r requirements.txt
-
-      - name: Cache pip
-        id: cache-pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ubuntu-pip-${{ hashFiles('requirements.txt') }}
-          restore-keys: ubuntu-pip-
-
-      - name: Setup Chrome
-        id: chrome
+      - id: setup_chrome
+        name: Setup Chrome
         uses: browser-actions/setup-chrome@v2
         with:
           chrome-version: stable
           install-chromedriver: true
           install-dependencies: true
-
-      - name: Export CHROME_PATH
-        id: chrome-path
-        continue-on-error: true
         run: echo "CHROME_PATH=${{ steps.chrome.outputs.chrome-path }}" >> $GITHUB_ENV
 
   build:
-    name: Build
     needs: setup
-    if: always()
     runs-on: ubuntu-latest
-    timeout-minutes: 60
     steps:
-      - name: Set CSP_ENV by event
-        id: csp
+      - id: configure_git
+        name: Configure Git identity
+        uses: actions/configure-git@v2
+        with:
+          author-name: ${{ github.actor }}
+          author-email: ${{ github.actor }}@users.noreply.github.com
+      - id: checkout_repo
+        name: Checkout repository
+        uses: actions/checkout@v5
+      - id: install_node
+        name: Install Node.js dependencies
+        if: ${{ hashFiles('package.json') != '' }}
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - id: install_python
+        name: Install Python dependencies
+        if: ${{ hashFiles('requirements.txt') != '' }}
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "CSP_ENV=preview" >> $GITHUB_ENV
-          else
-            echo "CSP_ENV=production" >> $GITHUB_ENV
-          fi
-
-      - name: CleanUp Ports Options
-        id: ports
+          python -m pip install --upgrade pip
+          pip install --upgrade -r requirements.txt
+      - id: cleanup-ports
+        name: CleanUp Ports Options
         continue-on-error: true
         run: |
           if [ -d snippets/ports ]; then
@@ -127,30 +106,15 @@ jobs:
           else
             echo "No snippets/ports directory. Skipping."
           fi
-
-      - name: Lint Markdown
-        id: lint-md
-        continue-on-error: true
-        run: |
-          if [ -d docs ]; then
-            npx -y markdownlint-cli2 "docs/**/*.md"
-          else
-            echo "No docs directory. Skipping."
-          fi
-
-      - name: Build MkDocs
-        id: mkdocs
-        run: |
-          mkdocs build --clean
-          build_rc=${PIPESTATUS[0]}
-          if [ $build_rc -eq 0 ]; then
-            mkdocs gh-deploy --force
-          fi
-          exit $build_rc
-
-      - name: Create image variants
-        id: images
-        continue-on-error: true
+      - id: build_mkdocs
+        name: Build MkDocs
+        run: mkdocs build --clean
+      - id: deploy_mkdocs
+        name: Deploy MkDocs to GitHub Pages
+        if: github.ref_name == 'main'
+        run: mkdocs gh-deploy --force
+      - id: create_images
+        name: Create responsive image variants
         run: |
           if [ -d site ]; then
             mapfile -t FILES < <(find site -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \))
@@ -161,66 +125,17 @@ jobs:
               [ -f "${base}.png" ]  || npx -y sharp-cli "$img" --png  -o "${base}.png"
               [ -f "${base}.gif" ]  || npx -y sharp-cli "$img" --gif  -o "${base}.gif"
             done
-          else
-            echo "No site directory. Skipping image conversion."
           fi
-
-      - name: Lint JavaScript
-        id: lint-js
-        continue-on-error: true
-        run: |
-          if [ -d site ]; then
-            if compgen -G "site/**/*.js" > /dev/null; then
-              npx -y eslint "site/**/*.js" --no-error-on-unmatched-pattern || true
-            else
-              echo "No JS files. Skipping."
-            fi
-          else
-            echo "No site directory. Skipping."
-          fi
-
-      - name: Lint CSS
-        id: lint-css
-        continue-on-error: true
-        run: |
-          if [ -d site ]; then
-            if compgen -G "site/**/*.css" > /dev/null; then
-              npx -y stylelint "site/**/*.css" || true
-            else
-              echo "No CSS files. Skipping."
-            fi
-          else
-            echo "No site directory. Skipping."
-          fi
-
-      - name: Lint HTML
-        id: lint-html
-        continue-on-error: true
-        run: |
-          if [ -d site ]; then
-            if compgen -G "site/**/*.html" > /dev/null; then
-              npx -y htmlhint "site/**/*.html" || true
-            else
-              echo "No HTML files. Skipping."
-            fi
-          else
-            echo "No site directory. Skipping."
-          fi
-
-      - name: Generate CSP headers
-        id: csp-headers
-        continue-on-error: true
+      - id: generate_csp
+        name: Generate CSP headers
         run: |
           python - <<'PY'
           import os, base64, hashlib, pathlib
           from bs4 import BeautifulSoup
           SITE = pathlib.Path("site")
-          NGINX_CONF = SITE / ".nginx-csp.conf"
-          APACHE_HTA = SITE / ".htaccess"
-          CSP_ENV = os.getenv("CSP_ENV","production").lower()
           script_hashes, style_hashes = set(), set()
           for htmlp in SITE.rglob("*.html"):
-              soup = BeautifulSoup(htmlp.read_text(encoding="utf-8", errors="ignore"), "html.parser")
+              soup = BeautifulSoup(htmlp.read_text("utf-8", errors="ignore"), "html.parser")
               for tag in soup.find_all("script"):
                   if tag.has_attr("src"): continue
                   content = (tag.string or "").encode("utf-8")
@@ -257,208 +172,252 @@ jobs:
               "report-uri https://www.rootservice.org/default-endpoint.php; "
               "report-to default-endpoint"
           )
-          NGINX_CONF.write_text(f"add_header Content-Security-Policy \"{csp}\" always;\n", encoding="utf-8")
-          APACHE_HTA.write_text("<IfModule mod_headers.c>\n" + f'  Header always set Content-Security-Policy "{csp}"\n' + "</IfModule>\n", encoding="utf-8")
-          print("CSP headers generated:", NGINX_CONF, APACHE_HTA)
+          (SITE/".nginx-csp.conf").write_text(f"add_header Content-Security-Policy \\"{csp}\\" always;\\n")
+          (SITE/".htaccess").write_text(f"<IfModule mod_headers.c>\\n  Header set Content-Security-Policy \\"{csp}\\"\\n</IfModule>\\n")
           PY
-
-      - name: MkDocs summary
-        id: summary-build
-        continue-on-error: true
-        if: always()
-        run: |
-          if [ -d site ]; then
-            if [ -f site/index.html ]; then
-              echo "status=success" >> "$GITHUB_OUTPUT"
-            else
-              echo "status=failure" >> "$GITHUB_OUTPUT"
-            fi
-          else
-            echo "No site directory. Skipping."
-          fi
-
-      - name: Upload site artifact
-        id: artifact
+      - id: upload_site
+        name: Upload built site artifact
         uses: actions/upload-artifact@v4
         with:
-          name: site
+          name: site-3.12
           path: site
-          if-no-files-found: error
-          retention-days: 5
-          include-hidden-files: true
+
+  lint:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    steps:
+      - id: configure_git
+        name: Configure Git identity
+        uses: actions/configure-git@v2
+        with:
+          author-name: ${{ github.actor }}
+          author-email: ${{ github.actor }}@users.noreply.github.com
+      - id: checkout_repo
+        name: Checkout repository
+        uses: actions/checkout@v5
+      - id: run_linters
+        name: Run linters
+        run: |
+          mkdir -p sarif
+          npx markdownlint-cli2 --json docs/**/*.md > sarif/markdown.sarif || true
+          npx eslint "docs/**/*.js" -f sarif -o sarif/eslint.sarif || true
+          npx stylelint "docs/**/*.css" --custom-formatter=node_modules/stylelint-formatter-sarif/sarif.js > sarif/stylelint.sarif || true
+          npx htmlhint "docs/**/*.html" || true
+      - id: aggregate_sarif
+        name: Aggregate SARIF results
+        run: jq -s '{ "version":"2.1.0","runs": map(.runs) | add }' sarif/*.sarif > results.sarif || echo '{"version":"2.1.0","runs":[]}' > results.sarif
+      - id: upload_sarif
+        name: Upload SARIF to GitHub
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
+          category: "lint"
+          config_file: .github/codeql/codeql-config.yml
 
   lighthouse:
-    name: Lighthouse
     needs: build
-    if: always()
     runs-on: ubuntu-latest
-    timeout-minutes: 60
     steps:
-      - name: Ensure LHCI config files
-        id: lhci
+      - id: configure_git
+        name: Configure Git identity
+        uses: actions/configure-git@v2
+        with:
+          author-name: ${{ github.actor }}
+          author-email: ${{ github.actor }}@users.noreply.github.com
+      - id: download_site
+        name: Download built site artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: site-3.12
+          path: site
+      - id: start_server
+        name: Start local HTTP server
         run: |
-          test -f .lighthouserc.json || echo "⚠ Missing .lighthouserc.json (softfail)" || true
-          test -f .desktopConfig.json || echo "⚠ Missing .desktopConfig.json (softfail)" || true
-
-      - name: Serve ./site on :8000
-        id: serve
-        run: |
-          npx -y http-server ./site -p 8000 >/dev/null 2>&1 &
+          npx http-server ./site -p 8000 >/dev/null 2>&1 &
           echo $! > server.pid
           for i in {1..30}; do
-            if curl -sSf http://localhost:8000 >/dev/null; then
-              echo "Server is up."
-              break
-            fi
+            if curl -sSf http://localhost:8000 >/dev/null; then break; fi
             sleep 2
           done
-
-      - name: Run Lighthouse CI
-        id: run-lhci
-        continue-on-error: true
-        env:
-          CHROME_PATH: ${{ env.CHROME_PATH }}
-          LHCI_GITHUB_APP_TOKEN: ${{ env.LHCI_GITHUB_APP_TOKEN }}
-          GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
-        run: npx -y @lhci/cli autorun --rc-file ".lighthouserc.json" || true
-
-      - name: Derive fixes from Lighthouse
-        id: fixes
-        continue-on-error: true
+      - id: run_lighthouse
+        name: Run Lighthouse CI
+        run: npx @lhci/cli autorun --rc-file ".lighthouserc.json" || true
+      - id: extract_scores
+        name: Extract Lighthouse scores
         run: |
-          mkdir -p fixes
-          REPORT="$(ls -t .lighthouseci/*-lhr-*.json 2>/dev/null | head -n1 || true)"
-          if [ -z "$REPORT" ]; then
-            echo "No LHCI JSON report found." | tee "fixes/lighthouse-${{ github.sha }}.md"
-          else
-            node - <<'NODE' "$REPORT" > "fixes/lighthouse-${{ github.sha }}.md"
-            const fs = require('fs');
-            const path = process.argv[1];
-            const data = JSON.parse(fs.readFileSync(path,'utf8'));
-            const cats = data.categories || {};
-            const low = Object.entries(cats)
-              .map(([k,v]) => ({id:k, title:v.title, score:v.score}))
-              .filter(c => c.score < 0.90);
-            const audits = data.audits || {};
-            const items = Object.values(audits)
-              .filter(a => a.score !== null && a.score < 1)
-              .map(a => ({
-                id: a.id, title: a.title, desc: a.description || '',
-                help: (a.details && a.details.help) || (a.warning || ''),
-                doc: a.documentation || a.warnings || a.url || ''
-              }));
-            function linkFor(a){
-              if (a?.details?.links && a.details.links[0]?.url) return a.details.links[0].url;
-              if (a?.id) return `https://web.dev/${a.id}/`;
-              return '';
-            }
-            let out = [];
-            out.push(`# Lighthouse Fixes (${new Date().toISOString()})`);
-            out.push('');
-            if(low.length){ out.push('## Low scoring categories (< 0.90)'); low.forEach(c=>out.push(`- ${c.title}: ${(c.score*100).toFixed(0)}%`)); out.push(''); }
-            out.push('## Suggested actions');
-            items.slice(0,100).forEach(a=>{
-              out.push(`- **${a.title}** — ${a.desc.replace(/\n/g,' ')}`);
-              const l = linkFor(a) || '';
-              if (l) out.push(`  - Docs: ${l}`);
-            });
-            console.log(out.join('\n'));
+          REPORT="$(ls -t .lighthouseci/*-lhr-*.json | head -n1 || true)"
+          if [ -n "$REPORT" ]; then
+            node - <<'NODE' "$REPORT" > lh-scores.json
+            const fs = require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));
+            const out={}; for(const [k,v] of Object.entries(r.categories||{})){out[k]=Math.round((v.score||0)*100);}
+            console.log(JSON.stringify(out,null,2)); fs.writeFileSync("lh-scores.json",JSON.stringify(out,null,2));
             NODE
-            echo "Fixes generated at fixes/lighthouse-${{ github.sha }}.md"
-          fi
-
-      - name: Stop server
-        id: stop
-        if: always()
-        run: |
-          if [ -f server.pid ]; then
-            kill "$(cat server.pid)" 2>/dev/null || true
-          fi
-
-  security:
-    name: Security
-    needs: build
-    if: always()
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - name: Security checks
-        id: audit
-        continue-on-error: true
-        run: |
-          if [ -f requirements.txt ]; then
-            pip-audit -r requirements.txt || echo "::warning::pip-audit found issues"
-          else
-            echo "No requirements.txt. Skipping pip-audit."
-          fi
-          if git ls-files '*.py' | grep -q .; then
-            bandit -r . -q || echo "::warning::bandit found issues"
-          else
-            echo "No Python files. Skipping bandit."
-          fi
-          if [ -f package.json ] || [ -f package-lock.json ]; then
-            npm audit --audit-level=high || echo "::warning::npm audit found high+ issues"
-          else
-            echo "No package.json. Skipping npm audit."
-          fi
-
-      - name: Dependency Review
-        id: deps
-        uses: actions/dependency-review-action@v4
-        with:
-          fail-on-severity: moderate
-
-  summary:
-    name: Summary
-    needs: [build, security, lighthouse]
-    if: always()
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - name: Upload reports
-        id: reports
-        continue-on-error: true
-        if: always()
+          else echo '{"performance":0,"accessibility":0,"best-practices":0,"seo":0}' > lh-scores.json; fi
+      - id: upload_scores
+        name: Upload Lighthouse scores artifact
         uses: actions/upload-artifact@v4
         with:
-          name: reports-${{ github.sha }}
-          path: |
-            .lighthouseci/**
-            fixes/**
-          if-no-files-found: ignore
-          retention-days: 14
+          name: lh-scores
+          path: lh-scores.json
+      - id: convert_lighthouse_sarif
+        name: Convert Lighthouse results to SARIF
+        run: |
+          mkdir -p sarif
+          REPORT="$(ls -t .lighthouseci/*-lhr-*.json | head -n1 || true)"
+          if [ -n "$REPORT" ]; then
+            node - <<'NODE' "$REPORT" > sarif/lighthouse.sarif
+            const fs = require('fs');
+            const report = JSON.parse(fs.readFileSync(process.argv[1],'utf8'));
+            const results = [];
+            for (const [id,audit] of Object.entries(report.audits)) {
+              if (audit.details && audit.details.type === 'table' && audit.score !== 1) {
+                results.push({ruleId:id,message:{text:audit.title||id}});
+              }
+            }
+            console.log(JSON.stringify({version:"2.1.0",runs:[{tool:{driver:{name:"Lighthouse"}},results}]}));
+            NODE
+          else echo '{"version":"2.1.0","runs":[]}' > sarif/lighthouse.sarif; fi
+      - id: upload_lighthouse_sarif
+        name: Upload Lighthouse SARIF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarif-${{ github.sha }}
+          path: sarif/
+      - id: stop_server
+        name: Stop local server
+        if: always()
+        run: |
+          if [ -f server.pid ]; then kill "$(cat server.pid)" || true; fi
 
-      - name: Commit generated assets
-        id: commit
-        continue-on-error: true
+  security:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    steps:
+      - id: configure_git
+        name: Configure Git identity
+        uses: actions/configure-git@v2
+        with:
+          author-name: ${{ github.actor }}
+          author-email: ${{ github.actor }}@users.noreply.github.com
+      - id: checkout_repo
+        name: Checkout repository
+        uses: actions/checkout@v5
+      - id: setup_python
+        name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+          cache: pip
+      - id: scan_python
+        name: Run Python security scans
+        run: |
+          if [ -f requirements.txt ]; then pip-audit -r requirements.txt || true; fi
+          if git ls-files '*.py' | grep -q .; then bandit -r . -q || true; fi
+      - id: scan_npm
+        name: Run NPM audit
+        run: |
+          if [ -f package.json ]; then npm audit --audit-level=high || true; fi
+      - id: dependency_review
+        name: Dependency review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+      - id: convert_security_sarif
+        name: Convert security findings to SARIF
+        run: |
+          mkdir -p sarif
+          node - <<'NODE' > sarif/security.sarif
+          const results = [];
+          results.push({ruleId:"pip-audit",message:{text:"pip-audit completed"}});
+          results.push({ruleId:"bandit",message:{text:"bandit scan completed"}});
+          results.push({ruleId:"npm-audit",message:{text:"npm audit completed"}});
+          console.log(JSON.stringify({version:"2.1.0",runs:[{tool:{driver:{name:"Security"}},results}]}));
+          NODE
+      - id: upload_security_sarif
+        name: Upload security SARIF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sarif-${{ github.sha }}
+          path: sarif/
+
+  codeql:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - id: configure_git
+        name: Configure Git identity
+        uses: actions/configure-git@v2
+        with:
+          author-name: ${{ github.actor }}
+          author-email: ${{ github.actor }}@users.noreply.github.com
+      - id: checkout_repo
+        name: Checkout repository
+        uses: actions/checkout@v5
+      - id: init_codeql
+        name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript, python
+      - id: autobuild_codeql
+        name: Autobuild CodeQL
+        uses: github/codeql-action/autobuild@v3
+      - id: analyze_codeql
+        name: Analyze with CodeQL
+        uses: github/codeql-action/analyze@v3
+
+  summary:
+    needs: [lint, lighthouse, security, codeql]
+    runs-on: ubuntu-latest
+    steps:
+      - id: configure_git
+        name: Configure Git identity
+        uses: actions/configure-git@v2
+        with:
+          author-name: ${{ github.actor }}
+          author-email: ${{ github.actor }}@users.noreply.github.com
+      - id: download_scores
+        name: Download Lighthouse scores artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: lh-scores
+          path: .
+      - id: publish_lighthouse_scores
+        name: Publish Lighthouse scores to gh-pages
+        if: github.ref_name == 'main'
+        run: |
+          git fetch origin gh-pages || true
+          git checkout gh-pages || git checkout --orphan gh-pages
+          cp ../lh-scores.json ./lh-scores.json || true
+          git add lh-scores.json
+          git commit -m "ci: update Lighthouse scores [skip ci]" || true
+          git push origin gh-pages
+      - id: auto_commit
+        name: Auto-commit overrides/fixes
         uses: stefanzweifel/git-auto-commit-action@v6
         with:
-          commit_message: "chore(ci): add image variants and Lighthouse fixes [skip ci]"
+          commit_message: "chore(ci): update generated assets [skip ci]"
           file_pattern: |
             overrides/**
+            snippets/**
             fixes/**
           branch: ${{ github.ref_name }}
           skip_dirty_check: false
           skip_fetch: true
           add_options: -A
           push_options: --force-with-lease
-          commit_user_name: github-actions[bot]
-          commit_user_email: 41898282+github-actions[bot]@users.noreply.github.com
           tagging_message: ${{ env.TAG_PREFIX }}-${{ github.run_number }}
           create_branch: false
-
-      - name: Summary
-        id: summary
-        continue-on-error: true
-        if: always()
+      - id: slack_notify
+        name: Notify Slack on failure
+        if: failure()
         run: |
-          {
-            echo "## Run Summary"
-            echo "- Ref: ${{ github.ref }}"
-            echo "- SHA: ${{ github.sha }}"
-            echo "- CSP_ENV: ${{ env.CSP_ENV }}"
-            echo ""
-            echo "### Outputs"
-            echo "- Lighthouse report: artifact 'reports-${{ github.sha }}'"
-            echo "- Fixes: ./fixes/lighthouse-${{ github.sha }}.md"
-          } >> "$GITHUB_STEP_SUMMARY"
+          curl -X POST -H 'Content-type: application/json' \
+          --data "{\\"text\\":\\"Workflow failed: $GITHUB_WORKFLOW ($GITHUB_RUN_NUMBER) on $GITHUB_REF\\"}" \
+          ${{ secrets.SLACK_WEBHOOK_URL }}

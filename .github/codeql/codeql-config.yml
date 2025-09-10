@@ -1,0 +1,12 @@
+name: "Custom Code Scanning Config"
+disable-default-queries: true
+
+packs: []
+queries: []
+
+tools:
+  - name: "Docs, Accessibility & Security Linting"
+    categories:
+      - "lint"
+      - "lighthouse"
+      - "security"
