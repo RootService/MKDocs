@@ -207,7 +207,8 @@ jobs:
           npx htmlhint "docs/**/*.html" || true
       - id: aggregate_sarif
         name: Aggregate SARIF results
-        run: jq -s '{ "version":"2.1.0","runs": map(.runs) | add }' sarif/*.sarif > results.sarif || echo '{"version":"2.1.0","runs":[]}' > results.sarif
+        run: |
+          jq -s '{ "version":"2.1.0","runs": map(.runs) | add }' sarif/*.sarif > results.sarif || echo '{"version":"2.1.0","runs":[]}' > results.sarif
       - id: upload_sarif
         name: Upload SARIF to GitHub
         uses: github/codeql-action/upload-sarif@v3
