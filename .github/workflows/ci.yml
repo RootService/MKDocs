@@ -119,20 +119,20 @@ jobs:
         name: Deploy MkDocs to GitHub Pages
         if: github.ref_name == 'main'
         run: mkdocs gh-deploy --force
-      - id: create_images
-        name: Create responsive image variants
-        run: |
-          if [ -d site ]; then
-            mapfile -t FILES < <(find site -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.svg' -o -iname '*.webp' -o -iname '*.avif' \))
-            for img in "${FILES[@]}"; do
-              dir="$(dirname "$img")"
-              file="$(basename "$img" | sed 's/\.[^.]*$//')"  # strip extension safely
-              [ -f "$dir/$file.avif" ] || npx -y sharp-cli "$img" --format=avif --output "$dir/$file.avif"
-              [ -f "$dir/$file.webp" ] || npx -y sharp-cli "$img" --format=webp --output "$dir/$file.webp"
-              [ -f "$dir/$file.png" ]  || npx -y sharp-cli "$img" --format=png  --output "$dir/$file.png"
-              [ -f "$dir/$file.gif" ]  || npx -y sharp-cli "$img" --format=gif  --output "$dir/$file.gif"
-            done
-          fi
+      # - id: create_images
+        # name: Create responsive image variants
+        # run: |
+          # if [ -d site ]; then
+            # mapfile -t FILES < <(find site -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.svg' -o -iname '*.webp' -o -iname '*.avif' \))
+            # for img in "${FILES[@]}"; do
+              # dir="$(dirname "$img")"
+              # file="$(basename "$img" | sed 's/\.[^.]*$//')"  # strip extension safely
+              # [ -f "$dir/$file.avif" ] || npx -y sharp-cli "$img" --format=avif --output "$dir/$file.avif"
+              # [ -f "$dir/$file.webp" ] || npx -y sharp-cli "$img" --format=webp --output "$dir/$file.webp"
+              # [ -f "$dir/$file.png" ]  || npx -y sharp-cli "$img" --format=png  --output "$dir/$file.png"
+              # [ -f "$dir/$file.gif" ]  || npx -y sharp-cli "$img" --format=gif  --output "$dir/$file.gif"
+            # done
+          # fi
       - id: generate_csp
         name: Generate CSP headers
         run: |

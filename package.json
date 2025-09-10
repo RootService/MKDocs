@@ -32,7 +32,7 @@
     "htmlhint": "^1.6.3",
     "http-server": "^14.1.1",
     "markdownlint-cli2": "^0.18.1",
-    "puppeteer": "^24.19.0",
+    "puppeteer": "^24.20.0",
     "sharp-cli": "^5.2.0",
     "stylelint": "^16.24.0"
   },
