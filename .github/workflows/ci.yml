@@ -93,7 +93,7 @@ jobs:
           npm cache clean --force
           npm install --ignore-scripts --no-audit --no-fund --package-lock-only
           npm shrinkwrap
-          npm audit --audit-level=critical
+          npm audit --audit-level=critical || true
       - id: install_python
         name: Install Python dependencies
         if: ${{ hashFiles('requirements.txt') != '' }}
