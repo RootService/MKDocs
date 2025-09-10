@@ -50,6 +50,8 @@ jobs:
       - id: checkout_repo
         name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - id: setup_node
         name: Setup Node.js
         uses: actions/setup-node@v5
@@ -83,6 +85,8 @@ jobs:
       - id: checkout_repo
         name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - id: install_node
         name: Install Node.js dependencies
         if: ${{ hashFiles('package.json') != '' }}
@@ -201,6 +205,8 @@ jobs:
       - id: checkout_repo
         name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - id: run_linters
         name: Run linters
         run: |
@@ -231,6 +237,11 @@ jobs:
           git config --global init.defaultBranch main
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+      - id: checkout_repo
+        name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - id: download_site
         name: Download built site artifact
         uses: actions/download-artifact@v4
@@ -311,6 +322,8 @@ jobs:
       - id: checkout_repo
         name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - id: setup_python
         name: Setup Python
         uses: actions/setup-python@v4
@@ -368,6 +381,8 @@ jobs:
       - id: checkout_repo
         name: Checkout repository
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - id: init_codeql
         name: Initialize CodeQL
         uses: github/codeql-action/init@v3
