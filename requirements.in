@@ -2,7 +2,6 @@ mkdocs
 mkdocs-material[imaging]
 mkdocs-material-extensions
 mkdocs-minify-plugin
-mkdocs-git-revision-date-plugin
 mkdocs-git-revision-date-localized-plugin
 mkdocs-git-committers-plugin-2
 mkdocs-git-authors-plugin
