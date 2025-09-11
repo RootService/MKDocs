@@ -24,33 +24,35 @@ jobs:
   security:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-          submodules: recursive
-
       - name: Configure Git identity
         run: |
           git config --global init.defaultBranch main
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
-      - name: Import GPG key
+      - name: Setup GPG signing
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          echo "${{ secrets.GPG_PRIVATE_KEY }}" | gpg --batch --import
-          KEYGRIP=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}')
-          git config --global user.signingkey "$KEYGRIP"
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --yes --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" --import
+          KEYID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}')
+          git config --global user.signingkey "$KEYID"
           git config --global commit.gpgsign true
           git config --global gpg.program gpg
-
-      - name: Verify GPG signing setup
-        run: |
-          if ! git commit -m 'GPG check' --allow-empty; then
-            echo '❌ GPG signing failed, aborting.'
+          echo "use-agent" >> ~/.gnupg/gpg.conf
+          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+          if ! git commit --allow-empty -m "GPG signing check"; then
+            echo "❌ GPG signing failed, aborting."
             exit 1
           fi
-          echo '✅ GPG signing is working.'
+          echo "✅ GPG signing is working."
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          submodules: recursive
 
       - name: Setup Node.js (LTS)
         uses: actions/setup-node@v5
