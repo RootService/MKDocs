@@ -42,18 +42,20 @@ jobs:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          echo "$GPG_PRIVATE_KEY" | gpg --batch --yes --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" --import
-          KEYID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}')
-          git config --global user.signingkey "$KEYID"
-          git config --global commit.gpgsign true
-          git config --global gpg.program gpg
-          echo "use-agent" >> ~/.gnupg/gpg.conf
-          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
-          if ! git commit --allow-empty -m "GPG signing check"; then
-            echo "❌ GPG signing failed, aborting."
-            exit 1
-          fi
-          echo "✅ GPG signing is working."
+        echo "$GPG_PRIVATE_KEY" | gpg --batch --yes --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" --import
+        KEYID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}')
+        git config --global user.signingkey "$KEYID"
+        git config --global commit.gpgsign true
+        git config --global gpg.program gpg
+        echo "use-agent" >> ~/.gnupg/gpg.conf
+        echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+        echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+        gpgconf --kill gpg-agent
+        if ! echo "$GPG_PASSPHRASE" | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 git commit --allow-empty -m "GPG signing check"; then
+          echo "❌ GPG signing failed, aborting."
+          exit 1
+        fi
+        echo "✅ GPG signing is working."
 
       - name: Sync labels with config
         uses: EndBug/label-sync@v2
