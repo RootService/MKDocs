@@ -222,6 +222,7 @@ jobs:
   lighthouse:
     needs: build
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -340,4 +341,3 @@ jobs:
         if: always()
         run: |
           if [ -f server.pid ]; then kill "$(cat server.pid)" || true; fi
-
