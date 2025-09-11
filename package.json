@@ -2,9 +2,7 @@
   "name": "MKDocs",
   "version": "1.0.2",
   "description": "Node tooling for use in GitHub Actions.",
-  "keywords": [
-    "mkdocs"
-  ],
+  "keywords": ["mkdocs"],
   "license": "MIT",
   "author": "Markus Kohlmeyer",
   "repository": {
@@ -29,32 +27,25 @@
     "@commitlint/config-conventional": "^19.8.1",
     "@lhci/cli": "^0.15.1",
     "autoprefixer": "^10.4.21",
-    "browserslist": "^4.25.4",
+    "browserslist": "^4.23.3",
     "browserslist-config-baseline": "^0.5.0",
-    "conventional-changelog": "^7.1.1",
+    "conventional-changelog": "^7.0.2",
+    "eslint": "^9.14.0",
+    "htmlhint": "^1.6.3",
     "http-server": "^14.1.1",
-    "puppeteer": "^24.20.0"
+    "markdownlint-cli2": "^0.18.1",
+    "puppeteer": "^24.2.0",
+    "stylelint": "^16.9.0"
   },
   "devDependencies": {
-    "eslint": "^9.35.0",
-    "htmlhint": "^1.7.0",
-    "markdownlint-cli2": "^0.18.1",
-    "sharp-cli": "^5.2.0",
-    "stylelint": "^16.24.0"
+    "sharp-cli": "^5.0.0"
   },
   "engines": {
     "node": ">=20",
     "npm": ">=10"
   },
-  "os": [
-    "freebsd",
-    "linux",
-    "win32"
-  ],
-  "cpu": [
-    "x64",
-    "aarch64"
-  ],
+  "os": ["freebsd", "linux", "win32"],
+  "cpu": ["x64", "aarch64"],
   "devEngines": {
     "runtime": {
       "name": "node",
