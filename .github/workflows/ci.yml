@@ -210,8 +210,8 @@ jobs:
           create_branch: false
 
   npm-deps-update:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && hashFiles('package.json') != ''
     steps:
       - uses: actions/checkout@v5
         with:
@@ -221,7 +221,8 @@ jobs:
         with:
           node-version: "lts/*"
 
-      - name: Install Node.js dependencies
+      - name: Update npm dependencies
+        if: hashFiles('package.json') != ''
         run: |
           npm cache clean --force --quiet
           npm install -g npm-check-updates --quiet
@@ -229,13 +230,14 @@ jobs:
           npm install --ignore-scripts --no-audit --no-fund --quiet
 
       - name: Commit and push dependency updates
+        if: hashFiles('package.json') != ''
         uses: stefanzweifel/git-auto-commit-action@v6
         with:
           commit_message: "chore(deps): update npm dependencies"
           file_pattern: |
             package.json
             package-lock.json
-          branch: ${{ github.ref_name }}
+          branch: main
           skip_dirty_check: false
           add_options: -A
           push_options: --force-with-lease
@@ -243,8 +245,8 @@ jobs:
           create_branch: false
 
   pip-deps-update:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && (hashFiles('requirements.in') != '' || hashFiles('requirements.txt') != '')
     steps:
       - uses: actions/checkout@v5
         with:
@@ -254,19 +256,21 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Python dependencies
+      - name: Update Python dependencies
+        if: hashFiles('requirements.in') != '' || hashFiles('requirements.txt') != ''
         run: |
           python -m pip install --quiet --upgrade pip pip-tools
           if [ -f requirements.in ]; then pip-compile requirements.in --quiet --no-header --no-annotate --upgrade; fi
           if [ -f requirements.txt ]; then pip install --quiet --use-pep517 --upgrade -r requirements.txt; fi
 
       - name: Commit and push updated Python dependencies
+        if: hashFiles('requirements.in') != '' || hashFiles('requirements.txt') != ''
         uses: stefanzweifel/git-auto-commit-action@v6
         with:
           commit_message: "chore(deps): update Python dependencies"
           file_pattern: |
             requirements.txt
-          branch: ${{ github.ref_name }}
+          branch: main
           skip_dirty_check: false
           add_options: -A
           push_options: --force-with-lease
