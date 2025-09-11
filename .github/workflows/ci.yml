@@ -104,8 +104,12 @@ jobs:
         if: hashFiles('requirements.txt') != ''
         run: |
           python -m pip install --upgrade pip pip-tools
-          pip-compile requirements.in --quiet --no-header --no-annotate
-          pip install --use-pep517 --upgrade -r requirements.txt
+          if [ -f requirements.in ]; then \
+            pip-compile requirements.in --quiet --no-header --no-annotate; \
+          fi
+          if [ -f requirements.txt ]; then \
+            pip install --use-pep517 --upgrade -r requirements.txt; \
+          fi
 
       - name: CleanUp Ports Options
         continue-on-error: true
@@ -118,6 +122,11 @@ jobs:
           else
             echo "No snippets/ports directory. Skipping."
           fi
+
+      - run: npm run lint:md
+      - run: npm run lint:js
+      - run: npm run lint:css
+      - run: npm run lint:html
 
       - name: Build MkDocs site
         run: mkdocs build --clean
@@ -222,6 +231,12 @@ jobs:
           retention-days: 7
           include-hidden-files: true
 
+      - name: Download built site artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: site
+          path: site
+
       - name: Start local HTTP server
         run: |
           npx http-server ./site -p 8000 --silent &
@@ -246,23 +261,23 @@ jobs:
         run: |
           REPORT="$(ls -t .lighthouseci/*-lhr-*.json | head -n1 || true)"
           if [ -n "$REPORT" ]; then
-            node - <<'NODE' "$REPORT" > lh-scores.json
+            node - <<'NODE' "$REPORT" > .lighthouseci/lh-scores.json
             const fs = require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));
             const out={}; for(const [k,v] of Object.entries(r.categories||{})){out[k]=Math.round((v.score||0)*100);}
             console.log(JSON.stringify(out,null,2)); fs.writeFileSync("lh-scores.json",JSON.stringify(out,null,2));
             NODE
-          else echo '{"performance":0,"accessibility":0,"best-practices":0,"seo":0}' > lh-scores.json; fi
-
-      - name: Stop local server
-        if: always()
-        run: |
-          if [ -f server.pid ]; then kill "$(cat server.pid)" || true; fi
+          else echo '{"performance":0,"accessibility":0,"best-practices":0,"seo":0}' > .lighthouseci/lh-scores.json; fi
 
       - name: Upload Lighthouse scores artifact
         uses: actions/upload-artifact@v4
         with:
           name: lh-scores
-          path: lh-scores.json
+          path: ".lighthouseci/*.json"
+
+      - name: Stop local server
+        if: always()
+        run: |
+          if [ -f server.pid ]; then kill "$(cat server.pid)" || true; fi
 
       - name: Auto-commit overrides/fixes
         uses: stefanzweifel/git-auto-commit-action@v6
