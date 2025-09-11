@@ -14,6 +14,8 @@ env:
   NODE_ENV: production
   TAG_PREFIX: RootService/MKDocs
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+  GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
   PYTHONUNBUFFERED: "1"
   FORCE_COLOR: "1"
@@ -37,9 +39,6 @@ jobs:
           git config --global gpg.program gpg
 
       - name: Verify GPG signing setup
-        env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           if ! git commit -m 'GPG check' --allow-empty; then
             echo '❌ GPG signing failed, aborting.'
