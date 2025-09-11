@@ -22,6 +22,12 @@ jobs:
   commitlint:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          submodules: recursive
+
       - name: Configure Git identity
         run: |
           git config --global init.defaultBranch main
@@ -45,12 +51,6 @@ jobs:
             exit 1
           fi
           echo "✅ GPG signing is working."
-
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-          submodules: recursive
 
       - name: Setup Node.js (LTS)
         uses: actions/setup-node@v5
