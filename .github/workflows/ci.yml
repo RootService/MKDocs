@@ -51,14 +51,9 @@ jobs:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          echo "$GPG_PRIVATE_KEY" > privatekey.asc
-          cat privatekey.asc
-          echo "$GPG_PRIVATE_KEY" | gpg --batch --yes --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" -d privatekey.asc
           echo "$GPG_PRIVATE_KEY" | gpg --batch --yes --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" --import
+          gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}'
           KEYID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}')
-          gpg --export-secret-keys --armor KEYID > privatekey0.asc
-          # gpg --edit-key KEYID
-          cat privatekey0.asc
           git config --global user.signingkey "$KEYID"
           git config --global commit.gpgsign true
           git config --global gpg.program gpg
