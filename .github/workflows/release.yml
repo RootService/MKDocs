@@ -51,6 +51,7 @@ jobs:
           echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
           echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
           gpgconf --kill gpg-agent
+          echo test | gpg --batch --yes --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" -u "$KEYID" --clearsign >/dev/null
           if ! git commit --allow-empty -m "GPG signing check"; then
             echo "❌ GPG signing failed, aborting."
             exit 1
