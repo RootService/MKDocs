@@ -52,7 +52,6 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           echo "$GPG_PRIVATE_KEY" | gpg --batch --yes --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" --import
-          gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}'
           KEYID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}')
           git config --global user.signingkey "$KEYID"
           git config --global commit.gpgsign true
