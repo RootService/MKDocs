@@ -224,9 +224,9 @@ jobs:
       - name: Update npm dependencies
         if: hashFiles('package.json') != ''
         run: |
-          npm cache clean --force --quiet
-          npm install -g npm-check-updates --quiet
-          ncu -u --quiet
+          npm cache clean --force
+          npm install -g npm-check-updates
+          ncu -u
           npm install --ignore-scripts --no-audit --no-fund --quiet
 
       - name: Commit and push dependency updates
