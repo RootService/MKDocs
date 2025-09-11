@@ -98,7 +98,7 @@ jobs:
         if: hashFiles('package.json') != ''
         run: |
           npm cache clean --force
-          npm install --ignore-scripts --no-audit --no-fund --package-lock-only
+          npm install --ignore-scripts --no-audit --no-fund
 
       - name: Install Python dependencies
         if: hashFiles('requirements.txt') != ''
