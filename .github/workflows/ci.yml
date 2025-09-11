@@ -98,17 +98,17 @@ jobs:
         if: hashFiles('package.json') != ''
         run: |
           npm cache clean --force
-          npm ci --ignore-scripts --no-audit --no-fund
+          npm ci --ignore-scripts --no-audit --no-fund --quiet
 
       - name: Install Python dependencies
         if: hashFiles('requirements.txt') != ''
         run: |
-          python -m pip install --upgrade pip pip-tools
+          python -m pip install --quiet --upgrade pip pip-tools
           if [ -f requirements.in ]; then \
             pip-compile requirements.in --quiet --no-header --no-annotate; \
           fi
           if [ -f requirements.txt ]; then \
-            pip install --use-pep517 --upgrade -r requirements.txt; \
+            pip install --quiet --use-pep517 --upgrade -r requirements.txt; \
           fi
 
       - name: CleanUp Ports Options
@@ -255,18 +255,23 @@ jobs:
           fi
 
       - name: Run Lighthouse CI
-        run: npx @lhci/cli autorun --rc-file ".lighthouserc.json" || true
+        run: npx @lhci/cli autorun --rc-file ".lighthouserc.json" --quiet || true
 
-      - name: Extract Lighthouse scores
+      - name: Print Lighthouse scores
         run: |
+          echo '## Lighthouse Scores' >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          echo '| Kategorie | Score |' >> $GITHUB_STEP_SUMMARY
+          echo '|-----------|-------|' >> $GITHUB_STEP_SUMMARY
           REPORT="$(ls -t .lighthouseci/*-lhr-*.json | head -n1 || true)"
           if [ -n "$REPORT" ]; then
-            node - <<'NODE' "$REPORT" > .lighthouseci/lh-scores.json
+            node - <<'NODE' "$REPORT" >> $GITHUB_STEP_SUMMARY
             const fs = require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));
-            const out={}; for(const [k,v] of Object.entries(r.categories||{})){out[k]=Math.round((v.score||0)*100);}
-            console.log(JSON.stringify(out,null,2)); fs.writeFileSync("lh-scores.json",JSON.stringify(out,null,2));
+            for(const [k,v] of Object.entries(r.categories||{})){
+              console.log(`| ${k} | ${Math.round((v.score||0)*100)} |`);
+            }
             NODE
-          else echo '{"performance":0,"accessibility":0,"best-practices":0,"seo":0}' > .lighthouseci/lh-scores.json; fi
+          fi
 
       - name: Upload Lighthouse scores artifact
         uses: actions/upload-artifact@v4
