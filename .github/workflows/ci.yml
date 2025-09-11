@@ -84,6 +84,7 @@ jobs:
           cache-dependency-path: requirements.txt
 
       - name: Setup Chrome
+        id: setup-chrome
         uses: browser-actions/setup-chrome@v2
         with:
           chrome-version: stable
