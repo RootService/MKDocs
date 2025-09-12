@@ -111,8 +111,8 @@ jobs:
             yarn install --frozen-lockfile
           else
             npm cache clean --force
-            # npm install -g npm-check-updates
-            # ncu -u
+            npm install -g npm-check-updates
+            ncu -u
             npm install --ignore-scripts --no-audit --no-fund --quiet
           fi
 
@@ -243,9 +243,6 @@ jobs:
         run: |
           npx lhci autorun \
             --config ".lighthouserc.json" \
-            --collect.numberOfRuns=1 \
-            --collect.settings.chromeFlags="--headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --window-size=1280,800" \
-            --assert.preset=off \
             --timeout=240000 --quiet
 
       - name: Lighthouse CI (autorun via xvfb)
@@ -255,9 +252,6 @@ jobs:
           sudo apt-get update && sudo apt-get install -y xvfb
           xvfb-run -a npx lhci autorun \
             --config ".lighthouserc.json" \
-            --collect.numberOfRuns=1 \
-            --collect.settings.chromeFlags="--headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --window-size=1280,800" \
-            --assert.preset=off \
             --timeout=240000 --quiet
 
       - name: Enforce Lighthouse thresholds
