@@ -205,10 +205,11 @@ jobs:
             let failed = false;
             for (const [k,v] of Object.entries(report.categories||{})) {
               const score = Math.round((v.score||0)*100);
-              console.log(`${k}: ${score}`);
               if (thresholds[k] && score < thresholds[k]) {
-                console.error(`❌ ${k} score ${score} < ${thresholds[k]}`);
+                console.log(`::error title=Lighthouse ${k}::Score ${score} < threshold ${thresholds[k]}`);
                 failed = true;
+              } else {
+                console.log(`::notice title=Lighthouse ${k}::Score ${score}`);
               }
             }
             if (failed) process.exit(1);
@@ -242,6 +243,20 @@ jobs:
               repo: context.repo.repo,
               body
             });
+
+      - name: Create Lighthouse Check
+        if: github.event_name == 'pull_request'
+        uses: LouisBrunner/checks-action@v1.6.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          name: Lighthouse Report
+          conclusion: neutral
+          output: |
+            {
+              "title": "Lighthouse Scores",
+              "summary": "Performance, Accessibility, Best Practices, SEO",
+              "text": "$(node .github/scripts/format-lighthouse.js)"
+            }
 
       - name: Upload Lighthouse scores artifact
         uses: actions/upload-artifact@v4
