@@ -30,6 +30,10 @@ env:
   FORCE_COLOR: "1"
   LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
+  LH_THRESHOLD_PERF: 80
+  LH_THRESHOLD_A11Y: 80
+  LH_THRESHOLD_BP: 80
+  LH_THRESHOLD_SEO: 80
 
 jobs:
   build:
@@ -91,7 +95,7 @@ jobs:
           install-chromedriver: true
           install-dependencies: true
 
-      - run: echo "CHROME_PATH=${{ steps.chrome.outputs.chrome-path }}" >> $GITHUB_ENV
+      - run: echo "CHROME_PATH=${{ steps.setup-chrome.outputs.chrome-path }}" >> $GITHUB_ENV
 
       - name: Install Node.js dependencies
         if: hashFiles('package.json') != ''
@@ -168,27 +172,6 @@ jobs:
       - name: Run Lighthouse CI
         run: npx @lhci/cli autorun --rc-file ".lighthouserc.json" --quiet || true
 
-      - name: Check Lighthouse thresholds
-        run: |
-          REPORT="$(ls -t .lighthouseci/*-lhr-*.json | head -n1 || true)"
-          if [ -n "$REPORT" ]; then
-            node - <<'NODE' "$REPORT"
-            const fs = require('fs');
-            const report = JSON.parse(fs.readFileSync(process.argv[1],'utf8'));
-            const thresholds = { performance: 80, accessibility: 80, 'best-practices': 80, seo: 80 };
-            let failed = false;
-            for (const [k,v] of Object.entries(report.categories||{})) {
-              const score = Math.round((v.score||0)*100);
-              console.log(`${k}: ${score}`);
-              if (thresholds[k] && score < thresholds[k]) {
-                console.error(`❌ ${k} score ${score} < ${thresholds[k]}`);
-                failed = true;
-              }
-            }
-            if (failed) process.exit(1);
-            NODE
-          fi
-
       - name: Print Lighthouse scores
         run: |
           echo '## Lighthouse Scores' >> $GITHUB_STEP_SUMMARY
@@ -202,6 +185,32 @@ jobs:
             for(const [k,v] of Object.entries(r.categories||{})){
               console.log(`| ${k} | ${Math.round((v.score||0)*100)} |`);
             }
+            NODE
+          fi
+
+      - name: Check Lighthouse thresholds
+        run: |
+          REPORT="$(ls -t .lighthouseci/*-lhr-*.json | head -n1 || true)"
+          if [ -n "$REPORT" ]; then
+            node - <<'NODE' "$REPORT"
+            const fs = require('fs');
+            const report = JSON.parse(fs.readFileSync(process.argv[1],'utf8'));
+            const thresholds = {
+              performance: parseInt(process.env.LH_THRESHOLD_PERF, 10),
+              accessibility: parseInt(process.env.LH_THRESHOLD_A11Y, 10),
+              'best-practices': parseInt(process.env.LH_THRESHOLD_BP, 10),
+              seo: parseInt(process.env.LH_THRESHOLD_SEO, 10)
+            };
+            let failed = false;
+            for (const [k,v] of Object.entries(report.categories||{})) {
+              const score = Math.round((v.score||0)*100);
+              console.log(`${k}: ${score}`);
+              if (thresholds[k] && score < thresholds[k]) {
+                console.error(`❌ ${k} score ${score} < ${thresholds[k]}`);
+                failed = true;
+              }
+            }
+            if (failed) process.exit(1);
             NODE
           fi
 
