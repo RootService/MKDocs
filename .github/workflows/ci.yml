@@ -183,49 +183,20 @@ jobs:
 #          xvfb-run -a npx lhci autorun --config ".lighthouserc.json" --failOnUploadFailure --timeout=240000 --quiet || true
 
       - name: Print Lighthouse scores
-        continue-on-error: true
-        run: |
-          echo '## Lighthouse Scores' >> $GITHUB_STEP_SUMMARY
-          echo '' >> $GITHUB_STEP_SUMMARY
-          echo '| Kategorie | Score |' >> $GITHUB_STEP_SUMMARY
-          echo '|-----------|-------|' >> $GITHUB_STEP_SUMMARY
-          REPORT="$(ls -t .lighthouseci/*-lhr-*.json | head -n1 || true)"
-          if [ -n "$REPORT" ]; then
-            node - <<'NODE' "$REPORT" >> $GITHUB_STEP_SUMMARY
-            const fs = require('fs'); const r=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));
-            for(const [k,v] of Object.entries(r.categories||{})){
-              console.log(`| ${k} | ${Math.round((v.score||0)*100)} |`);
-            }
-            NODE
-          fi
+        run: node .github/scripts/format-lighthouse.js >> $GITHUB_STEP_SUMMARY || true
 
       - name: Check Lighthouse thresholds
-        continue-on-error: true
         run: |
           REPORT="$(ls -t .lighthouseci/*-lhr-*.json | head -n1 || true)"
-          if [ -n "$REPORT" ]; then
-            node - <<'NODE' "$REPORT"
-            const fs = require('fs');
-            const report = JSON.parse(fs.readFileSync(process.argv[1],'utf8'));
-            const thresholds = {
-              performance: parseInt(process.env.LH_THRESHOLD_PERF, 10),
-              accessibility: parseInt(process.env.LH_THRESHOLD_A11Y, 10),
-              'best-practices': parseInt(process.env.LH_THRESHOLD_BP, 10),
-              seo: parseInt(process.env.LH_THRESHOLD_SEO, 10)
-            };
-            let failed = false;
-            for (const [k,v] of Object.entries(report.categories||{})) {
-              const score = Math.round((v.score||0)*100);
-              if (thresholds[k] && score < thresholds[k]) {
-                console.log(`::error title=Lighthouse ${k}::Score ${score} < threshold ${thresholds[k]}`);
-                failed = true;
-              } else {
-                console.log(`::notice title=Lighthouse ${k}::Score ${score}`);
-              }
-            }
-            if (failed) process.exit(1);
-            NODE
-          fi
+          if [ -z "$REPORT" ]; then echo "no report"; exit 0; fi
+          node - <<'NODE' "$REPORT"
+          const fs=require('fs'),r=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));
+          const T={performance:+process.env.LH_THRESHOLD_PERF,accessibility:+process.env.LH_THRESHOLD_A11Y,'best-practices':+process.env.LH_THRESHOLD_BP,seo:+process.env.LH_THRESHOLD_SEO};
+          let fail=false; for (const [k,v] of Object.entries(r.categories||{})){
+            const s=Math.round((v.score||0)*100); if (T[k] && s<T[k]){ console.log(`::error title=Lighthouse ${k}::Score ${s} < ${T[k]}`); fail=true; }
+            else console.log(`::notice title=Lighthouse ${k}::Score ${s}`);
+          } if (fail) process.exit(1);
+          NODE
 
       - name: Comment Lighthouse scores on PR
         if: github.event_name == 'pull_request'

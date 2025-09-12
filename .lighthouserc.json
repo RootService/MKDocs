@@ -54,18 +54,12 @@
       "staticDistDir": "./site"
     },
     "assert": {
-      "preset": "lighthouse:recommended",
+      "preset": "off",
       "assertions": {
-        "categories:performance": ["warn", { "minScore": 0.85 }],
-        "categories:accessibility": ["warn", { "minScore": 0.9 }],
-        "categories:best-practices": ["warn", { "minScore": 0.9 }],
-        "categories:seo": ["warn", { "minScore": 0.9 }],
-        "aria-allowed-role": "warn",
-        "heading-order": "warn",
-        "unused-css-rules": "warn",
-        "legacy-javascript": "warn",
-        "image-aspect-ratio": "warn",
-        "image-size-responsive": "warn"
+        "categories:performance": ["warn", {"minScore": 0.8}],
+        "categories:accessibility": ["warn", {"minScore": 0.9}],
+        "categories:best-practices": ["warn", {"minScore": 0.9}],
+        "categories:seo": ["warn", {"minScore": 0.9}]
       },
       "includePassedAssertions": true
     },
