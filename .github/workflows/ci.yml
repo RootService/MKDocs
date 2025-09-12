@@ -353,3 +353,62 @@ jobs:
           push_options: --force-with-lease
           tagging_message: ${{ env.TAG_PREFIX }}-${{ github.run_number }}
           create_branch: false
+
+  quality-gate:
+    needs: [build, npm-deps-update, pip-deps-update]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Aggregate job results
+        run: |
+          echo "Build result: ${{ needs.build.result }}"
+          echo "NPM deps update result: ${{ needs.npm-deps-update.result }}"
+          echo "PIP deps update result: ${{ needs.pip-deps-update.result }}"
+
+          failed=false
+          if [ "${{ needs.build.result }}" != "success" ]; then
+            echo "❌ Build failed"
+            failed=true
+          fi
+          if [ "${{ needs.npm-deps-update.result }}" == "failure" ]; then
+            echo "❌ npm-deps-update failed"
+            failed=true
+          fi
+          if [ "${{ needs.pip-deps-update.result }}" == "failure" ]; then
+            echo "❌ pip-deps-update failed"
+            failed=true
+          fi
+
+          if [ "$failed" = true ]; then
+            exit 1
+          fi
+          echo "✅ Quality Gate passed"
+
+  release:
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "lts/*"
+
+      - name: Update npm dependencies
+        if: hashFiles('package.json') != ''
+        run: |
+          npm cache clean --force
+          npm install -g npm-check-updates
+          ncu -u
+          npm install --ignore-scripts --no-audit --no-fund --quiet
+
+      - name: Run semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
+
+
+
