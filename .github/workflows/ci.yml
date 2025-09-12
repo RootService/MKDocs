@@ -110,18 +110,18 @@ jobs:
           if [ -f requirements.in ]; then pip-compile requirements.in --quiet --no-header --no-annotate --strip-extras --upgrade; fi
           if [ -f requirements.txt ]; then pip install --quiet --use-pep517 --upgrade -r requirements.txt; fi
 
-      - name: Setup Chrome
-        id: setup-chrome
-        uses: browser-actions/setup-chrome@v2
-        with:
-          chrome-version: stable
-          install-chromedriver: true
-          install-dependencies: true
+      # - name: Setup Chrome
+        # id: setup-chrome
+        # uses: browser-actions/setup-chrome@v2
+        # with:
+          # chrome-version: stable
+          # install-chromedriver: true
+          # install-dependencies: true
 
-      - name: Set Chrome PATH
-        run: |
-          echo "CHROME_PATH=${{ steps.setup-chrome.outputs.chrome-path }}" >> $GITHUB_ENV
-          sleep 1
+      # - name: Set Chrome PATH
+        # run: |
+          # echo "CHROME_PATH=${{ steps.setup-chrome.outputs.chrome-path }}" >> $GITHUB_ENV
+          # sleep 1
 
       - name: CleanUp Ports Options
         continue-on-error: true
