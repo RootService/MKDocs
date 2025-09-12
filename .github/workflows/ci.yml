@@ -50,7 +50,7 @@ jobs:
           git config --global init.defaultBranch main
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           persist-credentials: true
@@ -74,7 +74,7 @@ jobs:
           git commit --allow-empty -m "GPG signing check" || true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: '20'
           check-latest: true
@@ -85,7 +85,7 @@ jobs:
             **/yarn.lock
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
           check-latest: true
@@ -263,7 +263,7 @@ jobs:
 
       - name: Create Lighthouse Check
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
