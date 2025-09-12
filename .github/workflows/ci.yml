@@ -65,7 +65,8 @@ jobs:
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
       # --- GPG optional (Signieren) ---
-      - name: GPG: Import
+      - name: GPG Import
+        if: env.GPG_PRIVATE_KEY != ''
         run: |
           echo "$GPG_PRIVATE_KEY" | gpg --batch --yes --import
           if [ -n "$GPG_PASSPHRASE" ]; then
