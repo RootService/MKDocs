@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Ausgabe: Markdown für $GITHUB_STEP_SUMMARY. Bricht nie hart ab.
+// .github/scripts/format-lighthouse.cjs
+'use strict'; // CJS unter Node 20
 
 const fs = require('fs');
 const path = require('path');
@@ -41,7 +42,6 @@ function pickReport(files) {
     }
     if (best) return best;
   }
-  // fallback: latest
   const j = readJson(files[0].file);
   return j ? { meta: files[0], json: j } : null;
 }

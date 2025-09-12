@@ -241,9 +241,9 @@ jobs:
 
       # --- CSP/Headers optional (nur wenn Skript vorhanden) ---
       - name: Generate CSP headers
-        if: hashFiles('.github/scripts/gen-csp.js') != ''
+        if: hashFiles('.github/scripts/generate_csp.py') != ''
         run: |
-          node .github/scripts/gen-csp.js
+          python .github/scripts/generate_-csp.py
 
       # --- Lighthouse: lokalen Server starten ---
       - name: Start local HTTP server

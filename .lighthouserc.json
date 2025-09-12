@@ -54,7 +54,7 @@
       "staticDistDir": "./site"
     },
     "assert": {
-      "preset": "off",
+      "preset": "lighthouse:all",
       "assertions": {
         "categories:performance": ["warn", {"minScore": 0.8}],
         "categories:accessibility": ["warn", {"minScore": 0.9}],

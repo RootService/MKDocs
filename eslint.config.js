@@ -1,8 +1,9 @@
-// ESLint v9+ flat config
-import js from "@eslint/js";
-import globals from "globals";
+// eslint.config.cjs
+const js = require("@eslint/js");
+const globals = require("globals");
 
-export default [
+/** @type {import('eslint').Linter.FlatConfig[]} */
+module.exports = [
   {
     files: ["docs/**/*.js"],
     languageOptions: {
