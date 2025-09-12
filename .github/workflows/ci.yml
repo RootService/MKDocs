@@ -90,7 +90,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.11"
           cache: "pip"
           check-latest: true
           cache-dependency-path: requirements.txt
@@ -192,7 +192,8 @@ jobs:
           else
             echo "No snippets/ports directory. Skipping."
           fi
-          npx --yes prettier --check {site,docs,overrides}/**/*.{js,ts,css,md,json,yml} || true
+          FILES=$(git ls-files '*.js' '*.ts' '*.css' '*.md' '*.json' '*.yml' | tr '\n' ' ')
+          [ -n "$FILES" ] && npx --yes prettier --check $FILES || true
           npx --yes markdownlint-cli2 {site,docs,overrides}/**/*.md || true
           npx --yes eslint {site,docs,overrides}/**/*.{js,ts,md} || true
           npx --yes stylelint {site,docs,overrides}/**/*.css || true
@@ -243,37 +244,20 @@ jobs:
       - name: Generate CSP headers
         if: hashFiles('.github/scripts/generate_csp.py') != ''
         run: |
-          python .github/scripts/generate_-csp.py
-
-      # --- Lighthouse: lokalen Server starten ---
-      - name: Start local HTTP server
-        run: |
-          npx http-server ./site -p 8000 --silent &
-          echo $! > server.pid
-          for i in {1..30}; do
-            if curl -sSf http://127.0.0.1:8000 >/dev/null; then
-              echo "✅ Server ist erreichbar."
-              break
-            fi
-            echo "⏳ Warte auf Server (Versuch $i)..."
-            sleep 1
-          done
-          if ! curl -sSf http://127.0.0.1:8000 >/dev/null; then
-            echo "❌ Server konnte nicht gestartet werden."
-            exit 1
-          fi
+          python .github/scripts/generate_csp.py
 
       # --- Lighthouse CI autorun mit stabilen Chrome-Flags ---
       - name: Lighthouse CI (autorun)
-        run: |
-          npx lhci autorun --config ".lighthouserc.json" --failOnUploadFailure --timeout=240000 --quiet || true
+        id: lhci1
+        continue-on-error: true
+        run: npx lhci autorun --config ".lighthouserc.json" --failOnUploadFailure --timeout=240000 --quiet
 
-      # Fallback mit xvfb, falls autorun fehlschlägt
       - name: Lighthouse CI (autorun via xvfb)
-        if: ${{ failure() }}
+        if: ${{ steps.lhci1.conclusion == 'failure' }}
+        continue-on-error: true
         run: |
           sudo apt-get update && sudo apt-get install -y xvfb
-          xvfb-run -a npx lhci autorun --config ".lighthouserc.json" --failOnUploadFailure --timeout=240000 --quiet || true
+          xvfb-run -a npx lhci autorun --config ".lighthouserc.json" --failOnUploadFailure --timeout=240000 --quiet
 
       # Zusammenfassung im Job-Summary
       - name: Lighthouse Scores ins Summary
@@ -324,20 +308,14 @@ jobs:
               "text": "$(node .github/scripts/format-lighthouse.js)"
             }
 
-      - name: Upload Lighthouse reports
-        continue-on-error: true
+      - name: Upload LHCI artifacts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: lh-reports
-          path: ".lighthouseci/"
+          name: lighthouseci
+          path: .lighthouseci
           if-no-files-found: ignore
           retention-days: 14
-
-      # --- lokalen Server stoppen ---
-      - name: Stop local HTTP server
-        if: always()
-        run: |
-          if [ -f server.pid ]; then kill "$(cat server.pid)" || true; fi
 
       # --- Release nur auf main ---
       - name: Run semantic-release
