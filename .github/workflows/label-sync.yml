@@ -23,6 +23,7 @@ env:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    steps:
       - name: Sync labels with config
         uses: EndBug/label-sync@v2
         with:
