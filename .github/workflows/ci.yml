@@ -139,7 +139,7 @@ jobs:
 
       # --- Abhängigkeits-Commits nur geplant (Optional: sicher) ---
       - name: Commit and push dependency updates (Node)
-        if: github.event_name == 'schedule' && github.ref_name == 'main'
+        if: github.event_name == 'schedule' && github.ref_name == 'main' && hashFiles('package.json') != ''
         uses: stefanzweifel/git-auto-commit-action@v6
         with:
           commit_message: "chore(deps): update npm dependencies"
@@ -192,6 +192,7 @@ jobs:
           HTML_FILES="$(git ls-files '*.html' | tr '\n' ' ')"
           [ -n "$HTML_FILES" ] && npx --yes htmlhint $HTML_FILES || true
 
+      # Optional, nur zeitgesteuert
       - name: Prettier write (scheduled only)
         if: github.event_name == 'schedule' && github.ref_name == 'main'
         run: |
@@ -261,11 +262,13 @@ jobs:
           node - <<'NODE' "$REPORT"
           const fs=require('fs'), r=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));
           const T={performance:+process.env.LH_THRESHOLD_PERF,accessibility:+process.env.LH_THRESHOLD_A11Y,'best-practices':+process.env.LH_THRESHOLD_BP,seo:+process.env.LH_THRESHOLD_SEO};
-          let fail=false; for (const [k,v] of Object.entries(r.categories||{})){
+          let fail=false;
+          for (const [k,v] of Object.entries(r.categories||{})){
             const s=Math.round((v.score||0)*100);
             if (T[k] && s<T[k]){ console.log(`::error title=Lighthouse ${k}::Score ${s} < ${T[k]}`); fail=true; }
             else console.log(`::notice title=Lighthouse ${k}::Score ${s}`);
-          } if (fail) process.exit(1);
+          }
+          if (fail) process.exit(1);
           NODE
 
       - name: Lighthouse Scores ins Summary
