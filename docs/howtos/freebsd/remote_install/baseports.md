@@ -51,7 +51,7 @@ Unsere BasePorts werden am Ende folgende Dienste umfassen.
 
 Zu den Voraussetzungen für dieses HowTo siehe bitte: [Remote Installation](intro.md)
 
-## Einloggen und zu _root_ werden
+## Einloggen und zu `root` werden
 
 ```powershell
 putty -ssh -P 2222 -i "${Env:USERPROFILE}\VirtualBox VMs\FreeBSD\ssh\id_ed25519.ppk" admin@127.0.0.1

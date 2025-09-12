@@ -798,7 +798,7 @@ umount /mnt
 shutdown -r now
 ```
 
-### Einloggen und zu _root_ werden
+### Einloggen und zu `root` werden
 
 Einloggen ab hier nur noch mit Public-Key
 

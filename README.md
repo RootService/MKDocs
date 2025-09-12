@@ -34,6 +34,7 @@ This repository uses a **failsafe CI/CD and automation suite** with self-documen
 All workflows are in [`.github/workflows`](.github/workflows).
 
 ### 1. **Continuous Integration (ci.yml)**
+
 - **When it runs**:  
   - On every push, pull request, and monthly schedule.  
 - **What it does**:  
@@ -46,6 +47,7 @@ All workflows are in [`.github/workflows`](.github/workflows).
 ---
 
 ### 2. **Linting and Static Analysis (lint.yml)**
+
 - **When it runs**: On PRs and pushes.  
 - **What it does**:  
   - Runs ESLint, Prettier, and Stylelint for JS/TS/CSS.  
@@ -55,6 +57,7 @@ All workflows are in [`.github/workflows`](.github/workflows).
 ---
 
 ### 3. **Automated Release (release.yml)**
+
 - **When it runs**: On pushes to `main`.  
 - **What it does**:  
   - Uses **semantic-release** to:  
@@ -67,6 +70,7 @@ All workflows are in [`.github/workflows`](.github/workflows).
 ---
 
 ### 4. **Security Scan (security.yml)**
+
 - **When it runs**: Weekly and on manual trigger.  
 - **What it does**:  
   - Scans Python dependencies with **Safety**.  
@@ -76,6 +80,7 @@ All workflows are in [`.github/workflows`](.github/workflows).
 ---
 
 ### 5. **Dependabot Automation**
+
 - **Dependabot (dependabot.yml)**:  
   - Groups updates by ecosystem (`pip`, `npm`, `github-actions`).  
   - Splits major vs minor/patch updates.  
@@ -87,6 +92,7 @@ All workflows are in [`.github/workflows`](.github/workflows).
 ---
 
 ### 6. **Label Management**
+
 - **Label Sync (label-sync.yml + labels.yml)**:  
   - Ensures repo labels are consistent (dependencies, ci, lint, release, security, etc.).  
 - **PR Labeler (pr-labeler.yml + labeler.yml)**:  
@@ -97,6 +103,7 @@ All workflows are in [`.github/workflows`](.github/workflows).
 ---
 
 ### 7. **Commit Message Linting (commitlint.yml)**
+
 - **When it runs**: On PRs.  
 - **What it does**:  
   - Installs **commitlint**.  
@@ -106,6 +113,7 @@ All workflows are in [`.github/workflows`](.github/workflows).
 ---
 
 ## 🚀 Maintainer Notes
+
 - **Labels**: Auto-applied, but can be adjusted manually.  
 - **Releases**: Fully automated by semantic-release.  
 - **Merging**: PRs without required labels or valid commit messages cannot be merged.  
