@@ -258,11 +258,13 @@ jobs:
               "text": "$(node .github/scripts/format-lighthouse.js)"
             }
 
-      - name: Upload Lighthouse scores artifact
+      - name: Upload Lighthouse reports
         uses: actions/upload-artifact@v4
         with:
-          name: lh-scores
-          path: ".lighthouseci/*.json"
+          name: lh-reports
+          path: ".lighthouseci/"
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: Stop local server
         if: always()
