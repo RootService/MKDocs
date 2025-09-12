@@ -188,9 +188,9 @@ jobs:
 
       - name: Run Lighthouse CI
         run: |
-          npx @lhci/cli autorun --rc-file ".lighthouserc.json" --numberOfRuns=1 --timeout=240000 --quiet || true
+          npx lhci autorun --config ".lighthouserc.json" --failOnUploadFailure --timeout=240000 --quiet || true
 #          sudo apt-get update && sudo apt-get install -y xvfb
-#          xvfb-run -a npx @lhci/cli autorun --rc-file ".lighthouserc.json" --numberOfRuns=1 --timeout=240000 --quiet || true
+#          xvfb-run -a npx lhci autorun --config ".lighthouserc.json" --failOnUploadFailure --timeout=240000 --quiet || true
 
       - name: Print Lighthouse scores
         continue-on-error: true
