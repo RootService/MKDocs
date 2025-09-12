@@ -15,20 +15,20 @@ theme:
   custom_dir: overrides
   language: de
   palette:
-    - media: "(prefers-color-scheme)"
+    - media: '(prefers-color-scheme)'
       toggle:
         icon: material/brightness-auto
         name: Switch to light mode
       primary: deep_purple
       accent: amber
-    - media: "(prefers-color-scheme: light)"
+    - media: '(prefers-color-scheme: light)'
       scheme: default
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
       primary: deep_purple
       accent: amber
-    - media: "(prefers-color-scheme: dark)"
+    - media: '(prefers-color-scheme: dark)'
       scheme: slate
       toggle:
         icon: material/brightness-4
@@ -112,23 +112,23 @@ plugins:
       enable_git_follow: false
   - git-committers:
       enabled: !ENV [CI, true]
-      token: !ENV [GITHUB_TOKEN, ""]
+      token: !ENV [GITHUB_TOKEN, '']
       repository: RootService/MKDocs
       branch: main
   - htmlproofer:
       validate_external_urls: false
       raise_error: true
-#  - i18n:
-#      default_language: de
-#      languages:
-#      - de
-#      - en
-#  - autorefs
-#  - rss:
-#      match_path: "blog/posts/.*"
+  #  - i18n:
+  #      default_language: de
+  #      languages:
+  #      - de
+  #      - en
+  #  - autorefs
+  #  - rss:
+  #      match_path: "blog/posts/.*"
   - redirects:
       redirect_maps:
-        "home.md": "index.md"
+        'home.md': 'index.md'
 #  - minify:
 #      minify_html: true
 
@@ -164,8 +164,8 @@ extra:
       link: mailto:info@rootservice.org
       name: E-Mail
   schema:
-    "@context": https://schema.org
-    "@type": WebSite
+    '@context': https://schema.org
+    '@type': WebSite
     name: RootService
     url: https://www.rootservice.org/
     author:
@@ -175,13 +175,13 @@ extra:
       name: RootService
       logo: rootservice/logo
     license: https://creativecommons.org/licenses/by-nc-sa/4.0/
-#  alternate:
-#    - name: Deutsch
-#      link: /de/
-#      lang: de
-#    - name: English
-#      link: /en/
-#      lang: en
+  #  alternate:
+  #    - name: Deutsch
+  #      link: /de/
+  #      lang: de
+  #    - name: English
+  #      link: /en/
+  #      lang: en
   consent:
     title: Cookie consent
     description: >-
@@ -206,13 +206,13 @@ markdown_extensions:
       smart_quotes: false
   - tables
   - toc:
-      permalink: "⚓︎"
+      permalink: '⚓︎'
       permalink_title: Anchor link to this section for reference
       slugify: !!python/object/apply:pymdownx.slugs.slugify
         kwds:
           case: lower
       toc_depth: 3
-#      permalink: "🔗"
+  #      permalink: "🔗"
   - pymdownx.betterem:
       smart_enable: all
   - pymdownx.blocks.caption
@@ -239,7 +239,7 @@ markdown_extensions:
       pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.keys:
-      separator: "＋"
+      separator: '＋'
       strict: true
   - pymdownx.magiclink:
       repo_url_shortener: true
@@ -276,52 +276,52 @@ markdown_extensions:
   - pymdownx.tilde
 
 nav:
-  - Home: "index.md"
+  - Home: 'index.md'
   - HowTos:
-    - Allgemein:
-      - "howtos/general/getting_started.md"
-    - Sicherheit:
-      - "howtos/security/server_hacked.md"
-    - FreeBSD:
-      - "howtos/freebsd/mfsbsd_image.md"
-      - Remote Installation:
-        - "howtos/freebsd/remote_install/intro.md"
-        - "howtos/freebsd/remote_install/basesystem.md"
-        - "howtos/freebsd/remote_install/baseports.md"
-        - "howtos/freebsd/remote_install/basetools.md"
-      - Hosting System:
-        - "howtos/freebsd/hosting_system/intro.md"
-        - Sicherheit:
-          - "howtos/freebsd/hosting_system/security/certbot.md"
-          - "howtos/freebsd/hosting_system/security/openssh.md"
-        - Nameserver:
-          - "howtos/freebsd/hosting_system/nameserver/unbound.md"
-        - Datenbanken:
-          - "howtos/freebsd/hosting_system/databases/postgresql.md"
-          - "howtos/freebsd/hosting_system/databases/mysql.md"
-        - Webserver:
-          - "howtos/freebsd/hosting_system/webserver/apache.md"
-          - "howtos/freebsd/hosting_system/webserver/nginx.md"
-          - "howtos/freebsd/hosting_system/webserver/php.md"
-          - "howtos/freebsd/hosting_system/webserver/nodejs.md"
-        - Mailserver:
-          - "howtos/freebsd/hosting_system/mailserver/dovecot.md"
-          - "howtos/freebsd/hosting_system/mailserver/postfix.md"
-          - "howtos/freebsd/hosting_system/mailserver/postfixadmin.md"
-          - "howtos/freebsd/hosting_system/mailserver/opendkim.md"
-          - "howtos/freebsd/hosting_system/mailserver/opendmarc.md"
-          - "howtos/freebsd/hosting_system/mailserver/spamassassin.md"
-          - "howtos/freebsd/hosting_system/mailserver/amavisd.md"
-          - "howtos/freebsd/hosting_system/mailserver/clamav.md"
-    - Gentoo:
-      - "howtos/gentoo/remote_install.md"
-      - "howtos/gentoo/hosting_system.md"
+      - Allgemein:
+          - 'howtos/general/getting_started.md'
+      - Sicherheit:
+          - 'howtos/security/server_hacked.md'
+      - FreeBSD:
+          - 'howtos/freebsd/mfsbsd_image.md'
+          - Remote Installation:
+              - 'howtos/freebsd/remote_install/intro.md'
+              - 'howtos/freebsd/remote_install/basesystem.md'
+              - 'howtos/freebsd/remote_install/baseports.md'
+              - 'howtos/freebsd/remote_install/basetools.md'
+          - Hosting System:
+              - 'howtos/freebsd/hosting_system/intro.md'
+              - Sicherheit:
+                  - 'howtos/freebsd/hosting_system/security/certbot.md'
+                  - 'howtos/freebsd/hosting_system/security/openssh.md'
+              - Nameserver:
+                  - 'howtos/freebsd/hosting_system/nameserver/unbound.md'
+              - Datenbanken:
+                  - 'howtos/freebsd/hosting_system/databases/postgresql.md'
+                  - 'howtos/freebsd/hosting_system/databases/mysql.md'
+              - Webserver:
+                  - 'howtos/freebsd/hosting_system/webserver/apache.md'
+                  - 'howtos/freebsd/hosting_system/webserver/nginx.md'
+                  - 'howtos/freebsd/hosting_system/webserver/php.md'
+                  - 'howtos/freebsd/hosting_system/webserver/nodejs.md'
+              - Mailserver:
+                  - 'howtos/freebsd/hosting_system/mailserver/dovecot.md'
+                  - 'howtos/freebsd/hosting_system/mailserver/postfix.md'
+                  - 'howtos/freebsd/hosting_system/mailserver/postfixadmin.md'
+                  - 'howtos/freebsd/hosting_system/mailserver/opendkim.md'
+                  - 'howtos/freebsd/hosting_system/mailserver/opendmarc.md'
+                  - 'howtos/freebsd/hosting_system/mailserver/spamassassin.md'
+                  - 'howtos/freebsd/hosting_system/mailserver/amavisd.md'
+                  - 'howtos/freebsd/hosting_system/mailserver/clamav.md'
+      - Gentoo:
+          - 'howtos/gentoo/remote_install.md'
+          - 'howtos/gentoo/hosting_system.md'
   - Projekte:
-    - "projects/rootforum_community.md"
-    - "projects/mysql_tuning_primer.md"
-    - "projects/certbot_wrapper.md"
+      - 'projects/rootforum_community.md'
+      - 'projects/mysql_tuning_primer.md'
+      - 'projects/certbot_wrapper.md'
   - About:
-    - "about/imprint.md"
-    - "about/contact.md"
-    - "about/privacy.md"
-    - "about/terms.md"
+      - 'about/imprint.md'
+      - 'about/contact.md'
+      - 'about/privacy.md'
+      - 'about/terms.md'

@@ -3,13 +3,7 @@
   "globs": ["docs/**/*.md"],
 
   // Welche Pfade ignoriert werden
-  "ignores": [
-    "**/node_modules/**",
-    "**/site/**",
-    "**/lighthouse-report/**",
-    "**/.venv/**",
-    "**/.git/**"
-  ],
+  "ignores": ["**/node_modules/**", "**/site/**", "**/lighthouse-report/**", "**/.venv/**", "**/.git/**"],
 
   // Optional: Git-Ignore berücksichtigen (nur Root nötig, schneller)
   "gitignore": ".gitignore",
@@ -20,13 +14,13 @@
     "MD001": true,
     "MD002": false,
     "MD003": {
-      "style": "atx"
+      "style": "atx",
     },
     "MD004": {
-      "style": "dash"
+      "style": "dash",
     },
     "MD007": {
-      "indent": 2
+      "indent": 2,
     },
     "MD009": true,
     "MD010": true,
@@ -35,7 +29,7 @@
       "line_length": 255,
       "code_blocks": false,
       "tables": false,
-      "headings": false
+      "headings": false,
     },
     "MD014": false,
     "MD018": true,
@@ -43,39 +37,29 @@
     "MD022": true,
     "MD023": true,
     "MD024": {
-      "siblings_only": true
+      "siblings_only": true,
     },
     "MD025": true,
     "MD026": {
-      "punctuation": ".,;:"
+      "punctuation": ".,;:",
     },
     "MD029": {
-      "style": "one"
+      "style": "one",
     },
     "MD030": {
       "ul_single": 1,
       "ol_single": 1,
       "ul_multi": 1,
-      "ol_multi": 1
+      "ol_multi": 1,
     },
     "MD031": true,
     "MD032": true,
     "MD033": {
-      "allowed_elements": [
-        "br",
-        "img",
-        "details",
-        "summary",
-        "address",
-        "kbd",
-        "sup",
-        "sub",
-        "mark"
-      ]
+      "allowed_elements": ["br", "img", "details", "summary", "address", "kbd", "sup", "sub", "mark"],
     },
     "MD034": true,
     "MD035": {
-      "style": "---"
+      "style": "---",
     },
     "MD036": true,
     "MD037": true,
@@ -86,19 +70,19 @@
     "MD042": true,
     "MD043": false,
     "MD046": {
-      "style": "fenced"
+      "style": "fenced",
     },
     "MD048": {
-      "style": "backtick"
+      "style": "backtick",
     },
     "MD049": {
-      "style": "asterisk"
+      "style": "asterisk",
     },
     "MD050": {
-      "style": "asterisk"
+      "style": "asterisk",
     },
     "MD051": true,
-    "MD053": true
+    "MD053": true,
   },
 
   // Optional: Front-Matter-Freistellung, falls nötig
@@ -106,6 +90,6 @@
 
   // Optional: JUnit-Report für CI
   // "outputFormatters": [
-    // ["markdownlint-cli2-formatter-junit", { "name": "markdownlint-junit.xml" }]
+  // ["markdownlint-cli2-formatter-junit", { "name": "markdownlint-junit.xml" }]
   // ]
 }
