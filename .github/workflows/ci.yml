@@ -140,7 +140,6 @@ jobs:
       # --- Abhängigkeits-Commits nur geplant (Optional: sicher) ---
       - name: Commit and push dependency updates (Node)
         if: github.event_name == 'schedule' && github.ref_name == 'main'
-        if: github.event_name == 'schedule' && github.ref_name == 'main' && hashFiles('package.json') != ''
         uses: stefanzweifel/git-auto-commit-action@v6
         with:
           commit_message: "chore(deps): update npm dependencies"
