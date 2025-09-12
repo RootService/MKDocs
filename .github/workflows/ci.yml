@@ -101,14 +101,16 @@ jobs:
       - name: Install Node.js dependencies
         if: hashFiles('package.json') != ''
         run: |
-          npm cache clean --force --quiet
-          npm ci --ignore-scripts --no-audit --no-fund --quiet
+          npm cache clean --force
+          npm install -g npm-check-updates
+          ncu -u
+          npm install --ignore-scripts --no-audit --no-fund --quiet
 
       - name: Install Python dependencies
         if: hashFiles('requirements.txt') != ''
         run: |
           python -m pip install --quiet --upgrade pip pip-tools
-          if [ -f requirements.in ]; then pip-compile requirements.in --quiet --no-header --no-annotate; fi
+          if [ -f requirements.in ]; then pip-compile requirements.in --quiet --no-header --no-annotate --upgrade; fi
           if [ -f requirements.txt ]; then pip install --quiet --use-pep517 --upgrade -r requirements.txt; fi
 
       - name: CleanUp Ports Options
@@ -290,15 +292,47 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - name: Configure Git defaultBranch
+        run: |
+          git config --global init.defaultBranch main
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
+          submodules: recursive
 
-      - uses: actions/setup-node@v5
+      - name: Configure Git identity
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Setup GPG signing
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --yes --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" --import
+          KEYID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}')
+          git config --global user.signingkey "$KEYID"
+          git config --global commit.gpgsign true
+          git config --global gpg.program gpg
+          echo "use-agent" >> ~/.gnupg/gpg.conf
+          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+          gpgconf --kill gpg-agent
+          echo test | gpg --batch --yes --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" -u "$KEYID" --clearsign >/dev/null
+          git commit --allow-empty -m "GPG signing check" || true
+
+      - name: Setup Node.js (LTS)
+        uses: actions/setup-node@v5
         with:
           node-version: "lts/*"
+          cache: npm
+          check-latest: true
+          cache-dependency-path: package.json
 
-      - name: Update npm dependencies
+      - name: Install Node.js dependencies
         if: hashFiles('package.json') != ''
         run: |
           npm cache clean --force
@@ -325,16 +359,48 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - name: Configure Git defaultBranch
+        run: |
+          git config --global init.defaultBranch main
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
+          submodules: recursive
 
-      - uses: actions/setup-python@v6
+      - name: Configure Git identity
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Setup GPG signing
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --yes --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" --import
+          KEYID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}')
+          git config --global user.signingkey "$KEYID"
+          git config --global commit.gpgsign true
+          git config --global gpg.program gpg
+          echo "use-agent" >> ~/.gnupg/gpg.conf
+          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+          gpgconf --kill gpg-agent
+          echo test | gpg --batch --yes --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" -u "$KEYID" --clearsign >/dev/null
+          git commit --allow-empty -m "GPG signing check" || true
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
+          cache: pip
+          check-latest: true
+          cache-dependency-path: requirements.txt
 
-      - name: Update Python dependencies
-        if: hashFiles('requirements.in') != '' || hashFiles('requirements.txt') != ''
+      - name: Install Python dependencies
+        if: hashFiles('requirements.txt') != ''
         run: |
           python -m pip install --quiet --upgrade pip pip-tools
           if [ -f requirements.in ]; then pip-compile requirements.in --quiet --no-header --no-annotate --upgrade; fi
@@ -389,15 +455,47 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: actions/checkout@v5
+      - name: Configure Git defaultBranch
+        run: |
+          git config --global init.defaultBranch main
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
+          submodules: recursive
 
-      - uses: actions/setup-node@v5
+      - name: Configure Git identity
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Setup GPG signing
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --yes --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" --import
+          KEYID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}')
+          git config --global user.signingkey "$KEYID"
+          git config --global commit.gpgsign true
+          git config --global gpg.program gpg
+          echo "use-agent" >> ~/.gnupg/gpg.conf
+          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+          gpgconf --kill gpg-agent
+          echo test | gpg --batch --yes --pinentry-mode loopback --passphrase "$GPG_PASSPHRASE" -u "$KEYID" --clearsign >/dev/null
+          git commit --allow-empty -m "GPG signing check" || true
+
+      - name: Setup Node.js (LTS)
+        uses: actions/setup-node@v5
         with:
           node-version: "lts/*"
+          cache: npm
+          check-latest: true
+          cache-dependency-path: package.json
 
-      - name: Update npm dependencies
+      - name: Install Node.js dependencies
         if: hashFiles('package.json') != ''
         run: |
           npm cache clean --force
@@ -409,6 +507,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release
-
-
-
