@@ -27,7 +27,7 @@ jobs:
         id: metadata
         uses: dependabot/fetch-metadata@v2
         with:
-          github-token: '${{ secrets.GITHUB_TOKEN }}'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Auto-approve minor/patch updates
         if: contains(steps.metadata.outputs.update-type, 'minor') || contains(steps.metadata.outputs.update-type, 'patch')

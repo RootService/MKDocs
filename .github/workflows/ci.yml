@@ -170,11 +170,11 @@ jobs:
             sed -E -e '/^_OPTIONS_READ/ s/,[[:digit:]]+[[:space:]]?$//g' -i snippets/ports/*/options || true
             sed -E -e '/^_OPTIONS_READ/ s/_[[:digit:]]+[[:space:]]?$//g' -i snippets/ports/*/options || true
           fi
-          JS_TS_CSS_MD_JSON_YML="$(git ls-files '*.js' '*.ts' '*.css' '*.md' '*.json' '*.yml' | tr '\n' ' ')"
+          JS_TS_CSS_MD_JSON_YML="$(git ls-files '*.cjs' '*.mjs' '*.js' '*.ts' '*.css' '*.md' '*.json' '*.yml' | tr '\n' ' ')"
           [ -n "$JS_TS_CSS_MD_JSON_YML" ] && npx --yes prettier --check $JS_TS_CSS_MD_JSON_YML || true
           MD_FILES="$(git ls-files '*.md' | tr '\n' ' ')"
           [ -n "$MD_FILES" ] && npx --yes markdownlint-cli2 $MD_FILES || true
-          ESLINT_FILES="$(git ls-files '*.js' '*.ts' | tr '\n' ' ')"
+          ESLINT_FILES="$(git ls-files '*.cjs' '*.mjs' '*.js' '*.ts' | tr '\n' ' ')"
           [ -n "$ESLINT_FILES" ] && npx --yes eslint $ESLINT_FILES || true
           CSS_FILES="$(git ls-files '*.css' | tr '\n' ' ')"
           [ -n "$CSS_FILES" ] && npx --yes stylelint $CSS_FILES || true
@@ -184,7 +184,7 @@ jobs:
       - name: Prettier write (scheduled only)
         if: github.event_name == 'schedule' && github.ref_name == 'main'
         run: |
-          FILES="$(git ls-files '*.md' '*.yml' '*.json' '*.js' '*.ts' '*.css' '*.html' | tr '\n' ' ')"
+          FILES="$(git ls-files '*.md' '*.yml' '*.json' '*.cjs' '*.mjs' '*.js' '*.ts' '*.css' '*.html' | tr '\n' ' ')"
           [ -n "$FILES" ] && npx --yes prettier --write $FILES || true
 
       - name: Auto-commit overrides/fixes
@@ -266,10 +266,10 @@ jobs:
           NODE
 
       - name: Lighthouse Scores ins Summary
-        run: node .github/scripts/format-lighthouse.js >> "$GITHUB_STEP_SUMMARY" || true
+        run: node .github/scripts/format-lighthouse.cjs >> "$GITHUB_STEP_SUMMARY" || true
 
       - name: Prepare Lighthouse markdown
-        run: node .github/scripts/format-lighthouse.js > lhci-summary.md || true
+        run: node .github/scripts/format-lighthouse.cjs > lhci-summary.md || true
 
       - name: Create Lighthouse Check
         if: github.event_name == 'pull_request'
