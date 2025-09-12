@@ -6,7 +6,7 @@
     "preset": "desktop"
   },
   "notes": "Minimal placeholder. Used by CI presence-checks.",
-  "extends": "lighthouse:all",
+  "extends": "lighthouse:default",
   "settings": {
     "emulatedFormFactor": "desktop",
     "throttling": {
