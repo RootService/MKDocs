@@ -6,14 +6,14 @@ on:
   pull_request:
     branches: ["**"]
   schedule:
-      # Monatlich für Langzeittests
+    # Monatlich für Langzeittests
     - cron: "0 3 1 * *"
-      # Wöchentlich für Dependency-Checks
+    # Wöchentlich für Dependency-Checks
     - cron: "0 4 * * 0"
   workflow_dispatch:
 
 permissions:
-  contents: write          # für gh-deploy und semantic-release
+  contents: write        # gh-deploy und semantic-release
   pages: write
   pull-requests: write
 
@@ -28,7 +28,6 @@ env:
   PYTHONUNBUFFERED: "1"
   PIP_DISABLE_PIP_VERSION_CHECK: "1"
   TAG_PREFIX: RootService/MKDocs
-  # Falls gesetzt: werden in "GPG: Import" verwendet
   GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
   GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -46,7 +45,7 @@ jobs:
     timeout-minutes: 45
 
     steps:
-      # --- Git vorbereiten, dann Checkout ---
+      # --- Git & Checkout ---
       - name: Git Configure
         run: |
           git config --global user.name  "github-actions[bot]"
@@ -64,7 +63,7 @@ jobs:
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
-      # --- GPG optional (Signieren) ---
+      # --- Optional: GPG Import/Sign ---
       - name: GPG Import
         if: env.GPG_PRIVATE_KEY != ''
         run: |
@@ -83,46 +82,30 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
           check-latest: true
-          cache-dependency-path: package.json
+          cache: "npm"
+          cache-dependency-path: |
+            **/package-lock.json
+            **/pnpm-lock.yaml
+            **/yarn.lock
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: "pip"
           check-latest: true
-          cache-dependency-path: requirements.txt
+          cache: "pip"
+          cache-dependency-path: |
+            requirements.txt
+            requirements.in
 
-      # --- Caches ---
-      - name: Cache npm
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.npm
-            **/node_modules
-          key: v1-npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json','**/pnpm-lock.yaml','**/yarn.lock') }}
-          restore-keys: |
-            v1-npm-${{ runner.os }}-
-
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pip
-            ~/.cache/pip-tools
-          key: v1-pip-${{ runner.os }}-${{ hashFiles('requirements*.txt','requirements*.in') }}
-          restore-keys: |
-            v1-pip-${{ runner.os }}-
-
-      # --- Installationen ---
+      # --- Dependencies installieren (deterministisch) ---
       - name: Install Node dependencies
-        if: hashFiles('package.json') != '' || hashFiles('package-lock.json', 'package.json', 'pnpm-lock.yaml', 'yarn.lock') != ''
+        if: hashFiles('package.json') != ''
         run: |
           if [ -f pnpm-lock.yaml ]; then
             corepack enable && corepack prepare pnpm@latest --activate
-            pnpm i --frozen-lockfile
+            pnpm install --frozen-lockfile
           elif [ -f yarn.lock ]; then
             corepack enable && corepack prepare yarn@stable --activate
             yarn install --frozen-lockfile
@@ -133,8 +116,30 @@ jobs:
             npm install --ignore-scripts --no-audit --no-fund --quiet
           fi
 
-      - name: Commit and push dependency updates
-        if: hashFiles('package.json') != '' || hashFiles('package-lock.json', 'package.json', 'pnpm-lock.yaml', 'yarn.lock') != ''
+      - name: Install Python dependencies
+        if: hashFiles('requirements.txt','requirements.in') != ''
+        run: |
+          python -m pip install --upgrade pip pip-tools >/dev/null
+          if [ -f requirements.in ]; then pip-compile requirements.in --quiet --no-header --no-annotate --upgrade; fi
+          if [ -f requirements.txt ]; then pip install --quiet --use-pep517 --upgrade -r requirements.txt; fi
+          # Fallback: MkDocs + Plugins, falls keine requirements.txt vorliegt
+          python - <<'PY'
+          import os, subprocess, sys
+          if not os.path.exists('requirements.txt'):
+              pkgs = [
+                "mkdocs","mkdocs-material[imaging]","mkdocs-material-extensions",
+                "mkdocs-minify-plugin","mkdocs-git-revision-date-localized-plugin",
+                "mkdocs-git-committers-plugin-2","mkdocs-git-authors-plugin",
+                "mkdocs-redirects","mkdocs-htmlproofer-plugin","mkdocs-static-i18n",
+                "beautifulsoup4","cairosvg","cairocffi","cffi","tinycss2","cssselect2",
+                "pillow","pip-audit","bandit"
+              ]
+              subprocess.check_call([sys.executable,"-m","pip","install","--quiet",*pkgs])
+          PY
+
+      # --- Abhängigkeits-Commits nur geplant (Optional: sicher) ---
+      - name: Commit and push dependency updates (Node)
+        if: github.event_name == 'schedule' && github.ref_name == 'main' && hashFiles('package.json') != ''
         uses: stefanzweifel/git-auto-commit-action@v6
         with:
           commit_message: "chore(deps): update npm dependencies"
@@ -150,23 +155,8 @@ jobs:
           tagging_message: ${{ env.TAG_PREFIX }}-${{ github.run_number }}
           create_branch: false
 
-      - name: Install Python dependencies
-        if: hashFiles('requirements.in') != '' || hashFiles('requirements.txt', 'requirements.in') != ''
-        run: |
-          python -m pip install --upgrade pip pip-tools >/dev/null
-          if [ -f requirements.in ]; then pip-compile requirements.in --quiet --no-header --no-annotate --upgrade; fi
-          if [ -f requirements.txt ]; then pip install --quiet --use-pep517 --upgrade -r requirements.txt; fi
-          # MkDocs Material + Plugins, falls nicht im requirements.txt
-          python - <<'PY'
-          import os, subprocess, sys
-          req = os.path.exists('requirements.txt')
-          pkgs = ["mkdocs","mkdocs-material[imaging]","mkdocs-material-extensions","mkdocs-minify-plugin","mkdocs-git-revision-date-localized-plugin","mkdocs-git-committers-plugin-2","mkdocs-git-authors-plugin","mkdocs-redirects","mkdocs-htmlproofer-plugin","mkdocs-static-i18n","beautifulsoup4","cairosvg","cairocffi","cffi","tinycss2","cssselect2","pillow","pip-audit","bandit"]
-          if not req:
-              subprocess.check_call([sys.executable,"-m","pip","install","--quiet",*pkgs])
-          PY
-
       - name: Commit and push updated Python dependencies
-        if: hashFiles('requirements.in') != '' || hashFiles('requirements.txt', 'requirements.in') != ''
+        if: github.event_name == 'schedule' && github.ref_name == 'main' && hashFiles('requirements.txt','requirements.in') != ''
         uses: stefanzweifel/git-auto-commit-action@v6
         with:
           commit_message: "chore(deps): update Python dependencies"
@@ -184,20 +174,23 @@ jobs:
       - name: Run Linters
         continue-on-error: true
         run: |
+          # optional: normalize FreeBSD ports snippets falls vorhanden
           if [ -d snippets/ports ]; then
-            sed -E -e '/^#[[:space:]]/d' -i snippets/ports/*/options
-            sed -E -e 's/[[:space:]]*$//g' -i snippets/ports/*/options
-            sed -E -e '/^_OPTIONS_READ/ s/,[[:digit:]]+[[:space:]]?$//g' -i snippets/ports/*/options
-            sed -E -e '/^_OPTIONS_READ/ s/_[[:digit:]]+[[:space:]]?$//g' -i snippets/ports/*/options
-          else
-            echo "No snippets/ports directory. Skipping."
+            sed -E -e '/^#[[:space:]]/d' -i snippets/ports/*/options || true
+            sed -E -e 's/[[:space:]]*$//g' -i snippets/ports/*/options || true
+            sed -E -e '/^_OPTIONS_READ/ s/,[[:digit:]]+[[:space:]]?$//g' -i snippets/ports/*/options || true
+            sed -E -e '/^_OPTIONS_READ/ s/_[[:digit:]]+[[:space:]]?$//g' -i snippets/ports/*/options || true
           fi
-          FILES=$(git ls-files '*.js' '*.ts' '*.css' '*.md' '*.json' '*.yml' | tr '\n' ' ')
-          [ -n "$FILES" ] && npx --yes prettier --check $FILES || true
-          npx --yes markdownlint-cli2 {site,docs,overrides}/**/*.md || true
-          npx --yes eslint {site,docs,overrides}/**/*.{js,ts,md} || true
-          npx --yes stylelint {site,docs,overrides}/**/*.css || true
-          npx --yes htmlhint {site,docs,overrides}/**/*.html || true
+          JS_TS_CSS_MD_JSON_YML="$(git ls-files '*.js' '*.ts' '*.css' '*.md' '*.json' '*.yml' | tr '\n' ' ')"
+          [ -n "$JS_TS_CSS_MD_JSON_YML" ] && npx --yes prettier --check $JS_TS_CSS_MD_JSON_YML || true
+          MD_FILES="$(git ls-files '*.md' | tr '\n' ' ')"
+          [ -n "$MD_FILES" ] && npx --yes markdownlint-cli2 $MD_FILES || true
+          ESLINT_FILES="$(git ls-files '*.js' '*.ts' | tr '\n' ' ')"
+          [ -n "$ESLINT_FILES" ] && npx --yes eslint $ESLINT_FILES || true
+          CSS_FILES="$(git ls-files '*.css' | tr '\n' ' ')"
+          [ -n "$CSS_FILES" ] && npx --yes stylelint $CSS_FILES || true
+          HTML_FILES="$(git ls-files '*.html' | tr '\n' ' ')"
+          [ -n "$HTML_FILES" ] && npx --yes htmlhint $HTML_FILES || true
 
       - name: Auto-commit overrides/fixes
         uses: stefanzweifel/git-auto-commit-action@v6
@@ -216,8 +209,7 @@ jobs:
 
       # --- MkDocs Build + Artefakt ---
       - name: Build MkDocs site
-        run: |
-          mkdocs build --clean
+        run: mkdocs build --clean
 
       - name: Upload built site artifact
         uses: actions/upload-artifact@v4
@@ -228,85 +220,83 @@ jobs:
           retention-days: 7
           include-hidden-files: true
 
-      - name: Download built site artifact
-        uses: actions/download-artifact@v5
-        with:
-          name: site
-          path: site
-
-      # --- Pages Deploy (nur main) ---
+      # --- Deploy (nur main) ---
       - name: Deploy MkDocs to GitHub Pages
         if: github.ref_name == 'main'
-        run: |
-          mkdocs gh-deploy --force
+        run: mkdocs gh-deploy --force
 
-      # --- CSP/Headers optional (nur wenn Skript vorhanden) ---
+      # --- CSP/Headers optional ---
       - name: Generate CSP headers
         if: hashFiles('.github/scripts/generate_csp.py') != ''
-        run: |
-          python .github/scripts/generate_csp.py
+        run: python .github/scripts/generate_csp.py
 
-      # --- Lighthouse CI autorun mit stabilen Chrome-Flags ---
+      # --- Lighthouse CI: stabil + Fallback ---
       - name: Lighthouse CI (autorun)
         id: lhci1
         continue-on-error: true
-        run: npx lhci autorun --config ".lighthouserc.json" --failOnUploadFailure --timeout=240000 --quiet
+        run: |
+          npx lhci autorun \
+            --config ".lighthouserc.json" \
+            --collect.numberOfRuns=1 \
+            --collect.settings.chromeFlags="--headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --window-size=1280,800" \
+            --assert.preset=off \
+            --timeout=240000 --quiet
 
       - name: Lighthouse CI (autorun via xvfb)
         if: ${{ steps.lhci1.conclusion == 'failure' }}
         continue-on-error: true
         run: |
           sudo apt-get update && sudo apt-get install -y xvfb
-          xvfb-run -a npx lhci autorun --config ".lighthouserc.json" --failOnUploadFailure --timeout=240000 --quiet
+          xvfb-run -a npx lhci autorun \
+            --config ".lighthouserc.json" \
+            --collect.numberOfRuns=1 \
+            --collect.settings.chromeFlags="--headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage --window-size=1280,800" \
+            --assert.preset=off \
+            --timeout=240000 --quiet
 
-      # Zusammenfassung im Job-Summary
-      - name: Lighthouse Scores ins Summary
+      - name: Enforce Lighthouse thresholds
         run: |
-          node .github/scripts/format-lighthouse.js >> $GITHUB_STEP_SUMMARY || true
+          REPORT="$(ls -t .lighthouseci/*-lhr.json | head -n1 || true)"
+          if [ -z "$REPORT" ]; then echo "no report"; exit 1; fi
+          node - <<'NODE' "$REPORT"
+          const fs=require('fs'), r=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));
+          const T={performance:+process.env.LH_THRESHOLD_PERF,accessibility:+process.env.LH_THRESHOLD_A11Y,'best-practices':+process.env.LH_THRESHOLD_BP,seo:+process.env.LH_THRESHOLD_SEO};
+          let fail=false;
+          for (const [k,v] of Object.entries(r.categories||{})){
+            const s=Math.round((v.score||0)*100);
+            if (T[k] && s<T[k]){ console.log(`::error title=Lighthouse ${k}::Score ${s} < ${T[k]}`); fail=true; }
+            else console.log(`::notice title=Lighthouse ${k}::Score ${s}`);
+          }
+          if (fail) process.exit(1);
+          NODE
 
-      - name: Comment Lighthouse scores on PR
+      - name: Lighthouse Scores ins Summary
+        run: node .github/scripts/format-lighthouse.js >> "$GITHUB_STEP_SUMMARY" || true
+
+      - name: Prepare Lighthouse markdown
+        run: node .github/scripts/format-lighthouse.js > lhci-summary.md || true
+
+      - name: Create Lighthouse Check
         if: github.event_name == 'pull_request'
-        continue-on-error: true
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
-            const path = require('path');
-            const reportFiles = fs.readdirSync('.lighthouseci').filter(f => f.endsWith('-lhr.json'));
-            if (reportFiles.length === 0) {
-              core.warning('No Lighthouse report found');
-              return;
-            }
-            const reportPath = reportFiles.map(f => path.join('.lighthouseci', f))
-              .sort((a,b) => fs.statSync(b).mtimeMs - fs.statSync(a).mtimeMs)[0];
-            const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
-            let body = '### ⚡ Lighthouse Scores\n\n';
-            body += '| Kategorie | Score |\n|-----------|-------|\n';
-            for (const [k,v] of Object.entries(report.categories || {})) {
-              body += `| ${k} | ${Math.round((v.score||0)*100)} |\n`;
-            }
-            await github.rest.issues.createComment({
-              issue_number: context.issue.number,
+            const summary = fs.existsSync('lhci-summary.md') ? fs.readFileSync('lhci-summary.md','utf8') : 'No report';
+            await github.rest.checks.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body
+              name: 'Lighthouse Report',
+              head_sha: context.payload.pull_request.head.sha,
+              status: 'completed',
+              conclusion: 'neutral',
+              output: {
+                title: 'Lighthouse Scores',
+                summary: 'Performance, Accessibility, Best Practices, SEO',
+                text: summary
+              }
             });
-
-      - name: Create Lighthouse Check
-        if: github.event_name == 'pull_request'
-        continue-on-error: true
-        uses: LouisBrunner/checks-action@v1.6.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          name: Lighthouse Report
-          conclusion: neutral
-          output: |
-            {
-              "title": "Lighthouse Scores",
-              "summary": "Performance, Accessibility, Best Practices, SEO",
-              "text": "$(node .github/scripts/format-lighthouse.js)"
-            }
 
       - name: Upload LHCI artifacts
         if: always()
@@ -317,20 +307,13 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-      # --- Release nur auf main ---
-      - name: Run semantic-release
-        if: github.ref_name == 'main'
-        run: |
-          npx semantic-release
-
+      # --- Sicherheitsprüfung vor Release (Optional: blockierend) ---
       - name: Dependency review
-        continue-on-error: true
         uses: actions/dependency-review-action@v4
         with:
           fail-on-severity: high
 
-      - name: Run commitlint on PR commits
-        if: github.event_name == 'pull_request'
-        continue-on-error: true
-        run: |
-          npx commitlint --from=${{ github.event.pull_request.base.sha }} --to=${{ github.sha }} --verbose
+      # --- Release nur auf main ---
+      - name: Run semantic-release
+        if: github.ref_name == 'main'
+        run: npx semantic-release
