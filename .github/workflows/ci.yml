@@ -161,8 +161,6 @@ jobs:
           tagging_message: ${{ env.TAG_PREFIX }}-${{ github.run_number }}
           create_branch: false
 
-      - run: ls -tR ./
-
       - name: Run Linters
         continue-on-error: true
         run: |
@@ -253,7 +251,7 @@ jobs:
 
       - name: Enforce Lighthouse thresholds
         run: |
-          REPORT="$(ls -t .lighthouseci/lhr-*.json | head -n1 || true)"
+          REPORT="$(ls -t .lighthouseci/lhr*.json | head -n1 || true)"
           if [ -z "$REPORT" ]; then echo "no report"; exit 1; fi
           node - <<'NODE' "$REPORT"
           const fs=require('fs'), r=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));
@@ -272,8 +270,6 @@ jobs:
 
       - name: Prepare Lighthouse markdown
         run: node .github/scripts/format-lighthouse.js > lhci-summary.md || true
-
-      - run: ls -tR ./
 
       - name: Create Lighthouse Check
         if: github.event_name == 'pull_request'

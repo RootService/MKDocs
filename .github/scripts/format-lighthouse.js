@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 const DIR = process.env.LHCI_DIR || '.lighthouseci';
-const PATTERN = /lhr-*\.json$/i;
+const PATTERN = /lhr.*\.json$/i;
 const PICK = (process.env.LH_PICK || 'latest').toLowerCase(); // 'latest' | 'best'
 
 function listReports(dir) {
