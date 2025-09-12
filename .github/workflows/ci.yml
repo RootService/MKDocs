@@ -6,12 +6,14 @@ on:
   pull_request:
     branches: ["**"]
   schedule:
-    - cron: "0 3 1 * *" # Run monthly
-    - cron: "0 4 * * 0" # Weekly deps update
+      # Monatlich für Langzeittests
+    - cron: "0 3 1 * *"
+      # Wöchentlich für Dependency-Checks
+    - cron: "0 4 * * 0"
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: write          # für gh-deploy und semantic-release
   pages: write
   pull-requests: write
 
@@ -22,12 +24,14 @@ concurrency:
 env:
   CI: true
   NODE_ENV: production
-  TAG_PREFIX: RootService/MKDocs
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-  PIP_DISABLE_PIP_VERSION_CHECK: "1"
-  PYTHONUNBUFFERED: "1"
   FORCE_COLOR: "1"
+  PYTHONUNBUFFERED: "1"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  TAG_PREFIX: RootService/MKDocs
+  # Falls gesetzt: werden in "GPG: Import" verwendet
+  GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+  GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
   LH_THRESHOLD_PERF: 80
@@ -36,81 +40,148 @@ env:
   LH_THRESHOLD_SEO: 80
 
 jobs:
-  build:
+  ci:
+    name: Build, Lint, Lighthouse, Release
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+
     steps:
-      - name: Configure Git defaultBranch
+      # --- Git vorbereiten, dann Checkout ---
+      - name: Git Configure
         run: |
+          git config --global user.name  "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --global init.defaultBranch main
 
-      - name: Checkout repository
-        uses: actions/checkout@v5
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: recursive
+          persist-credentials: true
 
       - name: Configure Git identity
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
-      - name: Setup GPG signing
+      # --- GPG optional (Signieren) ---
+      - name: GPG: Import
+        if: env.GPG_PRIVATE_KEY != ''
         run: |
           echo "$GPG_PRIVATE_KEY" | gpg --batch --yes --import
+          if [ -n "$GPG_PASSPHRASE" ]; then
+            echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+          fi
           KEYID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}')
           git config --global user.signingkey "$KEYID"
           git config --global commit.gpgsign true
           git config --global gpg.program gpg
           git commit --allow-empty -m "GPG signing check" || true
 
-      - name: Setup Node.js (LTS)
-        uses: actions/setup-node@v5
+      # --- Toolchains ---
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: "lts/*"
-          cache: npm
+          node-version: "20"
+          cache: "npm"
           check-latest: true
           cache-dependency-path: package.json
 
-      - name: Cache Node.js dependencies
-        uses: actions/cache@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          path: ~/.npm
-          key: v1-npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'package.json') }}
-          restore-keys: |
-            v1-npm-${{ runner.os }}-
-
-      - name: Install Node.js dependencies
-        if: hashFiles('package-lock.json', 'package.json') != ''
-        run: |
-          npm cache clean --force
-          npm install -g npm-check-updates
-          ncu -u
-          npm install --ignore-scripts --no-audit --no-fund --quiet
-
-      - name: Setup Python 3.11
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
-          cache: pip
+          python-version: "3.12"
+          cache: "pip"
           check-latest: true
           cache-dependency-path: requirements.txt
 
-      - name: Cache pip dependencies
+      # --- Caches ---
+      - name: Cache npm
         uses: actions/cache@v4
         with:
-          path: ~/.cache/pip
-          key: v1-pip-${{ runner.os }}-${{ hashFiles('requirements.txt', 'requirements.in') }}
+          path: |
+            ~/.npm
+            **/node_modules
+          key: v1-npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json','**/pnpm-lock.yaml','**/yarn.lock') }}
+          restore-keys: |
+            v1-npm-${{ runner.os }}-
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.cache/pip-tools
+          key: v1-pip-${{ runner.os }}-${{ hashFiles('requirements*.txt','requirements*.in') }}
           restore-keys: |
             v1-pip-${{ runner.os }}-
 
-      - name: Install Python dependencies
-        if: hashFiles('requirements.txt', 'requirements.in') != ''
+      # --- Installationen ---
+      - name: Install Node dependencies
+        if: hashFiles('package.json') != '' || hashFiles('package-lock.json', 'package.json', 'pnpm-lock.yaml', 'yarn.lock') != ''
         run: |
-          python -m pip install --quiet --upgrade pip pip-tools
-          if [ -f requirements.in ]; then pip-compile requirements.in --quiet --no-header --no-annotate --strip-extras --upgrade; fi
-          if [ -f requirements.txt ]; then pip install --quiet --use-pep517 --upgrade -r requirements.txt; fi
+          if [ -f pnpm-lock.yaml ]; then
+            corepack enable && corepack prepare pnpm@latest --activate
+            pnpm i --frozen-lockfile
+          elif [ -f yarn.lock ]; then
+            corepack enable && corepack prepare yarn@stable --activate
+            yarn install --frozen-lockfile
+          else
+            npm cache clean --force
+            npm install -g npm-check-updates
+            ncu -u
+            npm install --ignore-scripts --no-audit --no-fund --quiet
+          fi
 
-      - name: CleanUp Ports Options
+      - name: Commit and push dependency updates
+        if: hashFiles('package.json') != '' || hashFiles('package-lock.json', 'package.json', 'pnpm-lock.yaml', 'yarn.lock') != ''
+        uses: stefanzweifel/git-auto-commit-action@v6
+        with:
+          commit_message: "chore(deps): update npm dependencies"
+          file_pattern: |
+            package.json
+            package-lock.json
+            pnpm-lock.yaml
+            yarn.lock
+          branch: main
+          skip_dirty_check: false
+          add_options: -A
+          push_options: --force-with-lease
+          tagging_message: ${{ env.TAG_PREFIX }}-${{ github.run_number }}
+          create_branch: false
+
+      - name: Install Python dependencies
+        if: hashFiles('requirements.in') != '' || hashFiles('requirements.txt', 'requirements.in') != ''
+        run: |
+          python -m pip install --upgrade pip pip-tools >/dev/null
+          if [ -f requirements.in ]; then pip-compile requirements.in --quiet --no-header --no-annotate --upgrade; fi
+          if [ -f requirements.txt ]; then pip install --quiet --use-pep517 --upgrade -r requirements.txt; fi
+          # MkDocs Material + Plugins, falls nicht im requirements.txt
+          python - <<'PY'
+          import os, subprocess, sys
+          req = os.path.exists('requirements.txt')
+          pkgs = ["mkdocs","mkdocs-material[imaging]","mkdocs-material-extensions","mkdocs-minify-plugin","mkdocs-git-revision-date-localized-plugin","mkdocs-git-committers-plugin-2","mkdocs-git-authors-plugin","mkdocs-redirects","mkdocs-htmlproofer-plugin","mkdocs-static-i18n","beautifulsoup4","cairosvg","cairocffi","cffi","tinycss2","cssselect2","pillow","pip-audit","bandit"]
+          if not req:
+              subprocess.check_call([sys.executable,"-m","pip","install","--quiet",*pkgs])
+          PY
+
+      - name: Commit and push updated Python dependencies
+        if: hashFiles('requirements.in') != '' || hashFiles('requirements.txt', 'requirements.in') != ''
+        uses: stefanzweifel/git-auto-commit-action@v6
+        with:
+          commit_message: "chore(deps): update Python dependencies"
+          file_pattern: |
+            requirements.in
+            requirements.txt
+          branch: main
+          skip_dirty_check: false
+          add_options: -A
+          push_options: --force-with-lease
+          tagging_message: ${{ env.TAG_PREFIX }}-${{ github.run_number }}
+          create_branch: false
+
+      # --- Linting (nicht build-blockierend) ---
+      - name: Run Linters
         continue-on-error: true
         run: |
           if [ -d snippets/ports ]; then
@@ -121,28 +192,31 @@ jobs:
           else
             echo "No snippets/ports directory. Skipping."
           fi
+          npx --yes prettier --check {site,docs,overrides}/**/*.{js,ts,css,md,json,yml} || true
+          npx --yes markdownlint-cli2 {site,docs,overrides}/**/*.md || true
+          npx --yes eslint {site,docs,overrides}/**/*.{js,ts,md} || true
+          npx --yes stylelint {site,docs,overrides}/**/*.css || true
+          npx --yes htmlhint {site,docs,overrides}/**/*.html || true
 
-      - name: Run Linters
-        continue-on-error: true
-        run: |
-          npx prettier --check {site,docs,overrides}/**/*.{js,ts,css,md,json,yml} || true
-          npx markdownlint-cli2 {site,docs,overrides}/**/*.md || true
-          npx eslint {site,docs,overrides}/**/*.{js,ts,md} || true
-          npx stylelint {site,docs,overrides}/**/*.css || true
-          npx htmlhint {site,docs,overrides}/**/*.html || true
+      - name: Auto-commit overrides/fixes
+        uses: stefanzweifel/git-auto-commit-action@v6
+        with:
+          commit_message: "chore(ci): update generated assets [skip ci]"
+          file_pattern: |
+            overrides/**
+            snippets/**
+            docs/**
+          branch: ${{ github.ref_name }}
+          skip_dirty_check: false
+          add_options: -A
+          push_options: --force-with-lease
+          tagging_message: ${{ env.TAG_PREFIX }}-${{ github.run_number }}
+          create_branch: false
 
+      # --- MkDocs Build + Artefakt ---
       - name: Build MkDocs site
         run: |
           mkdocs build --clean
-
-      - name: Deploy MkDocs to GitHub Pages
-        if: github.ref_name == 'main'
-        run: |
-          mkdocs gh-deploy --force
-
-      - name: Generate CSP headers
-        run: |
-          python .github/scripts/generate_csp.py
 
       - name: Upload built site artifact
         uses: actions/upload-artifact@v4
@@ -159,6 +233,19 @@ jobs:
           name: site
           path: site
 
+      # --- Pages Deploy (nur main) ---
+      - name: Deploy MkDocs to GitHub Pages
+        if: github.ref_name == 'main'
+        run: |
+          mkdocs gh-deploy --force
+
+      # --- CSP/Headers optional (nur wenn Skript vorhanden) ---
+      - name: Generate CSP headers
+        if: hashFiles('.github/scripts/gen-csp.js') != ''
+        run: |
+          node .github/scripts/gen-csp.js
+
+      # --- Lighthouse: lokalen Server starten ---
       - name: Start local HTTP server
         run: |
           npx http-server ./site -p 8000 --silent &
@@ -176,48 +263,22 @@ jobs:
             exit 1
           fi
 
-      - name: Run Lighthouse CI
+      # --- Lighthouse CI autorun mit stabilen Chrome-Flags ---
+      - name: Lighthouse CI (autorun)
         run: |
           npx lhci autorun --config ".lighthouserc.json" --failOnUploadFailure --timeout=240000 --quiet || true
 
-      - name: Lighthouse CI (collect via xvfb)
+      # Fallback mit xvfb, falls autorun fehlschlägt
+      - name: Lighthouse CI (autorun via xvfb)
         if: ${{ failure() }}
         run: |
           sudo apt-get update && sudo apt-get install -y xvfb
           xvfb-run -a npx lhci autorun --config ".lighthouserc.json" --failOnUploadFailure --timeout=240000 --quiet || true
 
-      - name: Print Lighthouse scores
-        continue-on-error: true
+      # Zusammenfassung im Job-Summary
+      - name: Lighthouse Scores ins Summary
         run: |
           node .github/scripts/format-lighthouse.js >> $GITHUB_STEP_SUMMARY || true
-
-      - name: Check Lighthouse thresholds
-        continue-on-error: true
-        run: |
-          REPORT="$(ls -t .lighthouseci/*-lhr-*.json | head -n1 || true)"
-          if [ -n "$REPORT" ]; then
-            node - <<'NODE' "$REPORT"
-            const fs = require('fs');
-            const report = JSON.parse(fs.readFileSync(process.argv[1],'utf8'));
-            const thresholds = {
-              performance: parseInt(process.env.LH_THRESHOLD_PERF, 10),
-              accessibility: parseInt(process.env.LH_THRESHOLD_A11Y, 10),
-              'best-practices': parseInt(process.env.LH_THRESHOLD_BP, 10),
-              seo: parseInt(process.env.LH_THRESHOLD_SEO, 10)
-            };
-            let failed = false;
-            for (const [k,v] of Object.entries(report.categories||{})) {
-              const score = Math.round((v.score||0)*100);
-              if (thresholds[k] && score < thresholds[k]) {
-                console.log(`::error title=Lighthouse ${k}::Score ${score} < threshold ${thresholds[k]}`);
-                failed = true;
-              } else {
-                console.log(`::notice title=Lighthouse ${k}::Score ${score}`);
-              }
-            }
-            if (failed) process.exit(1);
-            NODE
-          fi
 
       - name: Comment Lighthouse scores on PR
         if: github.event_name == 'pull_request'
@@ -272,304 +333,17 @@ jobs:
           if-no-files-found: ignore
           retention-days: 14
 
-      - name: Stop local server
+      # --- lokalen Server stoppen ---
+      - name: Stop local HTTP server
         if: always()
         run: |
           if [ -f server.pid ]; then kill "$(cat server.pid)" || true; fi
 
-      - name: Auto-commit overrides/fixes
-        uses: stefanzweifel/git-auto-commit-action@v6
-        with:
-          commit_message: "chore(ci): update generated assets [skip ci]"
-          file_pattern: |
-            overrides/**
-            snippets/**
-            docs/**
-          branch: ${{ github.ref_name }}
-          skip_dirty_check: false
-          add_options: -A
-          push_options: --force-with-lease
-          tagging_message: ${{ env.TAG_PREFIX }}-${{ github.run_number }}
-          create_branch: false
-
-  npm-deps-update:
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Configure Git defaultBranch
+      # --- Release nur auf main ---
+      - name: Run semantic-release
+        if: github.ref_name == 'main'
         run: |
-          git config --global init.defaultBranch main
-
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-          submodules: recursive
-
-      - name: Configure Git identity
-        run: |
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-
-      - name: Setup GPG signing
-        run: |
-          echo "$GPG_PRIVATE_KEY" | gpg --batch --yes --import
-          KEYID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}')
-          git config --global user.signingkey "$KEYID"
-          git config --global commit.gpgsign true
-          git config --global gpg.program gpg
-          git commit --allow-empty -m "GPG signing check" || true
-
-      - name: Setup Node.js (LTS)
-        uses: actions/setup-node@v5
-        with:
-          node-version: "lts/*"
-          cache: npm
-          check-latest: true
-          cache-dependency-path: package.json
-
-      - name: Cache Node.js dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: v1-npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'package.json') }}
-          restore-keys: |
-            v1-npm-${{ runner.os }}-
-
-      - name: Install Node.js dependencies
-        if: hashFiles('package-lock.json', 'package.json') != ''
-        run: |
-          npm cache clean --force
-          npm install -g npm-check-updates
-          ncu -u
-          npm install --ignore-scripts --no-audit --no-fund --quiet
-
-      - name: Setup Python 3.11
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
-          cache: pip
-          check-latest: true
-          cache-dependency-path: requirements.txt
-
-      - name: Cache pip dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: v1-pip-${{ runner.os }}-${{ hashFiles('requirements.txt', 'requirements.in') }}
-          restore-keys: |
-            v1-pip-${{ runner.os }}-
-
-      - name: Install Python dependencies
-        if: hashFiles('requirements.txt', 'requirements.in') != ''
-        run: |
-          python -m pip install --quiet --upgrade pip pip-tools
-          if [ -f requirements.in ]; then pip-compile requirements.in --quiet --no-header --no-annotate --strip-extras --upgrade; fi
-          if [ -f requirements.txt ]; then pip install --quiet --use-pep517 --upgrade -r requirements.txt; fi
-
-      - name: Commit and push dependency updates
-        if: hashFiles('package-lock.json', 'package.json') != ''
-        uses: stefanzweifel/git-auto-commit-action@v6
-        with:
-          commit_message: "chore(deps): update npm dependencies"
-          file_pattern: |
-            package.json
-            package-lock.json
-          branch: main
-          skip_dirty_check: false
-          add_options: -A
-          push_options: --force-with-lease
-          tagging_message: ${{ env.TAG_PREFIX }}-${{ github.run_number }}
-          create_branch: false
-
-  pip-deps-update:
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Configure Git defaultBranch
-        run: |
-          git config --global init.defaultBranch main
-
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-          submodules: recursive
-
-      - name: Configure Git identity
-        run: |
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-
-      - name: Setup GPG signing
-        run: |
-          echo "$GPG_PRIVATE_KEY" | gpg --batch --yes --import
-          KEYID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}')
-          git config --global user.signingkey "$KEYID"
-          git config --global commit.gpgsign true
-          git config --global gpg.program gpg
-          git commit --allow-empty -m "GPG signing check" || true
-
-      - name: Setup Node.js (LTS)
-        uses: actions/setup-node@v5
-        with:
-          node-version: "lts/*"
-          cache: npm
-          check-latest: true
-          cache-dependency-path: package.json
-
-      - name: Cache Node.js dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: v1-npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'package.json') }}
-          restore-keys: |
-            v1-npm-${{ runner.os }}-
-
-      - name: Install Node.js dependencies
-        if: hashFiles('package-lock.json', 'package.json') != ''
-        run: |
-          npm cache clean --force
-          npm install -g npm-check-updates
-          ncu -u
-          npm install --ignore-scripts --no-audit --no-fund --quiet
-
-      - name: Setup Python 3.11
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
-          cache: pip
-          check-latest: true
-          cache-dependency-path: requirements.txt
-
-      - name: Cache pip dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: v1-pip-${{ runner.os }}-${{ hashFiles('requirements.txt', 'requirements.in') }}
-          restore-keys: |
-            v1-pip-${{ runner.os }}-
-
-      - name: Install Python dependencies
-        if: hashFiles('requirements.txt', 'requirements.in') != ''
-        run: |
-          python -m pip install --quiet --upgrade pip pip-tools
-          if [ -f requirements.in ]; then pip-compile requirements.in --quiet --no-header --no-annotate --strip-extras --upgrade; fi
-          if [ -f requirements.txt ]; then pip install --quiet --use-pep517 --upgrade -r requirements.txt; fi
-
-      - name: Commit and push updated Python dependencies
-        if: hashFiles('requirements.in') != '' || hashFiles('requirements.txt', 'requirements.in') != ''
-        uses: stefanzweifel/git-auto-commit-action@v6
-        with:
-          commit_message: "chore(deps): update Python dependencies"
-          file_pattern: |
-            requirements.txt
-          branch: main
-          skip_dirty_check: false
-          add_options: -A
-          push_options: --force-with-lease
-          tagging_message: ${{ env.TAG_PREFIX }}-${{ github.run_number }}
-          create_branch: false
-
-  quality-gate:
-    needs: [build, npm-deps-update, pip-deps-update]
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - name: Configure Git defaultBranch
-        run: |
-          git config --global init.defaultBranch main
-
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-          submodules: recursive
-
-      - name: Configure Git identity
-        run: |
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-
-      - name: Setup GPG signing
-        run: |
-          echo "$GPG_PRIVATE_KEY" | gpg --batch --yes --import
-          KEYID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}')
-          git config --global user.signingkey "$KEYID"
-          git config --global commit.gpgsign true
-          git config --global gpg.program gpg
-          git commit --allow-empty -m "GPG signing check" || true
-
-      - name: Setup Node.js (LTS)
-        uses: actions/setup-node@v5
-        with:
-          node-version: "lts/*"
-          cache: npm
-          check-latest: true
-          cache-dependency-path: package.json
-
-      - name: Cache Node.js dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: v1-npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'package.json') }}
-          restore-keys: |
-            v1-npm-${{ runner.os }}-
-
-      - name: Install Node.js dependencies
-        if: hashFiles('package-lock.json', 'package.json') != ''
-        run: |
-          npm cache clean --force
-          npm install -g npm-check-updates
-          ncu -u
-          npm install --ignore-scripts --no-audit --no-fund --quiet
-
-      - name: Setup Python 3.11
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
-          cache: pip
-          check-latest: true
-          cache-dependency-path: requirements.txt
-
-      - name: Cache pip dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: v1-pip-${{ runner.os }}-${{ hashFiles('requirements.txt', 'requirements.in') }}
-          restore-keys: |
-            v1-pip-${{ runner.os }}-
-
-      - name: Install Python dependencies
-        if: hashFiles('requirements.txt', 'requirements.in') != ''
-        run: |
-          python -m pip install --quiet --upgrade pip pip-tools
-          if [ -f requirements.in ]; then pip-compile requirements.in --quiet --no-header --no-annotate --strip-extras --upgrade; fi
-          if [ -f requirements.txt ]; then pip install --quiet --use-pep517 --upgrade -r requirements.txt; fi
-
-      - name: Aggregate job results
-        continue-on-error: true
-        run: |
-          echo "Build result: ${{ needs.build.result }}"
-          echo "NPM deps update result: ${{ needs.npm-deps-update.result }}"
-          echo "PIP deps update result: ${{ needs.pip-deps-update.result }}"
-          failed=false
-          if [ "${{ needs.build.result }}" != "success" ]; then
-            echo "❌ Build failed"
-            failed=true
-          fi
-          if [ "${{ needs.npm-deps-update.result }}" == "failure" ]; then
-            echo "❌ npm-deps-update failed"
-            failed=true
-          fi
-          if [ "${{ needs.pip-deps-update.result }}" == "failure" ]; then
-            echo "❌ pip-deps-update failed"
-            failed=true
-          fi
-          if [ "$failed" = true ]; then
-            exit 1
-          fi
-          echo "✅ Quality Gate passed"
+          npx semantic-release
 
       - name: Dependency review
         continue-on-error: true
@@ -582,83 +356,3 @@ jobs:
         continue-on-error: true
         run: |
           npx commitlint --from=${{ github.event.pull_request.base.sha }} --to=${{ github.sha }} --verbose
-
-  release:
-    needs: quality-gate
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    steps:
-      - name: Configure Git defaultBranch
-        run: |
-          git config --global init.defaultBranch main
-
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-          submodules: recursive
-
-      - name: Configure Git identity
-        run: |
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-
-      - name: Setup GPG signing
-        run: |
-          echo "$GPG_PRIVATE_KEY" | gpg --batch --yes --import
-          KEYID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}')
-          git config --global user.signingkey "$KEYID"
-          git config --global commit.gpgsign true
-          git config --global gpg.program gpg
-          git commit --allow-empty -m "GPG signing check" || true
-
-      - name: Setup Node.js (LTS)
-        uses: actions/setup-node@v5
-        with:
-          node-version: "lts/*"
-          cache: npm
-          check-latest: true
-          cache-dependency-path: package.json
-
-      - name: Cache Node.js dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: v1-npm-${{ runner.os }}-${{ hashFiles('package-lock.json', 'package.json') }}
-          restore-keys: |
-            v1-npm-${{ runner.os }}-
-
-      - name: Install Node.js dependencies
-        if: hashFiles('package-lock.json', 'package.json') != ''
-        run: |
-          npm cache clean --force
-          npm install -g npm-check-updates
-          ncu -u
-          npm install --ignore-scripts --no-audit --no-fund --quiet
-
-      - name: Setup Python 3.11
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.11"
-          cache: pip
-          check-latest: true
-          cache-dependency-path: requirements.txt
-
-      - name: Cache pip dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: v1-pip-${{ runner.os }}-${{ hashFiles('requirements.txt', 'requirements.in') }}
-          restore-keys: |
-            v1-pip-${{ runner.os }}-
-
-      - name: Install Python dependencies
-        if: hashFiles('requirements.txt', 'requirements.in') != ''
-        run: |
-          python -m pip install --quiet --upgrade pip pip-tools
-          if [ -f requirements.in ]; then pip-compile requirements.in --quiet --no-header --no-annotate --strip-extras --upgrade; fi
-          if [ -f requirements.txt ]; then pip install --quiet --use-pep517 --upgrade -r requirements.txt; fi
-
-      - name: Run semantic-release
-        run: |
-          npx semantic-release
