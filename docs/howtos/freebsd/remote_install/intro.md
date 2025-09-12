@@ -73,7 +73,7 @@ Folgende Punkte sind in allen folgenden HowTos zu beachten.
 - Alle Passworte werden als `__PASSWORD__` dargestellt und sind selbstständig durch sichere Passworte zu ersetzen.
 - Die Domain des Servers lautet `example.com` und ist selbstständig durch die eigene Domain zu ersetzen.
 - Der Hostname des Servers lautet `devnull` und ist selbstständig durch den eigenen Hostnamen zu ersetzen
-(FQDN=devnull.example.com).
+  (FQDN=devnull.example.com).
 - Es wird der FQDN `devnull.example.com` verwendet und ist selbstständig im DNS zu registrieren.
 - Die primäre IPv4 Adresse des Systems wird als `__IPADDR4__` dargestellt und ist selbsttändig zu ersetzen.
 - Die primäre IPv6 Adresse des Systems wird als `__IPADDR6__` dargestellt und ist selbsttändig zu ersetzen.
@@ -99,8 +99,8 @@ devnull.example.com.    IN  AAAA    __IPADDR6__
 ## Das Referenzsystem
 
 Als Referenzsystem für dieses HowTo habe ich mich für eine virtuelle Maschine auf Basis von
-[Oracle VirtualBox](https://www.virtualbox.org/){: target="_blank" rel="noopener"} unter
-[Microsoft Windows 11 Pro (64Bit)](https://www.microsoft.com/en-us/windows/windows-11){: target="_blank" rel="noopener"}
+[Oracle VirtualBox](https://www.virtualbox.org/){: target="\_blank" rel="noopener"} unter
+[Microsoft Windows 11 Pro (64Bit)](https://www.microsoft.com/en-us/windows/windows-11){: target="\_blank" rel="noopener"}
 entschieden. So lässt sich ohne grösseren Aufwand ein handelsüblicher dedizierter Server simulieren und
 anschliessend kann diese virtuelle Maschine als kostengünstiges lokales Testsystem weiter genutzt werden.
 
@@ -108,7 +108,7 @@ Trotzdem habe ich dieses HowTo so ausgelegt, dass es sich nahezu unverändert au
 übertragen lässt und dieses auch auf mehreren dedizierten Servern getestet.
 
 Obwohl Microsoft Windows 11 Pro einen eigenen OpenSSH-Client mitbringt, greife ich lieber auf das sehr empfehlenswerte
-[PuTTY (64 Bit)](https://www.chiark.greenend.org.uk/~sgtatham/putty/){: target="_blank" rel="noopener"} zurück.
+[PuTTY (64 Bit)](https://www.chiark.greenend.org.uk/~sgtatham/putty/){: target="\_blank" rel="noopener"} zurück.
 
 VirtualBox (inklusive dem Extensionpack) und PuTTY werden mit den jeweiligen Standardoptionen installiert.
 

@@ -29,17 +29,19 @@ search:
 ## Einleitung
 
 <!-- markdownlint-disable MD046 -->
+
 ???+ warning
 
     Dieses HowTo wird seit **2014-09-01** nicht mehr aktiv gepflegt und entspricht daher nicht mehr dem aktuellen Stand.
 
     Die Verwendung dieses HowTo geschieht somit auf eigene Gefahr!
+
 <!-- markdownlint-enable MD046 -->
 
 In diesem HowTo beschreibe ich step-by-step die Remote Installation von [Gentoo Linux
-Hardened](https://wiki.gentoo.org/wiki/Project:Hardened){: target="_blank" rel="noopener"} 64Bit auf einem dedizierten
+Hardened](https://wiki.gentoo.org/wiki/Project:Hardened){: target="\_blank" rel="noopener"} 64Bit auf einem dedizierten
 Server. Um eine weitere Republikation der offiziellen [Gentoo Linux
-Dokumentation](https://www.gentoo.org/support/documentation/){: target="_blank" rel="noopener"} zu vermeiden, werde ich
+Dokumentation](https://www.gentoo.org/support/documentation/){: target="\_blank" rel="noopener"} zu vermeiden, werde ich
 in diesem HowTo nicht alle Punkte bis ins Detail erläutern.
 
 Folgende Punkte sind in diesem HowTo zu beachten.
@@ -50,14 +52,14 @@ Folgende Punkte sind in diesem HowTo zu beachten.
 - Alle Passworte werden als `__PASSWORD__` dargestellt und sind selbstständig durch sichere Passworte zu ersetzen.
 - Die Domain des Servers lautet `example.com` und ist selbstständig durch die eigene Domain zu ersetzen.
 - Der Hostname des Servers lautet `devnull` und ist selbstständig durch den eigenen Hostnamen zu ersetzen
-(FQDN=devnull.example.com).
+  (FQDN=devnull.example.com).
 - Es wird der FQDN `devnull.example.com` verwendet und ist selbstständig im DNS zu registrieren.
 
 ## Das Referenzsystem
 
 Als Referenzsystem für dieses HowTo habe ich mich für eine virtuelle Maschine auf Basis von [Oracle VM
-VirtualBox](https://www.virtualbox.org/){: target="_blank" rel="noopener"} unter [Microsoft Windows 7 Professional (64
-Bit)](https://www.microsoft.com/en-us/windows/windows-11){: target="_blank" rel="noopener"} entschieden. So lässt sich
+VirtualBox](https://www.virtualbox.org/){: target="\_blank" rel="noopener"} unter [Microsoft Windows 7 Professional (64
+Bit)](https://www.microsoft.com/en-us/windows/windows-11){: target="\_blank" rel="noopener"} entschieden. So lässt sich
 ohne grösseren Aufwand ein handelsüblicher dedizierter Server simulieren und anschliessend kann diese virtuelle
 Maschine als kostengünstiges lokales Testsystem weiter genutzt werden.
 
@@ -65,10 +67,10 @@ Trotzdem habe ich dieses HowTo so ausgelegt, dass es sich nahezu unverändert au
 dieses auch auf mehreren dedizierten Servern getestet.
 
 Leider bringt Microsoft Windows keinen eigenen SSH-Client mit, so dass ich auf das sehr empfehlenswerte [PuTTY (64
-Bit)](https://www.chiark.greenend.org.uk/~sgtatham/putty/){: target="_blank" rel="noopener"} zurückgreife. Zur
+Bit)](https://www.chiark.greenend.org.uk/~sgtatham/putty/){: target="\_blank" rel="noopener"} zurückgreife. Zur
 Simulation des bei nahezu allen Anbietern dedizierter Server vorhandene Rettungssystem, nachfolgend RescueSystem
-genannt, wird in diesem HowTo die auf [Gentoo Linux](https://www.gentoo.org/){: target="_blank" rel="noopener"}
-basierende [SystemRescueCD](https://www.system-rescue.org/){: target="_blank" rel="noopener"} eingesetzt.
+genannt, wird in diesem HowTo die auf [Gentoo Linux](https://www.gentoo.org/){: target="\_blank" rel="noopener"}
+basierende [SystemRescueCD](https://www.system-rescue.org/){: target="\_blank" rel="noopener"} eingesetzt.
 
 VirtualBox und PuTTY werden mit den jeweiligen Standardoptionen installiert.
 
@@ -118,8 +120,8 @@ Nachdem die virtuelle Maschine nun konfiguriert ist, wird es Zeit diese zu boote
 ## RescueSystem booten
 
 Um unser Gentoo Linux Hardened installieren zu können, müssen wir unsere virtuelle Maschine mit einem RescueSystem
-booten. Hierfür eignet sich die auf [Gentoo Linux](https://www.gentoo.org/){: target="_blank" rel="noopener"}
-basierende [SystemRescueCD](https://www.system-rescue.org/){: target="_blank" rel="noopener"} am Besten, welche wir
+booten. Hierfür eignet sich die auf [Gentoo Linux](https://www.gentoo.org/){: target="\_blank" rel="noopener"}
+basierende [SystemRescueCD](https://www.system-rescue.org/){: target="\_blank" rel="noopener"} am Besten, welche wir
 mittels des mit Windows mitgelieferten FTP-Client herunterladen und unserer virtuellen Maschine als Bootmedium zuweisen.
 
 ```powershell
@@ -175,13 +177,13 @@ Da jeder Administrator andere Präferenzen an sein Partitionslayout stellt und w
 weiterkommen, verwenden wir im Folgenden ein Standard-Partitionslayout. Fortgeschrittenere Linux-Administratoren können
 dieses Partitionslayout selbstverständlich an ihre eigenen Bedürfnisse anpassen.
 
-| Partition | Mountpunkt | Filesystem | Grösse |
-| :-------- | :--------- | :--------: | -----: |
-| /dev/sda1 /dev/sdb1 | none | [bootloader] | 2 MB |
-| /dev/sda2 /dev/sdb2 | /boot| EXT2 | 512 MB |
-| /dev/sda3 /dev/sdb3 | / | EXT3 | 16 GB |
-| /dev/sda4 /dev/sdb4 | /data | EXT3 | 8 GB |
-| /dev/sda5 /dev/sdb5 | none | [swap] | 4 GB |
+| Partition           | Mountpunkt |  Filesystem  | Grösse |
+| :------------------ | :--------- | :----------: | -----: |
+| /dev/sda1 /dev/sdb1 | none       | [bootloader] |   2 MB |
+| /dev/sda2 /dev/sdb2 | /boot      |     EXT2     | 512 MB |
+| /dev/sda3 /dev/sdb3 | /          |     EXT3     |  16 GB |
+| /dev/sda4 /dev/sdb4 | /data      |     EXT3     |   8 GB |
+| /dev/sda5 /dev/sdb5 | none       |    [swap]    |   4 GB |
 
 Die Partitionen legen wir nun mittels parted an.
 
@@ -299,7 +301,7 @@ mount -t ext3 -o defaults,relatime,barrier=1 /dev/md3 /mnt/gentoo
 
 Der Stage3-Tarball enthält ein minimalistisches Gentoo Linux Hardened, welches alle zur Installation notwendigen Tools
 enthält und uns als Chroot-Umgebung dient. Wir müssen nun den aktuellen Stage3-Tarball ermitteln, wozu wir die
-entsprechende Angabe vom [Gentoo Linux Master Mirror](https://gentoo.osuosl.org/){: target="_blank" rel="noopener"}
+entsprechende Angabe vom [Gentoo Linux Master Mirror](https://gentoo.osuosl.org/){: target="\_blank" rel="noopener"}
 verwenden und diese in dem folgenden zweiten wget-Aufruf entsprechend ersetzen. Den Stage3-Tarball werden wir bereits
 während des Download direkt nach `/mnt/gentoo` entpacken.
 
@@ -430,11 +432,14 @@ beziehungsweise instabil wird. Während dieses Vorgangs werden nur wenige Konfig
 aktualisiert, alle anderen müssen manuell mittels `dispatch-conf` aktualisiert werden.
 
 <!-- markdownlint-disable MD046 -->
+
 ???+ note
 
     Die folgenden Schritte sind nötig, da dieses HowTo eine angepasste Portage-Konfiguration verwendet und zudem seit
+
 dem Release des Stage3-Tarballs eventuell ein paar für diese Installationvariante wichtige Basispakete im Portage-Tree
 aktualisiert wurden.
+
 <!-- markdownlint-enable MD046 -->
 
 ```shell
@@ -848,7 +853,7 @@ exit
 
 Um uns künftig mit unserem Arbeitsuser einloggen zu können, müssen wir uns dessen SSH-Key (id_rsa) auf unser lokales
 System kopieren und ihn dann mit Hilfe der [PuTTYgen
-Dokumentation](https://the.earth.li/~sgtatham/putty/latest/htmldoc/Chapter8.html){: target="_blank" rel="noopener"} in
+Dokumentation](https://the.earth.li/~sgtatham/putty/latest/htmldoc/Chapter8.html){: target="\_blank" rel="noopener"} in
 einen für PuTTY lesbaren Key umwandeln.
 
 ```powershell

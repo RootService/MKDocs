@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Melde einen Fehler im Projekt
-title: "[BUG] "
+title: '[BUG] '
 labels: bug
 assignees: ''
 ---
@@ -10,6 +10,7 @@ assignees: ''
 Beschreibe den Fehler.
 
 **Schritte zum Reproduzieren**
+
 1. ...
 2. ...
 3. ...
@@ -21,6 +22,7 @@ Was sollte eigentlich passieren?
 Falls möglich, Screenshots anhängen.
 
 **Umgebung**
+
 - OS: [z.B. Ubuntu 22.04]
 - Browser: [z.B. Chrome 117]
 - Version: [z.B. 1.0.0]

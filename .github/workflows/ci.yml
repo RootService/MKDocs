@@ -2,12 +2,12 @@ name: Continuous Integration (CI)
 
 on:
   push:
-    branches: ["**"]
+    branches: ['**']
   pull_request:
-    branches: ["**"]
+    branches: ['**']
   schedule:
-    - cron: "0 3 1 * *"   # monatlich
-    - cron: "0 4 * * 0"   # wöchentlich
+    - cron: '0 3 1 * *' # monatlich
+    - cron: '0 4 * * 0' # wöchentlich
   workflow_dispatch:
 
 permissions:
@@ -22,9 +22,9 @@ concurrency:
 env:
   CI: true
   NODE_ENV: production
-  FORCE_COLOR: "1"
-  PYTHONUNBUFFERED: "1"
-  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  FORCE_COLOR: '1'
+  PYTHONUNBUFFERED: '1'
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
   TAG_PREFIX: RootService/MKDocs
   GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
   GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
@@ -76,9 +76,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
           check-latest: true
-          cache: "npm"
+          cache: 'npm'
           cache-dependency-path: |
             **/package-lock.json
             **/pnpm-lock.yaml
@@ -87,9 +87,9 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
           check-latest: true
-          cache: "pip"
+          cache: 'pip'
           cache-dependency-path: |
             requirements.txt
             requirements.in
@@ -133,7 +133,7 @@ jobs:
         if: github.event_name == 'schedule' && github.ref_name == 'main' && hashFiles('package.json') != ''
         uses: stefanzweifel/git-auto-commit-action@v6
         with:
-          commit_message: "chore(deps): update npm dependencies"
+          commit_message: 'chore(deps): update npm dependencies'
           file_pattern: |
             package.json
             package-lock.json
@@ -150,7 +150,7 @@ jobs:
         if: github.event_name == 'schedule' && github.ref_name == 'main' && hashFiles('requirements.txt','requirements.in') != ''
         uses: stefanzweifel/git-auto-commit-action@v6
         with:
-          commit_message: "chore(deps): update Python dependencies"
+          commit_message: 'chore(deps): update Python dependencies'
           file_pattern: |
             requirements.in
             requirements.txt
@@ -190,7 +190,7 @@ jobs:
       - name: Auto-commit overrides/fixes
         uses: stefanzweifel/git-auto-commit-action@v6
         with:
-          commit_message: "chore(ci): update generated assets [skip ci]"
+          commit_message: 'chore(ci): update generated assets [skip ci]'
           file_pattern: |
             overrides/**
             snippets/**

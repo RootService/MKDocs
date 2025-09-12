@@ -28,7 +28,7 @@ search:
 
 ## Einleitung
 
-Modernisiertes [MySQL performance tuning primer script](https://github.com/RootService/tuning-primer){: target="_blank" rel="noopener"} für MySQL >= 5.5 <= 5.7
+Modernisiertes [MySQL performance tuning primer script](https://github.com/RootService/tuning-primer){: target="\_blank" rel="noopener"} für MySQL >= 5.5 <= 5.7
 
-Basierend auf dem [MySQL performance tuning primer script](https://launchpad.net/mysql-tuning-primer){: target="_blank" rel="noopener"}
+Basierend auf dem [MySQL performance tuning primer script](https://launchpad.net/mysql-tuning-primer){: target="\_blank" rel="noopener"}
 Version 1.6-r1 veröffentlicht am 2011-08-06 von Matthew Montgomery und lizensiert unter der GPLv2.

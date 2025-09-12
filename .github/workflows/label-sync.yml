@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - ".github/labels.yml"
+      - '.github/labels.yml'
 
 permissions:
   contents: read
@@ -16,9 +16,9 @@ env:
   TAG_PREFIX: RootService/MKDocs
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-  PIP_DISABLE_PIP_VERSION_CHECK: "1"
-  PYTHONUNBUFFERED: "1"
-  FORCE_COLOR: "1"
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+  PYTHONUNBUFFERED: '1'
+  FORCE_COLOR: '1'
 
 jobs:
   sync:

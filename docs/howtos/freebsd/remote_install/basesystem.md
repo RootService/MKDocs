@@ -28,9 +28,9 @@ search:
 
 ## Einleitung
 
-In diesem HowTo beschreibe ich step-by-step die Remote Installation des [FreeBSD 64BIT](https://www.freebsd.org/){: target="_blank" rel="noopener"}
-BaseSystem mittels [mfsBSD](https://mfsbsd.vx.sk/){: target="_blank" rel="noopener"} auf einem dedizierten Server.
-Um eine weitere Republikation der offiziellen [FreeBSD Dokumentation](https://docs.freebsd.org/en/books/handbook/){: target="_blank" rel="noopener"}
+In diesem HowTo beschreibe ich step-by-step die Remote Installation des [FreeBSD 64BIT](https://www.freebsd.org/){: target="\_blank" rel="noopener"}
+BaseSystem mittels [mfsBSD](https://mfsbsd.vx.sk/){: target="\_blank" rel="noopener"} auf einem dedizierten Server.
+Um eine weitere Republikation der offiziellen [FreeBSD Dokumentation](https://docs.freebsd.org/en/books/handbook/){: target="\_blank" rel="noopener"}
 zu vermeiden, werde ich in diesem HowTo nicht alle Punkte bis ins Detail erläutern.
 
 Unser BaseSystem wird folgende Dienste umfassen.
@@ -47,8 +47,8 @@ Zu den Voraussetzungen für dieses HowTo siehe bitte: [Remote Installation](intr
 ## RescueSystem booten
 
 Um unser [mfsBSD Image](../mfsbsd_image.md) installieren zu können, müssen wir unsere virtuelle Maschine mit
-einem RescueSystem booten. Hierfür eignet sich die auf [Arch Linux](https://www.archlinux.org/){: target="_blank" rel="noopener"}
-basierende [SystemRescueCD](https://www.system-rescue.org/){: target="_blank" rel="noopener"} am Besten, welche wir
+einem RescueSystem booten. Hierfür eignet sich die auf [Arch Linux](https://www.archlinux.org/){: target="\_blank" rel="noopener"}
+basierende [SystemRescueCD](https://www.system-rescue.org/){: target="\_blank" rel="noopener"} am Besten, welche wir
 mittels des mit Windows mitgelieferten cURL-Client herunterladen und unserer virtuellen Maschine als Bootmedium zuweisen.
 
 ```powershell
@@ -143,9 +143,11 @@ putty -ssh -P 2222 root@127.0.0.1
 ```
 
 <!-- markdownlint-disable MD046 -->
+
 ???+ hint
 
     Diese Shell nutzt das amerikanische Tastaturlayout, welches einige Tasten anders belegt als das deutsche
+
 Tastaturlayout.
 
     Um auf das deutsche Tastaturlayout zu wechseln, wählen wir mittels `kbdmap` das Layout "German (accent keys)" aus:
@@ -153,6 +155,7 @@ Tastaturlayout.
     ```shell
     /usr/sbin/kbdmap -K
     ```
+
 <!-- markdownlint-enable MD046 -->
 
 Zunächst setzen wir die Systemzeit (CMOS clock) mittels `tzsetup` auf "UTC" (Universal Time Code).
@@ -178,10 +181,10 @@ Da jeder Administrator andere Präferenzen an sein Partitionslayout stellt und w
 weiterkommen, verwenden wir im Folgenden ein Standard-Partitionslayout. Fortgeschrittenere FreeBSD-Administratoren
 können dieses Partitionslayout selbstverständlich an ihre eigenen Bedürfnisse anpassen.
 
-| Partition | Mountpunkt | Filesystem | Grösse |
-| :-------: | :--------- | :--------: | -----: |
-| /dev/mirror/root | /     | UFS2 | 60 GB |
-| /dev/mirror/swap | none  | SWAP |  4 GB |
+|    Partition     | Mountpunkt | Filesystem | Grösse |
+| :--------------: | :--------- | :--------: | -----: |
+| /dev/mirror/root | /          |    UFS2    |  60 GB |
+| /dev/mirror/swap | none       |    SWAP    |   4 GB |
 
 Als Erstes müssen wir die Festplatte partitionieren, was wir mittels `gpart` erledigen werden. Zuvor müssen wir dies
 aber dem Kernel mittels `sysctl` mitteilen, da er uns andernfalls dazwischenfunken würde.
@@ -411,9 +414,9 @@ Die hier vorgestellten Massnahmen sind äusserst simple Basics, die aus Hygieneg
 selbstverständlich sein sollten. Um ein FreeBSD System richtig zu härten (Hardened), kommt man jedoch nicht an
 komplexeren Methoden wie Security Event Auditing und Mandatory Access Control vorbei. Diese Themen werden im FreeBSD
 Handbuch recht ausführlich besprochen; für den Einstieg empfehle ich hier die Lektüre von
-[Chapter 14. Security](https://docs.freebsd.org/en/books/handbook/security/){: target="_blank" rel="noopener"}, für die
-weiterführenden Themen die [Chapter 16. Mandatory Access Control](https://docs.freebsd.org/en/books/handbook/mac/){: target="_blank" rel="noopener"}
-und [Chapter 17. Security Event Auditing](https://docs.freebsd.org/en/books/handbook/audit/){: target="_blank" rel="noopener"}.
+[Chapter 14. Security](https://docs.freebsd.org/en/books/handbook/security/){: target="\_blank" rel="noopener"}, für die
+weiterführenden Themen die [Chapter 16. Mandatory Access Control](https://docs.freebsd.org/en/books/handbook/mac/){: target="\_blank" rel="noopener"}
+und [Chapter 17. Security Event Auditing](https://docs.freebsd.org/en/books/handbook/audit/){: target="\_blank" rel="noopener"}.
 
 ### OpenSSH konfigurieren
 
@@ -770,7 +773,7 @@ ifconfig -u -f cidr `route -n get -inet6 default | awk '/interface/ {print $2}'`
 ## Abschluss der Installation
 
 Um uns künftig mit unserem Arbeitsuser einloggen zu können, müssen wir uns dessen SSH-Key (id_ed25519) auf unser
-lokales System kopieren und ihn dann mit Hilfe der [PuTTYgen Dokumentation](https://the.earth.li/~sgtatham/putty/latest/htmldoc/Chapter8.html){: target="_blank" rel="noopener"}
+lokales System kopieren und ihn dann mit Hilfe der [PuTTYgen Dokumentation](https://the.earth.li/~sgtatham/putty/latest/htmldoc/Chapter8.html){: target="\_blank" rel="noopener"}
 in einen für PuTTY lesbaren Private Key umwandeln (id_ed25519.ppk).
 
 ```powershell
@@ -795,7 +798,7 @@ umount /mnt
 shutdown -r now
 ```
 
-### Einloggen und zu *root* werden
+### Einloggen und zu _root_ werden
 
 Einloggen ab hier nur noch mit Public-Key
 
@@ -835,7 +838,7 @@ System über viele Release-Generationen hinweg aktuell halten, ohne eine Neuinst
 ist zwar etwas zeitaufwändig, aber erprobt und führt bei richtiger Anwendung zu einem sauberen, aktuellen System.
 
 Zunächst wird hierzu das aktuelle Quellenverzeichnis von FreeBSD benötigt, weshalb wir es mittels
-[git](https://www.freebsd.org/cgi/man.cgi?query=git&sektion=1&format=html){: target="_blank" rel="noopener"} auschecken.
+[git](https://www.freebsd.org/cgi/man.cgi?query=git&sektion=1&format=html){: target="\_blank" rel="noopener"} auschecken.
 
 ```shell
 # Neues Quellenverzeichnis anlegen (clone)
@@ -895,8 +898,8 @@ pkg delete -y -f \*
 In den Abschnitten [Buildsystem konfigurieren](#buildsystem-konfigurieren) und [Kernel konfigurieren](#kernel-konfigurieren)
 haben wir uns bereits eine geeignete `make.conf` und gegebenenfalls auch eine individuelle Kernel-Konfiguration
 erstellt. Dennoch sei an dieser Stelle nochmals auf das FreeBSD Handbuch verwiesen. Insbesondere
-[Chapter 8. Configuring the FreeBSD Kernel](https://docs.freebsd.org/en/books/handbook/kernelconfig/){: target="_blank" rel="noopener"}
-und [24.6. Updating FreeBSD from Source](https://docs.freebsd.org/en/books/handbook/cutting-edge/#makeworld){: target="_blank" rel="noopener"}
+[Chapter 8. Configuring the FreeBSD Kernel](https://docs.freebsd.org/en/books/handbook/kernelconfig/){: target="\_blank" rel="noopener"}
+und [24.6. Updating FreeBSD from Source](https://docs.freebsd.org/en/books/handbook/cutting-edge/#makeworld){: target="\_blank" rel="noopener"}
 seien Jedem FreeBSD Administratoren ans Herz gelegt.
 
 Ausserdem empfiehlt es sich vor einem Update des Basissystems die Datei `/usr/src/UPDATING` zu lesen. Alle Angaben und
@@ -905,11 +908,14 @@ Hinweise in dieser Datei sind aktueller und zutreffender als das Handbuch und so
 ### Vorbereitende Arbeiten
 
 <!-- markdownlint-disable MD046 -->
+
 ???+ hint
 
     Für die spätere Installation des neu kompilierten Basissystems darf `/tmp` nicht mit der Option `noexec` gemounted
+
 sein. Da zwischendrin noch mal ein Reboot erfolgt, können wir bei Bedarf bereits jetzt die entsprechende Zeile in der
 `fstab` anpassen, sofern vorhanden.
+
 <!-- markdownlint-enable MD046 -->
 
 Zunächst müssen eventuell vorhandene Object-Dateien im Verzeichnis `/usr/obj` gelöscht werden, damit `make` später
@@ -982,7 +988,7 @@ su - root
 
 Wir installieren das neue Basissystem.
 
-Ausserdem sollte [etcupdate](https://www.freebsd.org/cgi/man.cgi?query=etcupdate&sektion=8&format=html){: target="_blank" rel="noopener"}
+Ausserdem sollte [etcupdate](https://www.freebsd.org/cgi/man.cgi?query=etcupdate&sektion=8&format=html){: target="\_blank" rel="noopener"}
 im Pre-Build-Mode angeworfen werden, damit es während der Aktualisierung nicht zu Fehlern kommt,
 weil z. B. bestimmte User oder Gruppen noch nicht vorhanden sind.
 

@@ -29,7 +29,7 @@ search:
 ## Einleitung
 
 In diesem HowTo beschreibe ich step-by-step die Installation einiger Ports (Packages / Pakete) welche auf keinem
-[FreeBSD](https://www.freebsd.org/){: target="_blank" rel="noopener"} 64Bit BaseSystem auf einem dedizierten Server
+[FreeBSD](https://www.freebsd.org/){: target="\_blank" rel="noopener"} 64Bit BaseSystem auf einem dedizierten Server
 fehlen sollten.
 
 Unsere BasePorts werden am Ende folgende Dienste umfassen.
@@ -51,7 +51,7 @@ Unsere BasePorts werden am Ende folgende Dienste umfassen.
 
 Zu den Voraussetzungen für dieses HowTo siehe bitte: [Remote Installation](intro.md)
 
-## Einloggen und zu *root* werden
+## Einloggen und zu _root_ werden
 
 ```powershell
 putty -ssh -P 2222 -i "${Env:USERPROFILE}\VirtualBox VMs\FreeBSD\ssh\id_ed25519.ppk" admin@127.0.0.1
@@ -64,11 +64,14 @@ su - root
 ## Software installieren
 
 <!-- markdownlint-disable MD046 -->
+
 ???+ important
 
     An diesem Punkt müssen wir uns entscheiden, ob wir die Pakete/Ports in Zukunft bequem als vorkompiliertes
+
 Binary-Paket per `pkg install <category/portname>` mit den Default-Optionen installieren wollen oder ob wir die
 Optionen und somit auch den Funktionsumfang beziehungsweise die Features unserer Pakete/Ports selbst bestimmen wollen.
+
 <!-- markdownlint-enable MD046 -->
 
 In diesem HowTo werden wir uns für die zweite Variante entscheiden, da uns dies viele Probleme durch unnötige oder

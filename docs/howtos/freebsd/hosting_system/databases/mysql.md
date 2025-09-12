@@ -91,9 +91,11 @@ sysrc mysql_dbdir="/data/db/mysql"
 ## Konfiguration
 
 <!-- markdownlint-disable MD046 -->
+
 ???+ note
 
     Die Konfiguration orientiert sich an diesem [RootForum Community Forenbeitrag](https://www.rootforum.org/forum/viewtopic.php?t=36343){: target="_blank" rel="noopener"}.
+
 <!-- markdownlint-enable MD046 -->
 
 ```shell

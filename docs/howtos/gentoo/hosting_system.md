@@ -31,11 +31,13 @@ search:
 ## Einleitung
 
 <!-- markdownlint-disable MD046 -->
+
 ???+ warning
 
     Dieses HowTo wird seit **2014-09-01** nicht mehr aktiv gepflegt und entspricht daher nicht mehr dem aktuellen Stand.
 
     Die Verwendung dieses HowTo geschieht somit auf eigene Gefahr!
+
 <!-- markdownlint-enable MD046 -->
 
 Dieses HowTo setzt ein wie in [Remote Installation](remote_install.md) beschriebenes, installiertes und
@@ -49,7 +51,7 @@ Folgende Punkte sind in diesem HowTo zu beachten:
 - Alle Passworte werden als `__PASSWORD__` dargestellt und sind selbstständig durch sichere Passworte zu ersetzen.
 - Alle Domainangaben werden als `example.com` dargestellt und sind selbstständig durch die eigene Domain zu ersetzen.
 - Die IP-Adresse des Servers wird als `10.0.2.15` dargestellt und ist selbstständig durch die eigene IP-Adresse zu
-ersetzen.
+  ersetzen.
 - Postfix und Dovecot teilen sich sowohl den Hostnamen `mail.example.com` als auch das SSL-Zertifikat.
 
 Unser Hosting System wird folgende Dienste umfassen:
@@ -132,12 +134,15 @@ MySQL unterstützt mehrere Engines, dieses HowTo beschränkt sich allerdings auf
 MyISAM und InnoDB. Werden weitere Engines benötigt, müssen die entsprechenden USE-Flags manuell gesetzt werden.
 
 <!-- markdownlint-disable MD046 -->
+
 ???+ note
 
     Sollen bereits existierende Datenbanken importiert werden, müssen diese, sofern noch nicht geschehen, zuvor nach
+
 UTF-8 konvertiert werden. Ist dies nicht möglich, weil beispielsweise eine Client-Applikation noch kein UTF-8
 ünterstützt, so ist in der folgenden `/etc/mysql/my.cnf` jeweils `utf8` durch `latin1` zu ersetzen. Desweiteren muss in
 diesem Fall für `dev-db/mysql` in der `/etc/portage/package.use` zusätzlich das USE-Flag `latin1` gesetzt werden.
+
 <!-- markdownlint-enable MD046 -->
 
 ### MySQL installieren
@@ -445,7 +450,7 @@ EOF
 
 Postfix wird inklusive MySQL, Dovecot-SASL und TLS/SSL Support installiert und für das Zusammenspiel mit PostfixAdmin
 konfiguriert. Zudem werden die Empfehlungen aus dem [Postfix Anti-UCE Cheat
-Sheet](https://jimsun.linxnet.com/misc/postfix-anti-UCE.txt){: target="_blank" rel="noopener"} umgesetzt. Zusätzlich
+Sheet](https://jimsun.linxnet.com/misc/postfix-anti-UCE.txt){: target="\_blank" rel="noopener"} umgesetzt. Zusätzlich
 wird als gute und recht zuverlässige Anti-Spam Lösung `policyd-weight` eingerichtet.
 
 ### Postfix installieren
@@ -772,9 +777,11 @@ EOF
 `mysql_*_maps.cf` einrichten:
 
 <!-- markdownlint-disable MD046 -->
+
 ???+ note
 
     Bitte jeweils das gleiche Passwort wie in der `dovecot-sql.conf` aus der Dovecot Konfiguration verwenden.
+
 <!-- markdownlint-enable MD046 -->
 
 ```shell
@@ -1725,9 +1732,11 @@ find /var/www/vhosts/ssl.example.com/data/postfixadmin -type f -print0 | xargs -
 Anlegen der Datenbank und der Datenbank-User:
 
 <!-- markdownlint-disable MD046 -->
+
 ???+ note
 
     Bitte jeweils das gleiche Passwort wie in der `dovecot-sql.conf` aus der Dovecot Konfiguration verwenden.
+
 <!-- markdownlint-enable MD046 -->
 
 ```shell

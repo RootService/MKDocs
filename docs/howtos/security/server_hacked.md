@@ -89,7 +89,7 @@ nicht, was der Angreifer mit Deinem System gemacht hat. Etwaige Bootprobleme mus
 Deinem Betriebssystem selbst lösen, das ist im Rahmen dieses Leitfadens nicht möglich. Häufige Stolpersteine sind hier
 die Hardwarekonfiguration (z. B. udev unter Linux), der Kernel und seine Module oder das fehlende Netzwerkinterface.
 Zum Beheben dieser Probleme empfiehlt sich der Einsatz einer RescueCD wie der
-[SystemRescueCD](https://www.system-rescue.org/){: target="_blank" rel="noopener"}. Nachdem Du diese Hürde gemeistert
+[SystemRescueCD](https://www.system-rescue.org/){: target="\_blank" rel="noopener"}. Nachdem Du diese Hürde gemeistert
 hast, fängst Du zunächst damit an, das Einfallstor zu finden, damit Dein neues System darüber nicht gleich wieder
 kompromittiert wird. Häufig werden Webapplikationen, also PHP, Perl, Rails und andere Scripts als Einfallstor genutzt,
 daher solltest Du dort als Erstes nachsehen. Darüberhinaus werden gerne bekannte Sicherheitslücken in Systemsoftware

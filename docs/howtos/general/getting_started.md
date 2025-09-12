@@ -125,16 +125,16 @@ Diese Frage ist schwer zu beantworten, da wir Deinen aktuellen Wissensstand nich
 mal mit dem Grundaufbau einer Linux-Distribution an. Dies ist bereits ein derart weitreichendes Thema, das wir es hier
 gar nicht ausführlich behandeln können. Glücklicherweise brauchen wir das auch gar nicht, denn das haben Andere bereits
 vor einigen Jahren begonnen und daraus ein sehr empfehlenswertes Online-Buch gemacht, zu finden unter
-[LinuxFromScratch.org](https://www.linuxfromscratch.org/){: target="_blank" rel="noopener"}. Nimm Dir für dieses Buch
+[LinuxFromScratch.org](https://www.linuxfromscratch.org/){: target="\_blank" rel="noopener"}. Nimm Dir für dieses Buch
 bitte ein paar Wochen Zeit und lerne daraus so viel wie irgend möglich, Du wirst es später garantiert zu schätzen
 wissen. Danach solltest Du Deine Shellkenntnisse stark erweitern, denn die Shell wird Dein schweizer Taschenmesser
 werden. Auch zu diesem Thema haben wir eine sehr empfehlenswerte und umfangreiche Informationsquelle, nämlich den
-[Advanced Bash-Scripting Guide](https://www.tldp.org/LDP/abs/html/){: target="_blank" rel="noopener"}. Weitere gute
-HowTos findest Du unter Anderem beim [Linux Documentation Project](https://www.tldp.org/HOWTO/HOWTO-INDEX/index.html){: target="_blank" rel="noopener"}
+[Advanced Bash-Scripting Guide](https://www.tldp.org/LDP/abs/html/){: target="\_blank" rel="noopener"}. Weitere gute
+HowTos findest Du unter Anderem beim [Linux Documentation Project](https://www.tldp.org/HOWTO/HOWTO-INDEX/index.html){: target="\_blank" rel="noopener"}
 und den diversen Projektseiten der Linux-Distributionen. Stellvertretend für Letztere seien an dieser Stelle die
-[Gentoo Linux Documentation Resources](https://www.gentoo.org/support/documentation/){: target="_blank" rel="noopener"},
-die [openSUSE Documentation](https://doc.opensuse.org/){: target="_blank" rel="noopener"} und die
-[Debian Documentation](https://debian.org/doc/){: target="_blank" rel="noopener"} genannt.
+[Gentoo Linux Documentation Resources](https://www.gentoo.org/support/documentation/){: target="\_blank" rel="noopener"},
+die [openSUSE Documentation](https://doc.opensuse.org/){: target="\_blank" rel="noopener"} und die
+[Debian Documentation](https://debian.org/doc/){: target="\_blank" rel="noopener"} genannt.
 
 ### Wo fange ich mit dem Üben an?
 
@@ -156,7 +156,7 @@ leider nicht immer ausreichend oder ungenau oder unvollständig oder einfach nur
 Suchmaschinen helfen Dir nur bedingt weiter, da etliche darüber zu findenden Hilfestellungen veraltet sind, oder Du
 schlicht nicht die passenden Suchbegriffe findest. In diesen Fällen helfen Dir neben den, sofern vorhanden, direkten
 Support-Angeboten der jeweiligen Software-Hersteller auch unabhängige Stellen wie die [RootForum
-Community](https://www.rootforum.org/forum/){: target="_blank" rel="noopener"} gerne weiter.
+Community](https://www.rootforum.org/forum/){: target="\_blank" rel="noopener"} gerne weiter.
 
 ### Welche Alternativen habe ich?
 
@@ -186,10 +186,10 @@ Abschliessend möchten wir noch auf weitere Entscheidungshilfen verweisen, denn 
 das Thema Pro und Contra dedizierter Server nicht alleine da und haben vermutlich auch nicht alle Aspekte ausreichend
 berücksichtigt. Die Nachfolgende Auflistung erhebt dabei keinen Anspruch auf Vollständigkeit:
 
-- [Missverständnisse über dedizierte root-Server](https://wiki.hostsharing.net/index.php?title=Missverst%C3%A4ndnisse_%C3%BCber_dedizierte_root-Server){: target="_blank" rel="noopener"}
-- [Rootserver Checkliste](https://wiki.hostsharing.net/index.php?title=Rootserver_Checkliste){: target="_blank" rel="noopener"}
-- [Admins haften für ihre Server](https://serverzeit.de/tutorials/admins-haften){: target="_blank" rel="noopener"}
-- [Dein neuer Linux-Server](https://breadfish.de/thread/3568-dein-neuer-linux-server/){: target="_blank" rel="noopener"}
+- [Missverständnisse über dedizierte root-Server](https://wiki.hostsharing.net/index.php?title=Missverst%C3%A4ndnisse_%C3%BCber_dedizierte_root-Server){: target="\_blank" rel="noopener"}
+- [Rootserver Checkliste](https://wiki.hostsharing.net/index.php?title=Rootserver_Checkliste){: target="\_blank" rel="noopener"}
+- [Admins haften für ihre Server](https://serverzeit.de/tutorials/admins-haften){: target="\_blank" rel="noopener"}
+- [Dein neuer Linux-Server](https://breadfish.de/thread/3568-dein-neuer-linux-server/){: target="\_blank" rel="noopener"}
 
 Wie Du siehst, ist das Thema dedizierter Server sehr komplex und erfordert kontinuirlich viel Arbeit. Es liegt nun an
 Dir Dich Pro oder Contra dedizierter Server zu entscheiden.

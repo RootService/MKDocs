@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: Schlage eine neue Funktion oder Verbesserung vor
-title: "[FEATURE] "
+title: '[FEATURE] '
 labels: enhancement
 assignees: ''
 ---

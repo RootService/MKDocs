@@ -14,9 +14,9 @@ env:
   TAG_PREFIX: RootService/MKDocs
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-  PIP_DISABLE_PIP_VERSION_CHECK: "1"
-  PYTHONUNBUFFERED: "1"
-  FORCE_COLOR: "1"
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+  PYTHONUNBUFFERED: '1'
+  FORCE_COLOR: '1'
 
 jobs:
   label:
@@ -27,7 +27,7 @@ jobs:
         id: metadata
         uses: dependabot/fetch-metadata@v2
         with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          github-token: '${{ secrets.GITHUB_TOKEN }}'
 
       - name: Add ecosystem labels
         run: |

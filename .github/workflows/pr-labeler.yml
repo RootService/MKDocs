@@ -14,9 +14,9 @@ env:
   TAG_PREFIX: RootService/MKDocs
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-  PIP_DISABLE_PIP_VERSION_CHECK: "1"
-  PYTHONUNBUFFERED: "1"
-  FORCE_COLOR: "1"
+  PIP_DISABLE_PIP_VERSION_CHECK: '1'
+  PYTHONUNBUFFERED: '1'
+  FORCE_COLOR: '1'
 
 jobs:
   label:
@@ -25,5 +25,5 @@ jobs:
       - name: Apply labels based on changed files/branches/commits
         uses: actions/labeler@v6
         with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          repo-token: '${{ secrets.GITHUB_TOKEN }}'
           configuration-path: .github/labeler.yml

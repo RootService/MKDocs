@@ -13,8 +13,8 @@ function listReports(dir) {
   if (!fs.existsSync(dir)) return [];
   return fs
     .readdirSync(dir)
-    .filter(f => PATTERN.test(f))
-    .map(f => {
+    .filter((f) => PATTERN.test(f))
+    .map((f) => {
       const fp = path.join(dir, f);
       const st = fs.statSync(fp);
       return { file: fp, mtime: +st.mtime };
@@ -33,12 +33,16 @@ function readJson(fp) {
 function pickReport(files) {
   if (files.length === 0) return null;
   if (PICK === 'best') {
-    let best = null, bestScore = -1;
+    let best = null,
+      bestScore = -1;
     for (const f of files) {
       const j = readJson(f.file);
       if (!j || !j.categories || !j.categories.performance) continue;
       const s = Number(j.categories.performance.score || 0);
-      if (s > bestScore) { bestScore = s; best = { meta: f, json: j }; }
+      if (s > bestScore) {
+        bestScore = s;
+        best = { meta: f, json: j };
+      }
     }
     if (best) return best;
   }
@@ -66,9 +70,7 @@ function fmtNumber(x, digits = 2) {
 function findSiblingHtml(jsonFile) {
   const base = jsonFile.replace(/-lhr-.*\.json$/i, '');
   const dir = path.dirname(jsonFile);
-  const candidates = fs.readdirSync(dir).filter(f =>
-    f.startsWith(path.basename(base)) && f.endsWith('.html')
-  );
+  const candidates = fs.readdirSync(dir).filter((f) => f.startsWith(path.basename(base)) && f.endsWith('.html'));
   if (candidates.length > 0) return path.join(dir, candidates[0]);
   return null;
 }
@@ -97,7 +99,7 @@ const bp = pct(cats['best-practices'] && cats['best-practices'].score);
 const seo = pct(cats.seo && cats.seo.score);
 
 const FCP = fmtMs(audits['first-contentful-paint'] && audits['first-contentful-paint'].numericValue);
-const SI  = fmtMs(audits['speed-index'] && audits['speed-index'].numericValue);
+const SI = fmtMs(audits['speed-index'] && audits['speed-index'].numericValue);
 const LCP = fmtMs(audits['largest-contentful-paint'] && audits['largest-contentful-paint'].numericValue);
 const TBT = fmtMs(audits['total-blocking-time'] && audits['total-blocking-time'].numericValue);
 const CLS = fmtNumber(audits['cumulative-layout-shift'] && audits['cumulative-layout-shift'].numericValue, 3);

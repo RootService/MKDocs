@@ -57,9 +57,9 @@ Folgende Punkte sind in allen folgenden HowTos zu beachten.
 - Alle Passworte werden als `__PASSWORD__` dargestellt und sind selbstständig durch sichere Passworte zu ersetzen.
 - Die Domain des Servers lautet `example.com` und ist selbstständig durch die eigene Domain zu ersetzen.
 - Der Hostname des Servers lautet `devnull` und ist selbstständig durch den eigenen Hostnamen zu ersetzen
-(FQDN=devnull.example.com).
+  (FQDN=devnull.example.com).
 - Es werden die FQDNs `devnull.example.com`, `mail.example.com` und `www.example.com` verwendet und sind selbstständig
-im DNS zu registrieren.
+  im DNS zu registrieren.
 - Die primäre IPv4 Adresse des Systems wird als `__IPADDR4__` dargestellt und ist selbsttändig zu ersetzen.
 - Die primäre IPv6 Adresse des Systems wird als `__IPADDR6__` dargestellt und ist selbsttändig zu ersetzen.
 - Postfix und Dovecot teilen sich sowohl den FQDN `mail.example.com` als auch das SSL-Zertifikat.
@@ -70,11 +70,14 @@ Diese HowTos setzen ein wie in [Remote Installation]((/howtos/freebsd/remote_ins
 konfiguriertes FreeBSD Basissystem voraus.
 
 <!-- markdownlint-disable MD046 -->
+
 ???+ important
 
     An diesem Punkt müssen wir uns entscheiden, ob wir die Pakete/Ports in Zukunft bequem als vorkompiliertes
+
 Binary-Paket per `pkg install <category/portname>` mit den Default-Optionen installieren wollen oder ob wir die
 Optionen und somit auch den Funktionsumfang beziehungsweise die Features unserer Pakete/Ports selbst bestimmen wollen.
+
 <!-- markdownlint-enable MD046 -->
 
 In diesem HowTo werden wir uns für die zweite Variante entscheiden, da uns dies viele Probleme durch unnötige oder

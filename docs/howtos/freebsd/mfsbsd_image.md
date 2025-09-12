@@ -28,14 +28,14 @@ search:
 
 ## Einleitung
 
-In diesem HowTo beschreibe ich step-by-step das Erstellen eines [mfsBSD](https://mfsbsd.vx.sk/){: target="_blank" rel="noopener"}
-Images mit dem die [Remote Installation](remote_install/intro.md) von [FreeBSD 64Bit](https://www.freebsd.org/){: target="_blank" rel="noopener"}
+In diesem HowTo beschreibe ich step-by-step das Erstellen eines [mfsBSD](https://mfsbsd.vx.sk/){: target="\_blank" rel="noopener"}
+Images mit dem die [Remote Installation](remote_install/intro.md) von [FreeBSD 64Bit](https://www.freebsd.org/){: target="\_blank" rel="noopener"}
 auf einem dedizierten Server durchgeführt werden kann.
 
 ## Das Referenzsystem
 
-Als Referenzsystem für dieses HowTo habe ich mich für eine virtuelle Maschine auf Basis von [Oracle VirtualBox](https://www.virtualbox.org/){: target="_blank" rel="noopener"}
-unter [Microsoft Windows 11 Pro (64Bit)](https://www.microsoft.com/en-us/windows/windows-11){: target="_blank" rel="noopener"}
+Als Referenzsystem für dieses HowTo habe ich mich für eine virtuelle Maschine auf Basis von [Oracle VirtualBox](https://www.virtualbox.org/){: target="\_blank" rel="noopener"}
+unter [Microsoft Windows 11 Pro (64Bit)](https://www.microsoft.com/en-us/windows/windows-11){: target="\_blank" rel="noopener"}
 entschieden. So lässt sich ohne grösseren Aufwand ein handelsüblicher dedizierter Server simulieren und anschliessend
 kann diese virtuelle Maschine als kostengünstiges lokales Testsystem weiter genutzt werden.
 
@@ -43,7 +43,7 @@ Trotzdem habe ich dieses HowTo so ausgelegt, dass es sich nahezu unverändert au
 übertragen lässt und dieses auch auf mehreren dedizierten Servern getestet.
 
 Obwohl Microsoft Windows 11 Pro einen eigenen OpenSSH-Client mitbringt, greife ich lieber auf das sehr empfehlenswerte
-[PuTTY (64 Bit)](https://www.chiark.greenend.org.uk/~sgtatham/putty/){: target="_blank" rel="noopener"} zurück.
+[PuTTY (64 Bit)](https://www.chiark.greenend.org.uk/~sgtatham/putty/){: target="\_blank" rel="noopener"} zurück.
 
 VirtualBox (inklusive dem Extensionpack) und PuTTY werden mit den jeweiligen Standardoptionen installiert.
 
@@ -113,9 +113,11 @@ Aus diesem Grund werden wir, wenn der Bootvorgang abgeschlossen ist und wir den 
 bekommmen, "Shell" auswählen und bestätigen.
 
 <!-- markdownlint-disable MD046 -->
+
 ???+ hint
 
     Diese Shell nutzt das amerikanische Tastaturlayout, welches einige Tasten anders belegt als das deutsche
+
 Tastaturlayout.
 
     Um auf das deutsche Tastaturlayout zu wechseln, wählen wir mittels `kbdmap` das Layout "German (accent keys)" aus:
@@ -123,6 +125,7 @@ Tastaturlayout.
     ```shell
     /usr/sbin/kbdmap -K
     ```
+
 <!-- markdownlint-enable MD046 -->
 
 ## Minimalsystem installieren

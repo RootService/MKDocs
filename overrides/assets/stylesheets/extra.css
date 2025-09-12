@@ -10,18 +10,18 @@
 
 /* === 0. Reset / Base ===================================================== */
 :root {
-  --rs-radius-sm: .25rem;
-  --rs-radius-md: .5rem;
+  --rs-radius-sm: 0.25rem;
+  --rs-radius-md: 0.5rem;
   --rs-radius-lg: 1rem;
-  --rs-shadow-sm: 0 2px 6px rgba(0,0,0,.12);
-  --rs-shadow-md: 0 6px 18px rgba(0,0,0,.18);
-  --rs-shadow-lg: 0 10px 28px rgba(0,0,0,.24);
+  --rs-shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.12);
+  --rs-shadow-md: 0 6px 18px rgba(0, 0, 0, 0.18);
+  --rs-shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.24);
   --md-code-hl-color: color-mix(in oklab, var(--md-accent-fg-color) 18%, transparent);
 }
 
 .md-typeset a,
 .md-nav__link {
-  padding-inline: .02rem;
+  padding-inline: 0.02rem;
 }
 
 /* === 1. Accessibility ==================================================== */
@@ -40,7 +40,7 @@
   width: auto;
   height: auto;
   margin: 1rem;
-  padding: .5rem 1rem;
+  padding: 0.5rem 1rem;
   border-radius: var(--rs-radius-sm);
   background: var(--md-accent-fg-color);
   color: #fff;
@@ -51,8 +51,8 @@
   outline-offset: 2px;
 }
 
-:where(.md-nav__link, .md-typeset a, button, [role="button"]) {
-  border-radius: .25rem;
+:where(.md-nav__link, .md-typeset a, button, [role='button']) {
+  border-radius: 0.25rem;
 }
 
 @media (prefers-contrast: more) {
@@ -69,9 +69,9 @@
 /* === 2. Motion reduction ================================================= */
 @media (prefers-reduced-motion: reduce) {
   * {
-    animation-duration: .01ms !important;
+    animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: .01ms !important;
+    transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
   .md-button:hover {
@@ -81,16 +81,16 @@
 
 /* === 3. Color tokens ===================================================== */
 :root {
-  --glossy-bg: linear-gradient(135deg, rgba(217,70,239,.06), rgba(236,72,153,.04));
+  --glossy-bg: linear-gradient(135deg, rgba(217, 70, 239, 0.06), rgba(236, 72, 153, 0.04));
 }
 
-[data-md-color-scheme="slate"] {
+[data-md-color-scheme='slate'] {
   --md-primary-fg-color: #7a0443;
   --md-primary-fg-color--light: #a63d6f;
   --md-primary-fg-color--dark: #52012c;
   --md-accent-fg-color: #ad1457;
   --md-default-bg-color: #0b0013;
-  --glossy-bg: linear-gradient(135deg, rgba(122,4,67,.20), rgba(173,20,87,.14));
+  --glossy-bg: linear-gradient(135deg, rgba(122, 4, 67, 0.2), rgba(173, 20, 87, 0.14));
   --md-code-fg-color: #e6e6e6;
   --md-code-bg-color: #130018;
   --md-code-hl-number-color: #ff8ab3;
@@ -105,12 +105,12 @@
   --md-code-hl-comment-color: #9a8fa1;
 }
 
-[data-md-color-scheme="default"] {
+[data-md-color-scheme='default'] {
   --md-primary-fg-color: #d81b60;
   --md-primary-fg-color--light: #f06292;
   --md-primary-fg-color--dark: #ad1457;
   --md-accent-fg-color: #f06292;
-  --glossy-bg: linear-gradient(135deg, rgba(216,27,96,.10), rgba(240,98,146,.08));
+  --glossy-bg: linear-gradient(135deg, rgba(216, 27, 96, 0.1), rgba(240, 98, 146, 0.08));
   --md-code-fg-color: #1a001f;
   --md-code-bg-color: #fff7fb;
   --md-code-hl-number-color: #a30059;
@@ -221,7 +221,7 @@
 
 .md-typeset :not(pre) > code {
   background: color-mix(in oklab, var(--md-primary-fg-color) 12%, transparent);
-  padding: .1rem .3rem;
+  padding: 0.1rem 0.3rem;
   border-radius: var(--rs-radius-sm);
 }
 
@@ -230,8 +230,8 @@
   background-image: var(--glossy-bg);
 }
 
-[data-md-color-scheme="slate"] .md-typeset img {
-  filter: brightness(.96) contrast(1.02);
+[data-md-color-scheme='slate'] .md-typeset img {
+  filter: brightness(0.96) contrast(1.02);
 }
 
 /* === 8. Media queries ==================================================== */

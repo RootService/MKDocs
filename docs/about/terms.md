@@ -82,7 +82,7 @@ Es besteht keinerlei Anspruch auf Veröffentlichung.
 
 Sämtliche Inhalte des RootService sind urheberrechtlich geschützt und unterliegen sofern nicht anders angegeben der
 [Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA
-4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/){: target="_blank" rel="noopener"} Creative-Commons Lizenz.
+4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/){: target="\_blank" rel="noopener"} Creative-Commons Lizenz.
 
 Es ist erlaubt, unveränderte Kopien einzelner Beiträge zu erstellen und nicht-kommerziell zu vertreiben, vorausgesetzt
 der Copyright Hinweis, die Lizenz und diese Genehmigung bleiben auf allen Kopien erhalten. Bei Verstössen gegen diese
@@ -135,7 +135,7 @@ Es besteht kein Anspruch auf Löschung eines oder aller Beiträge eines Users.
 Der RootService unterstützt ausdrücklich die Arbeit der Open-Source-Community und will engagierten Usern die
 Möglichkeit geben, durch die Popularität des RootService zu profitieren. Allerdings können wir weder die
 Projektkoordination noch die Verwaltung innerhalb unserer Plattform anbieten. Hierzu gibt es spezialisierte Projekte
-wie zum Beispiel [GitHub](https://github.com/){: target="_blank" rel="noopener"}.
+wie zum Beispiel [GitHub](https://github.com/){: target="\_blank" rel="noopener"}.
 
 Aktive Mitglieder des RootService können sich per E-Mail an «team[at]rootservice.org» wenden und ihr Projekt
 beschreiben, sowie einen Link zum Projekt mitteilen. Wir prüfen dann, ob das Projekt in unserem Sinne "frei" ist und
