@@ -226,18 +226,14 @@ jobs:
         id: lhci1
         continue-on-error: true
         run: |
-          npx lhci autorun \
-            --config ".lighthouserc.json" \
-            --timeout=240000 --quiet
+          npx lhci autorun --config ".lighthouserc.json" --timeout=240000 --quiet
 
       - name: Lighthouse CI (autorun via xvfb)
         if: ${{ steps.lhci1.conclusion == 'failure' }}
         continue-on-error: true
         run: |
           sudo apt-get update && sudo apt-get install -y xvfb
-          xvfb-run -a npx lhci autorun \
-            --config ".lighthouserc.json" \
-            --timeout=240000 --quiet
+          xvfb-run -a npx lhci autorun --config ".lighthouserc.json" --timeout=240000 --quiet
 
       - name: Upload LHCI artifacts
         if: always()

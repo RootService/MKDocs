@@ -13,10 +13,11 @@
   --rs-radius-sm: 0.25rem;
   --rs-radius-md: 0.5rem;
   --rs-radius-lg: 1rem;
-  --rs-shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.12);
-  --rs-shadow-md: 0 6px 18px rgba(0, 0, 0, 0.18);
-  --rs-shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.24);
+  --rs-shadow-sm: 0 2px 6px rgb(0 0 0 / 12%);
+  --rs-shadow-md: 0 6px 18px rgb(0 0 0 / 18%);
+  --rs-shadow-lg: 0 10px 28px rgb(0 0 0 / 24%);
   --md-code-hl-color: color-mix(in oklab, var(--md-accent-fg-color) 18%, transparent);
+  --glossy-bg: linear-gradient(135deg, rgb(217 70 239 / 6%), rgb(236 72 153 / 4%));
 }
 
 .md-typeset a,
@@ -61,6 +62,7 @@
     --rs-shadow-md: none;
     --rs-shadow-lg: none;
   }
+
   :focus-visible {
     outline-width: 4px;
   }
@@ -74,28 +76,25 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
   .md-button:hover {
     transform: none !important;
   }
 }
 
 /* === 3. Color tokens ===================================================== */
-:root {
-  --glossy-bg: linear-gradient(135deg, rgba(217, 70, 239, 0.06), rgba(236, 72, 153, 0.04));
-}
-
 [data-md-color-scheme='slate'] {
   --md-primary-fg-color: #7a0443;
   --md-primary-fg-color--light: #a63d6f;
   --md-primary-fg-color--dark: #52012c;
   --md-accent-fg-color: #ad1457;
   --md-default-bg-color: #0b0013;
-  --glossy-bg: linear-gradient(135deg, rgba(122, 4, 67, 0.2), rgba(173, 20, 87, 0.14));
+  --glossy-bg: linear-gradient(135deg, rgb(122 4 67 / 20%), rgb(173 20 87 / 14%));
   --md-code-fg-color: #e6e6e6;
   --md-code-bg-color: #130018;
   --md-code-hl-number-color: #ff8ab3;
   --md-code-hl-operator-color: #ff69a6;
-  --md-code-hl-special-color: #ff66cc;
+  --md-code-hl-special-color: #f6c;
   --md-code-hl-constant-color: #ff79c6;
   --md-code-hl-keyword-color: #ff4fa2;
   --md-code-hl-string-color: #ffb3d9;
@@ -110,7 +109,7 @@
   --md-primary-fg-color--light: #f06292;
   --md-primary-fg-color--dark: #ad1457;
   --md-accent-fg-color: #f06292;
-  --glossy-bg: linear-gradient(135deg, rgba(216, 27, 96, 0.1), rgba(240, 98, 146, 0.08));
+  --glossy-bg: linear-gradient(135deg, rgb(216 27 96 / 10%), rgb(240 98 146 / 8%));
   --md-code-fg-color: #1a001f;
   --md-code-bg-color: #fff7fb;
   --md-code-hl-number-color: #a30059;
@@ -136,6 +135,10 @@
 .md-header,
 .md-footer {
   box-shadow: var(--rs-shadow-md);
+}
+
+.md-footer a {
+  color: inherit;
 }
 
 .md-typeset .admonition {
@@ -196,10 +199,6 @@
   border-radius: var(--rs-radius-sm);
 }
 
-.md-footer a {
-  color: inherit;
-}
-
 /* === 6. Code & syntax ==================================================== */
 .md-typeset code,
 .md-typeset pre {
@@ -235,7 +234,7 @@
 }
 
 /* === 8. Media queries ==================================================== */
-@media (max-width: 960px) {
+@media (width <= 960px) {
   .md-header,
   .md-footer {
     backdrop-filter: blur(6px);
@@ -249,6 +248,7 @@
     box-shadow: none;
     background: transparent;
   }
+
   .skip-link {
     display: none;
   }
