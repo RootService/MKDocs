@@ -62,6 +62,10 @@ jobs:
       - name: GPG Import
         if: env.GPG_PRIVATE_KEY != ''
         run: |
+          echo "use-agent" >> ~/.gnupg/gpg.conf
+          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+          echo "allow-loopback-pinentry" >> ~/.gnupg/gpg-agent.conf
+          gpgconf --kill gpg-agent
           KEYID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}')
           git config --global user.signingkey "$KEYID"
           git config --global commit.gpgsign true

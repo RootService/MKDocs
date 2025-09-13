@@ -50,7 +50,7 @@
     "eslint": "9.35.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-jsdoc": "56.1.2",
+    "eslint-plugin-jsdoc": "57.0.3",
     "eslint-plugin-no-null": "^1.0.2",
     "github-types": "^1.0.0",
     "html-minifier-terser": "^7.2.0",
@@ -88,15 +88,6 @@
     "node": ">=20",
     "npm": ">=10"
   },
-  "os": [
-    "freebsd",
-    "linux",
-    "win32"
-  ],
-  "cpu": [
-    "x64",
-    "aarch64"
-  ],
   "devEngines": {
     "runtime": {
       "name": "node",
