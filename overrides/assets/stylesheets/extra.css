@@ -2,13 +2,6 @@
   max-width: 1440px;
 }
 
-/* ==========================================================================
-   Material for MkDocs — Magenta/Pink glossy theme
-   Order: Reset → Accessibility → Motion → Tokens → Layout → Components → Code → Utilities → Media
-   ==========================================================================
-*/
-
-/* === 0. Reset / Base ===================================================== */
 :root {
   --rs-radius-sm: 0.25rem;
   --rs-radius-md: 0.5rem;
@@ -25,7 +18,6 @@
   padding-inline: 0.02rem;
 }
 
-/* === 1. Accessibility ==================================================== */
 .skip-link {
   position: absolute;
   top: auto;
@@ -68,7 +60,6 @@
   }
 }
 
-/* === 2. Motion reduction ================================================= */
 @media (prefers-reduced-motion: reduce) {
   * {
     transition-duration: 0.01ms !important;
@@ -82,7 +73,6 @@
   }
 }
 
-/* === 3. Color tokens ===================================================== */
 [data-md-color-scheme='slate'] {
   --md-primary-fg-color: #7a0443;
   --md-primary-fg-color--light: #a63d6f;
@@ -124,7 +114,6 @@
   --md-code-hl-comment-color: #6b5566;
 }
 
-/* === 4. Layout chrome ==================================================== */
 .md-header,
 .md-footer,
 .md-tabs {
@@ -151,7 +140,6 @@
   box-shadow: var(--rs-shadow-sm);
 }
 
-/* === 5. Components ======================================================= */
 .md-typeset a {
   color: var(--md-accent-fg-color);
   text-underline-offset: 2px;
@@ -199,7 +187,6 @@
   border-radius: var(--rs-radius-sm);
 }
 
-/* === 6. Code & syntax ==================================================== */
 .md-typeset code,
 .md-typeset pre {
   font-variant-ligatures: none;
@@ -224,7 +211,6 @@
   border-radius: var(--rs-radius-sm);
 }
 
-/* === 7. Utilities ======================================================== */
 .glossy {
   background-image: var(--glossy-bg);
 }
@@ -233,7 +219,6 @@
   filter: brightness(0.96) contrast(1.02);
 }
 
-/* === 8. Media queries ==================================================== */
 @media (width <= 960px) {
   .md-header,
   .md-footer {
