@@ -27,7 +27,6 @@ env:
   PIP_DISABLE_PIP_VERSION_CHECK: '1'
   TAG_PREFIX: RootService/MKDocs
   GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-  GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   MKDOCS_GIT_COMMITTERS_APIKEY: ${{ secrets.GITHUB_TOKEN }}
@@ -63,10 +62,6 @@ jobs:
       - name: GPG Import
         if: env.GPG_PRIVATE_KEY != ''
         run: |
-          echo "$GPG_PRIVATE_KEY" | gpg --batch --yes --import
-          if [ -n "$GPG_PASSPHRASE" ]; then
-            echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
-          fi
           KEYID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}')
           git config --global user.signingkey "$KEYID"
           git config --global commit.gpgsign true
@@ -226,14 +221,14 @@ jobs:
         id: lhci1
         continue-on-error: true
         run: |
-          npx lhci autorun --config ".lighthouserc.json" --timeout=240000 --quiet
+          npx lhci autorun --config ".lighthouserc.json" --upload.target=filesystem --upload.outputDir=.lighthouseci --timeout=240000 --quiet
 
       - name: Lighthouse CI (autorun via xvfb)
         if: ${{ steps.lhci1.conclusion == 'failure' }}
         continue-on-error: true
         run: |
           sudo apt-get update && sudo apt-get install -y xvfb
-          xvfb-run -a npx lhci autorun --config ".lighthouserc.json" --timeout=240000 --quiet
+          xvfb-run -a npx lhci autorun --config ".lighthouserc.json" --upload.target=filesystem --upload.outputDir=.lighthouseci --timeout=240000 --quiet
 
       - name: Upload LHCI artifacts
         if: always()
@@ -247,10 +242,13 @@ jobs:
 
       - name: Enforce Lighthouse thresholds
         run: |
-          REPORT="$(ls -t .lighthouseci/lhr*.json | head -n1 || true)"
-          if [ -z "$REPORT" ]; then echo "no report"; exit 1; fi
-          node - <<'NODE' "$REPORT"
-          const fs=require('fs'), r=JSON.parse(fs.readFileSync(process.argv[1],'utf8'));
+          REPORT="$(ls -t .lighthouseci/lhr*.json 2>/dev/null | head -n1 || true)"
+          if [ -z "$REPORT" ]; then
+            echo "::error title=Lighthouse::No report found"
+            exit 1
+          fi
+          node - "$REPORT" <<'NODE'
+          const fs=require('fs'), r=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
           const T={performance:+process.env.LH_THRESHOLD_PERF,accessibility:+process.env.LH_THRESHOLD_A11Y,'best-practices':+process.env.LH_THRESHOLD_BP,seo:+process.env.LH_THRESHOLD_SEO};
           let fail=false;
           for (const [k,v] of Object.entries(r.categories||{})){
