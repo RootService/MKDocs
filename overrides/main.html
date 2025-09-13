@@ -134,6 +134,7 @@
 {% include "partials/integrations/analytics.html" %}
 {% endblock %}
 {% block extrahead %}
+{% if page.meta %}
 <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -192,6 +193,7 @@
     "image": "{{ config.site_url + config.theme.icon.logo }}"
   }
 </script>
+{% endif %}
 {% endblock %}
 {% block announce %}{% endblock %}
 {% block outdated %}{% endblock %}
