@@ -54,7 +54,7 @@ py-serializable==2.1.0
 pycparser==2.23
 pygments==2.19.2
 pymdown-extensions==10.16.1
-pyparsing==3.2.3
+pyparsing==3.2.4
 python-dateutil==2.9.0.post0
 pytz==2025.2
 pyyaml==6.0.2
