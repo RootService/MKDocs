@@ -1,4 +1,5 @@
 <!-- Default abbreviations used across the docs -->
 
-_[DNS]: Domain Name System
-_[TLS]: Transport Layer Security \*[SSH]: Secure Shell
+*[DNS]: Domain Name System
+*[TLS]: Transport Layer Security
+*[SSH]: Secure Shell

@@ -180,12 +180,6 @@ jobs:
           HTML_FILES="$(git ls-files '*.html' | tr '\n' ' ')"
           [ -n "$HTML_FILES" ] && npx --yes htmlhint $HTML_FILES || true
 
-      - name: Prettier write (scheduled only)
-        if: github.event_name == 'schedule' && github.ref_name == 'main'
-        run: |
-          FILES="$(git ls-files '*.md' '*.yml' '*.json' '*.cjs' '*.mjs' '*.js' '*.ts' '*.css' '*.html' | tr '\n' ' ')"
-          [ -n "$FILES" ] && npx --yes prettier --write $FILES || true
-
       - name: Auto-commit overrides/fixes
         uses: stefanzweifel/git-auto-commit-action@v6
         with:
