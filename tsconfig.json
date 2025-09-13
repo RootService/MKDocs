@@ -2,16 +2,35 @@
   "compilerOptions": {
     "allowJs": true,
     "checkJs": true,
-    "esModuleInterop": true,
-    "module": "ES2022",
-    "moduleResolution": "node",
     "noEmit": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
     "resolveJsonModule": true,
     "strict": true,
+    "alwaysStrict": true,
+    "baseUrl": "src",
+    "esModuleInterop": true,
+    "jsx": "react",
+    "jsxFactory": "h",
+    "lib": ["dom", "esnext", "webworker"],
+    "module": "ES2022",
+    "moduleResolution": "node",
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "paths": {
+      "_/*": ["./overrides/assets/javascripts/*"]
+    },
+    "removeComments": false,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
     "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "stripInternal": true,
     "target": "ES2022"
   },
-  "include": ["src", "types"]
+  "include": ["overrides/assets/javascripts"]
 }

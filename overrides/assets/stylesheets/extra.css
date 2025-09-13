@@ -13,11 +13,11 @@
   --rs-radius-sm: 0.25rem;
   --rs-radius-md: 0.5rem;
   --rs-radius-lg: 1rem;
-  --rs-shadow-sm: 0 2px 6px rgb(0 0 0 / 12%);
-  --rs-shadow-md: 0 6px 18px rgb(0 0 0 / 18%);
-  --rs-shadow-lg: 0 10px 28px rgb(0 0 0 / 24%);
+  --rs-shadow-sm: 0 2px 6px rgb(0 0 0 / 0.12);
+  --rs-shadow-md: 0 6px 18px rgb(0 0 0 / 0.18);
+  --rs-shadow-lg: 0 10px 28px rgb(0 0 0 / 0.24);
   --md-code-hl-color: color-mix(in oklab, var(--md-accent-fg-color) 18%, transparent);
-  --glossy-bg: linear-gradient(135deg, rgb(217 70 239 / 6%), rgb(236 72 153 / 4%));
+  --glossy-bg: linear-gradient(135deg, rgb(217 70 239 / 0.06), rgb(236 72 153 / 0.04));
 }
 
 .md-typeset a,
@@ -28,8 +28,8 @@
 /* === 1. Accessibility ==================================================== */
 .skip-link {
   position: absolute;
-  left: -9999px;
   top: auto;
+  left: -9999px;
   width: 1px;
   height: 1px;
   overflow: hidden;
@@ -40,11 +40,11 @@
   z-index: 1000;
   width: auto;
   height: auto;
-  margin: 1rem;
   padding: 0.5rem 1rem;
-  border-radius: var(--rs-radius-sm);
+  margin: 1rem;
+  color: #ffffff;
   background: var(--md-accent-fg-color);
-  color: #fff;
+  border-radius: var(--rs-radius-sm);
 }
 
 :focus-visible {
@@ -71,9 +71,9 @@
 /* === 2. Motion reduction ================================================= */
 @media (prefers-reduced-motion: reduce) {
   * {
+    transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
 
@@ -89,12 +89,12 @@
   --md-primary-fg-color--dark: #52012c;
   --md-accent-fg-color: #ad1457;
   --md-default-bg-color: #0b0013;
-  --glossy-bg: linear-gradient(135deg, rgb(122 4 67 / 20%), rgb(173 20 87 / 14%));
+  --glossy-bg: linear-gradient(135deg, rgb(122 4 67 / 0.2), rgb(173 20 87 / 0.14));
   --md-code-fg-color: #e6e6e6;
   --md-code-bg-color: #130018;
   --md-code-hl-number-color: #ff8ab3;
   --md-code-hl-operator-color: #ff69a6;
-  --md-code-hl-special-color: #f6c;
+  --md-code-hl-special-color: #ff66cc;
   --md-code-hl-constant-color: #ff79c6;
   --md-code-hl-keyword-color: #ff4fa2;
   --md-code-hl-string-color: #ffb3d9;
@@ -109,7 +109,7 @@
   --md-primary-fg-color--light: #f06292;
   --md-primary-fg-color--dark: #ad1457;
   --md-accent-fg-color: #f06292;
-  --glossy-bg: linear-gradient(135deg, rgb(216 27 96 / 10%), rgb(240 98 146 / 8%));
+  --glossy-bg: linear-gradient(135deg, rgb(216 27 96 / 0.1), rgb(240 98 146 / 0.08));
   --md-code-fg-color: #1a001f;
   --md-code-bg-color: #fff7fb;
   --md-code-hl-number-color: #a30059;
@@ -120,7 +120,7 @@
   --md-code-hl-string-color: #ad1457;
   --md-code-hl-name-color: #6a1b4d;
   --md-code-hl-attr-color: #9c114c;
-  --md-code-hl-params-color: #333;
+  --md-code-hl-params-color: #333333;
   --md-code-hl-comment-color: #6b5566;
 }
 
@@ -142,8 +142,8 @@
 }
 
 .md-typeset .admonition {
-  box-shadow: var(--rs-shadow-sm);
   border-radius: var(--rs-radius-md);
+  box-shadow: var(--rs-shadow-sm);
 }
 
 .md-sidebar--primary,
@@ -173,13 +173,13 @@
 
 .md-nav__link--active,
 .md-tabs__link--active {
-  color: var(--md-primary-fg-color);
   font-weight: 600;
+  color: var(--md-primary-fg-color);
 }
 
 .md-typeset table {
-  border-collapse: separate;
   border-spacing: 0;
+  border-collapse: separate;
 }
 
 .md-typeset table th,
@@ -206,21 +206,21 @@
 }
 
 .md-typeset pre {
-  background-color: var(--md-code-bg-color);
   color: var(--md-code-fg-color);
-  box-shadow: var(--rs-shadow-lg);
+  background-color: var(--md-code-bg-color);
   border: 1px solid color-mix(in oklab, var(--md-primary-fg-color) 40%, transparent);
   border-radius: var(--rs-radius-md);
+  box-shadow: var(--rs-shadow-lg);
 }
 
 .md-typeset pre > code {
-  border-top: 2px solid var(--md-primary-fg-color--dark);
   display: block;
+  border-top: 2px solid var(--md-primary-fg-color--dark);
 }
 
 .md-typeset :not(pre) > code {
-  background: color-mix(in oklab, var(--md-primary-fg-color) 12%, transparent);
   padding: 0.1rem 0.3rem;
+  background: color-mix(in oklab, var(--md-primary-fg-color) 12%, transparent);
   border-radius: var(--rs-radius-sm);
 }
 
@@ -245,8 +245,8 @@
   .md-header,
   .md-footer,
   .md-tabs {
-    box-shadow: none;
     background: transparent;
+    box-shadow: none;
   }
 
   .skip-link {
