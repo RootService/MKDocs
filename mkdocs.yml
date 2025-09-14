@@ -15,21 +15,21 @@ theme:
   custom_dir: overrides
   language: de
   palette:
-    - media: '(prefers-color-scheme)'
-      toggle:
-        icon: material/brightness-auto
-        name: Switch to light mode
-      primary: deep_purple
-      accent: amber
+    # - media: '(prefers-color-scheme)'
+      # toggle:
+        # icon: material/brightness-auto
+        # name: Switch to light mode
+      # primary: deep_purple
+      # accent: amber
     - media: '(prefers-color-scheme: dark)'
-      scheme: default
+      scheme: slate
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
       primary: deep_purple
       accent: amber
     - media: '(prefers-color-scheme: light)'
-      scheme: slate
+      scheme: default
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
@@ -125,6 +125,7 @@ plugins:
 #      minify_html: true
 
 extra_css:
+  - assets/stylesheets/github.css
   - assets/stylesheets/extra.css
 
 extra_javascript:
