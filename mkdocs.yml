@@ -21,18 +21,18 @@ theme:
         name: Switch to light mode
       primary: deep_purple
       accent: amber
-    - media: '(prefers-color-scheme: light)'
-      scheme: default
-      toggle:
-        icon: material/brightness-7
-        name: Switch to dark mode
-      primary: deep_purple
-      accent: amber
     - media: '(prefers-color-scheme: dark)'
-      scheme: slate
+      scheme: default
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
+      primary: deep_purple
+      accent: amber
+    - media: '(prefers-color-scheme: light)'
+      scheme: slate
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
       primary: deep_purple
       accent: amber
   pygments_style: material
@@ -118,14 +118,6 @@ plugins:
   - htmlproofer:
       validate_external_urls: false
       raise_error: true
-  #  - i18n:
-  #      default_language: de
-  #      languages:
-  #      - de
-  #      - en
-  #  - autorefs
-  #  - rss:
-  #      match_path: "blog/posts/.*"
   - redirects:
       redirect_maps:
         'home.md': 'index.md'
@@ -175,13 +167,6 @@ extra:
       name: RootService
       logo: rootservice/logo
     license: https://creativecommons.org/licenses/by-nc-sa/4.0/
-  #  alternate:
-  #    - name: Deutsch
-  #      link: /de/
-  #      lang: de
-  #    - name: English
-  #      link: /en/
-  #      lang: en
   consent:
     title: Cookie consent
     description: >-
