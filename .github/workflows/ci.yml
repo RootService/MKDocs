@@ -106,7 +106,7 @@ jobs:
       - name: Install Python dependencies
         if: hashFiles('requirements.txt','requirements.in') != ''
         run: |
-          python -m pip install --upgrade pip pip-tools >/dev/null
+          python -m pip install --upgrade pip pip-tools
           if [ -f requirements.in ]; then pip-compile requirements.in --strip-extras --no-header --no-annotate --upgrade; fi
           if [ -f requirements.txt ]; then pip install --use-pep517 --upgrade -r requirements.txt; fi
           python - <<'PY'
@@ -120,7 +120,7 @@ jobs:
                 "beautifulsoup4","cairosvg","cairocffi","cffi","tinycss2","cssselect2",
                 "pillow","pip-audit","bandit"
               ]
-              subprocess.check_call([sys.executable,"-m","pip","install","--quiet",*pkgs])
+              subprocess.check_call([sys.executable,"-m","pip","install","--use-pep517",*pkgs])
           PY
 
       # Auto-Updates nur geplant
@@ -236,7 +236,7 @@ jobs:
 
       - name: Enforce Lighthouse thresholds
         run: |
-          REPORT="$(ls -t .lighthouseci/lhr*.json 2>/dev/null | head -n1 || true)"
+          REPORT="$(ls -t .lighthouseci/lhr*.json | head -n1 || true)"
           if [ -z "$REPORT" ]; then
             echo "::error title=Lighthouse::No report found"
             exit 1
