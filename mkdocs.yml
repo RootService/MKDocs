@@ -68,7 +68,7 @@ theme:
     - search.suggest
     - toc.follow
   icon:
-    logo: material/book-open-page-variant
+    logo: assets/images/rootservice
     menu: material/menu
     alternate: fontawesome/solid/language
     search: fontawesome/solid/search
@@ -83,7 +83,7 @@ theme:
       default: material/tag-outline
     previous: material/arrow-left-bold-outline
     next: material/arrow-right-bold-outline
-    paypal: rootservice/paypal
+    paypal: assets/images/paypal
   favicon: assets/favicons/favicon.svg
   static_templates:
     - 404.html

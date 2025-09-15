@@ -185,7 +185,7 @@
               "url": "{{ config.extra.site_publisher.url }}",
               "logo": {
                 "@type": "ImageObject",
-                "url": "{{ config.site_url + config.theme.icon.logo }}"
+                "url": "{{ config.site_url + config.theme.icon.logo + '.svg' }}"
               }
             },
             {% endif %}
@@ -204,7 +204,7 @@
             {% elif config.extra.site_license.url %}
             "license": "{{ config.extra.site_license.url }}",
             {% endif %}
-            "image": "{{ config.site_url + config.theme.icon.logo }}"
+            "image": "{{ config.site_url + config.theme.icon.logo + '.svg' }}"
           }
         </script>
       {% endif %}
