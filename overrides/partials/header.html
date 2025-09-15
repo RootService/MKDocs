@@ -41,7 +41,8 @@
     {% if config.theme.palette %}
     {% if not config.theme.palette is mapping %}
     {% include "partials/palette.html" %}
-    {% endif %} {% endif %}
+    {% endif %}
+    {% endif %}
     {% if not config.theme.palette is mapping %}
     {% include "partials/javascripts/palette.html" %}
     {% endif %}
@@ -57,7 +58,8 @@
     </label>
     {% include "partials/search.html" %}
     {% endif %}
-    {% endif %} {% if config.repo_url %}
+    {% endif %}
+    {% if config.repo_url %}
     <div class="md-header__source">
     {% include "partials/source.html" %}
     </div>

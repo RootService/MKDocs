@@ -68,10 +68,10 @@ theme:
     - search.suggest
     - toc.follow
   icon:
-    logo: assets/images/rootservice
+    logo: material/library
     menu: material/menu
-    alternate: fontawesome/solid/language
-    search: fontawesome/solid/search
+    alternate: material/translate
+    search: material/magnify
     share: material/share-variant-outline
     close: material/close-circle-outline
     top: material/arrow-up-bold-outline
@@ -83,7 +83,7 @@ theme:
       default: material/tag-outline
     previous: material/arrow-left-bold-outline
     next: material/arrow-right-bold-outline
-    paypal: assets/images/paypal
+    paypal: fontawesome/brands/paypal
   favicon: assets/favicons/favicon.svg
   static_templates:
     - 404.html
@@ -119,11 +119,11 @@ plugins:
   - htmlproofer:
       validate_external_urls: false
       raise_error: true
-  - redirects:
-      redirect_maps:
-        'home.md': 'index.md'
-#  - minify:
-#      minify_html: true
+  # - redirects:
+      # redirect_maps:
+        # 'home.md': 'index.md'
+  # - minify:
+      # minify_html: true
 
 extra_css:
   - assets/stylesheets/extra.css
@@ -166,7 +166,7 @@ extra:
       url: https://github.com/JoeUser78
     publisher:
       name: RootService
-      logo: rootservice/logo
+      logo: material/library
     license: https://creativecommons.org/licenses/by-nc-sa/4.0/
   consent:
     title: Cookie consent
