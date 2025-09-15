@@ -9,8 +9,6 @@
   --rs-shadow-sm: 0 2px 6px hsla(0, 0%, 0%, 0.12);
   --rs-shadow-md: 0 6px 18px hsla(0, 0%, 0%, 0.18);
   --rs-shadow-lg: 0 10px 28px hsla(0, 0%, 0%, 0.24);
-  --md-code-hl-color: color-mix(in oklab, var(--md-accent-fg-color) 18%, transparent);
-  --glossy-bg: linear-gradient(135deg, hsla(292, 84%, 60%, 0.06), hsla(330, 81%, 60%, 0.04));
 }
 
 .md-typeset a,
@@ -71,20 +69,6 @@
   .md-button:hover {
     transform: none !important;
   }
-}
-
-[data-md-color-scheme="slate"] {
-  --glossy-bg: linear-gradient(135deg, hsla(327, 93%, 24%, 0.2), hsla(333, 79%, 37%, 0.14));
-  --md-code-hl-special-color: hsla(320, 100%, 70%, 1);
-  --md-code-hl-attr-color: hsla(336, 100%, 80%, 1);
-  --md-code-hl-params-color: hsla(0, 0%, 87%, 1);
-}
-
-[data-md-color-scheme="default"] {
-  --glossy-bg: linear-gradient(135deg, hsla(338, 77%, 47%, 0.1), hsla(339, 82%, 66%, 0.08));
-  --md-code-hl-special-color: hsla(315, 100%, 35%, 1);
-  --md-code-hl-attr-color: hsla(334, 80%, 33%, 1);
-  --md-code-hl-params-color: hsla(0, 0%, 20%, 1);
 }
 
 .md-header,
@@ -188,7 +172,7 @@
   background-image: var(--glossy-bg);
 }
 
-[data-md-color-scheme="slate"] .md-typeset img {
+.md-typeset img {
   filter: brightness(0.96) contrast(1.02);
 }
 

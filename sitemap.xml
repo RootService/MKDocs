@@ -2,142 +2,142 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://www.rootservice.org/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/about/contact/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/about/imprint/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/about/privacy/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/about/terms/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/freebsd/mfsbsd_image/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/freebsd/hosting_system/intro/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/freebsd/hosting_system/databases/mysql/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/freebsd/hosting_system/databases/postgresql/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/freebsd/hosting_system/mailserver/amavisd/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/freebsd/hosting_system/mailserver/clamav/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/freebsd/hosting_system/mailserver/dovecot/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/freebsd/hosting_system/mailserver/opendkim/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/freebsd/hosting_system/mailserver/opendmarc/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/freebsd/hosting_system/mailserver/postfix/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/freebsd/hosting_system/mailserver/postfixadmin/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/freebsd/hosting_system/mailserver/spamassassin/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/freebsd/hosting_system/nameserver/unbound/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/freebsd/hosting_system/security/certbot/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/freebsd/hosting_system/security/openssh/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/freebsd/hosting_system/webserver/apache/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/freebsd/hosting_system/webserver/nginx/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/freebsd/hosting_system/webserver/nodejs/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/freebsd/hosting_system/webserver/php/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/freebsd/remote_install/baseports/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/freebsd/remote_install/basesystem/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/freebsd/remote_install/basetools/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/freebsd/remote_install/intro/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/general/getting_started/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/gentoo/hosting_system/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/gentoo/remote_install/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/howtos/security/server_hacked/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/projects/certbot_wrapper/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/projects/mysql_tuning_primer/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
     <url>
          <loc>https://www.rootservice.org/projects/rootforum_community/</loc>
-         <lastmod>2025-09-14</lastmod>
+         <lastmod>2025-09-15</lastmod>
     </url>
 </urlset>
