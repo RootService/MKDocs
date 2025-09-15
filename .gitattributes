@@ -1,5 +1,12 @@
-# Auto detect text files and perform LF normalization
+# Normalize line endings to LF
 * text=auto eol=lf
+
+# Ensure config and lock files are treated as text
+*.json text
+*.yaml text
+*.yml text
+*.md text
+*.lock text
 
 # Ensure consistent diff for docs
 *.md diff=markdown eol=lf
