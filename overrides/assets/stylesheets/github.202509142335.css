@@ -11,6 +11,7 @@
   --md-accent-fg-color--transparent: hsla(217, 80%, 52%, 0.15);
   --md-code-fg-color: hsla(213, 13%, 17%, 1);
   --md-code-bg-color: hsla(210, 20%, 97%, 1);
+  --md-code-hl-color: color-mix(in oklab, var(--md-accent-fg-color) 18%, transparent);
   --md-code-hl-keyword-color: hsla(355, 65%, 54%, 1);
   --md-code-hl-function-color: hsla(261, 49%, 51%, 1);
   --md-code-hl-number-color: hsla(211, 100%, 39%, 1);
@@ -20,9 +21,13 @@
   --md-code-hl-name-color: hsla(137, 60%, 33%, 1);
   --md-code-hl-operator-color: hsla(213, 13%, 17%, 1);
   --md-code-hl-punctuation-color: hsla(213, 13%, 17%, 1);
+  --md-code-hl-special-color: hsla(315, 100%, 35%, 1);
+  --md-code-hl-attr-color: hsla(334, 80%, 33%, 1);
+  --md-code-hl-params-color: hsla(0, 0%, 20%, 1);
   --md-typeset-a-color: hsla(212, 92%, 42%, 1);
   --md-footer-bg-color: hsla(210, 20%, 97%, 1);
   --md-footer-fg-color: hsla(212, 11%, 36%, 1);
+  --glossy-bg: linear-gradient(135deg, hsla(338, 77%, 47%, 0.1), hsla(339, 82%, 66%, 0.08));
   color-scheme: light;
 }
 
@@ -39,6 +44,7 @@
   --md-accent-fg-color--transparent: hsla(212, 100%, 67%, 0.15);
   --md-code-fg-color: hsla(213, 15%, 83%, 1);
   --md-code-bg-color: hsla(215, 23%, 12%, 1);
+  --md-code-hl-color: color-mix(in oklab, var(--md-accent-fg-color) 18%, transparent);
   --md-code-hl-keyword-color: hsla(5, 100%, 73%, 1);
   --md-code-hl-function-color: hsla(266, 100%, 83%, 1);
   --md-code-hl-number-color: hsla(213, 100%, 74%, 1);
@@ -48,8 +54,12 @@
   --md-code-hl-name-color: hsla(137, 75%, 72%, 1);
   --md-code-hl-operator-color: hsla(213, 15%, 83%, 1);
   --md-code-hl-punctuation-color: hsla(213, 15%, 83%, 1);
+  --md-code-hl-special-color: hsla(320, 100%, 70%, 1);
+  --md-code-hl-attr-color: hsla(336, 100%, 80%, 1);
+  --md-code-hl-params-color: hsla(0, 0%, 87%, 1);
   --md-typeset-a-color: hsla(212, 100%, 67%, 1);
   --md-footer-bg-color: hsla(215, 23%, 12%, 1);
   --md-footer-fg-color: hsla(216, 10%, 57%, 1);
+  --glossy-bg: linear-gradient(135deg, hsla(327, 93%, 24%, 0.2), hsla(333, 79%, 37%, 0.14));
   color-scheme: dark;
 }
