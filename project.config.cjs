@@ -104,7 +104,6 @@ module.exports = {
   stylelint: {
     extends: [
       "stylelint-config-standard",
-      "stylelint-config-prettier",
       "stylelint-config-recommended",
       "stylelint-config-recess-order",
       "stylelint-config-html",
