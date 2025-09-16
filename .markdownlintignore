@@ -1,8 +1,0 @@
-node_modules/
-site/
-lighthouse-report/
-.lighthouseci/
-.cache/
-.mkdocs-cache/
-.venv*/
-__pycache__/

@@ -1,54 +1,69 @@
-# Node
-node_modules/
-npm-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-.pnpm-debug.log*
+# Keep empty dirs + example env tracked
+!**/.gitkeep
+!.env.example
 
-# Python
-.venv*/
-__pycache__/
-*.py[cod]
-*.pyo
-.pytest_cache/
-.mypy_cache/
-.tox/
-.ruff_cache/
-.coverage
-.coverage.*
-htmlcov/
-dist/
-build/
-
-# MkDocs
-site/
-.lighthouseci/
-lighthouse-report/
-.cache/
-.mkdocs-cache/
-*.log
-
-# OS
+# Workspace / IDE
+*.code-workspace
+.idea/
+.vscode/
 .DS_Store
 Thumbs.db
 Icon?
 ehthumbs.db
+TODO
 
-# IDEs & Editors
-.idea/
-.vscode/
-*.code-workspace
+# Logs / debug / cache
+*.log
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-debug.log*
+.cache/
+.lighthouseci/
+.lighthouse-report/
+.coverage
+.coverage.*
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+htmlcov/
+.lighthouse-report/
+
+# Environment / venvs
+.env
+.env.*
+.venv*
+.venv*/
+venv/
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Package managers
+node_modules/
+bower_components/
+.pnpm
+.yarn
+
+# Build outputs
+dist/
+build/
+out/
+site/
+coverage/
+tmp/
+docs/_build/
+.svelte-kit
+.nuxt
+.next
+
+# Lock files (only commit if explicitly required)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Swap/temp files
 *.swp
 *.swo
 *~
-
-# Env / secrets (keep local)
-.env
-.env.*
-
-# Never ignore .gitkeep files
-!**/.gitkeep
-
-# Temporary files
-TODO
-tmp
