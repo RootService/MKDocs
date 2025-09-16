@@ -65,11 +65,12 @@ jobs:
       - name: GPG Import
         if: env.GPG_PRIVATE_KEY != ''
         run: |
+          gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}'
           KEYID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}')
-          git config user.signingkey "$KEYID"
-          git config commit.gpgsign true
-          git config gpg.program gpg
-          git commit --allow-empty -m "GPG signing check" ## || true
+          git config --global user.signingkey "$KEYID"
+          git config --global commit.gpgsign true
+          git config --global gpg.program gpg
+          git commit --allow-empty -m "GPG signing check" || true
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
