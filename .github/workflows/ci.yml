@@ -46,6 +46,8 @@ jobs:
         run: |
           # git config --global user.name  "github-actions[bot]"
           # git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global init.defaultBranch main
 
       - name: Checkout
@@ -54,18 +56,19 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
 
-      # - name: Configure Git identity
-        # run: |
-          # git config --global user.name "${{ github.actor }}"
-          # git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+      - name: Configure Git identity
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git config init.defaultBranch main
 
       - name: GPG Import
         if: env.GPG_PRIVATE_KEY != ''
         run: |
           KEYID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/{print $5; exit}')
-          git config --global user.signingkey "$KEYID"
-          git config --global commit.gpgsign true
-          git config --global gpg.program gpg
+          git config user.signingkey "$KEYID"
+          git config commit.gpgsign true
+          git config gpg.program gpg
           git commit --allow-empty -m "GPG signing check" ## || true
 
       - name: Setup Node.js
