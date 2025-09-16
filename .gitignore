@@ -20,7 +20,6 @@ pnpm-debug.log*
 .pnpm-debug.log*
 .cache/
 .lighthouseci/
-.lighthouse-report/
 .coverage
 .coverage.*
 .pytest_cache/
@@ -28,7 +27,6 @@ pnpm-debug.log*
 .ruff_cache/
 .tox/
 htmlcov/
-.lighthouse-report/
 
 # Environment / venvs
 .env
@@ -59,9 +57,9 @@ docs/_build/
 .next
 
 # Lock files (only commit if explicitly required)
-package-lock.json
-yarn.lock
-pnpm-lock.yaml
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
 
 # Swap/temp files
 *.swp
