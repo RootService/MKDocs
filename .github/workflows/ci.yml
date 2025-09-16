@@ -44,8 +44,8 @@ jobs:
     steps:
       - name: Git Configure
         run: |
-          git config --global user.name  "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # git config --global user.name  "github-actions[bot]"
+          # git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --global init.defaultBranch main
 
       - name: Checkout
@@ -54,10 +54,10 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
 
-      - name: Configure Git identity
-        run: |
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+      # - name: Configure Git identity
+        # run: |
+          # git config --global user.name "${{ github.actor }}"
+          # git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
       - name: GPG Import
         if: env.GPG_PRIVATE_KEY != ''
