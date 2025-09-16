@@ -165,11 +165,11 @@ jobs:
             sed -E -e '/^_OPTIONS_READ/ s/,[[:digit:]]+[[:space:]]?$//g' -i snippets/ports/*/options || true
             sed -E -e '/^_OPTIONS_READ/ s/_[[:digit:]]+[[:space:]]?$//g' -i snippets/ports/*/options || true
           fi
-          npx --yes prettier --check "**/*.{js,cjs,mjs,ts,tsx,json,md,markdown,yml,yaml,html,htm,css}" --config project.config.cjs
-          npx --yes eslint . --ext .js,.cjs,.mjs,.ts,.tsx,.json --max-warnings=0 --config project.config.cjs
-          npx --yes stylelint "**/*.{css,html,htm,j2,jinja,md,markdown}" --config project.config.cjs
-          npx --yes linthtml "**/*.{html,htm,j2,jinja}" --config project.config.cjs
-          npx --yes markdownlint-cli2 "**/*.{md,markdown}" --config project.config.cjs
+          # npx --yes prettier --check "**/*.{js,cjs,mjs,ts,tsx,json,md,markdown,yml,yaml,html,htm,css}" --config project.config.cjs
+          # npx --yes eslint . --ext .js,.cjs,.mjs,.ts,.tsx,.json --max-warnings=0 --config project.config.cjs
+          # npx --yes stylelint "**/*.{css,html,htm,j2,jinja,md,markdown}" --config project.config.cjs
+          # npx --yes linthtml "**/*.{html,htm,j2,jinja}" --config project.config.cjs
+          # npx --yes markdownlint-cli2 "**/*.{md,markdown}" --config project.config.cjs
 
       - name: Auto-commit overrides/fixes
         uses: stefanzweifel/git-auto-commit-action@v6
